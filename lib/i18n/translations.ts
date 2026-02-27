@@ -208,7 +208,7 @@ const en: TranslationDict = {
     heroTitle: "Tech news, summarized by AI.",
     heroSubtitle: "Delivered daily.",
     heroDescription:
-      "100+ sources. 10 categories. AI-curated summaries. Get the most impactful stories from the tech world in 5 minutes.",
+      "275+ sources. 10 categories. AI-curated summaries. Get the most impactful stories from the tech world in 5 minutes.",
     subscribe: "Subscribe",
     subscribePlaceholder: "you@example.com",
     subscribeSuccess: "You're in! Check your email to verify your subscription.",
@@ -271,6 +271,7 @@ const en: TranslationDict = {
       "Newsletter in your language (9 languages)",
       "Priority delivery",
       "Category customization",
+      "Weekly Digest — AI-powered week-in-review",
       "Early access to new features",
     ],
     recommended: "Recommended",
@@ -285,7 +286,7 @@ const en: TranslationDict = {
       "Every day at 8 AM in your timezone. Premium users can choose their preferred delivery hour in settings.",
     faqSourcesQ: "What sources do you use?",
     faqSourcesA:
-      "We aggregate 100+ RSS feeds from top tech publications, research labs, engineering blogs, and industry leaders across 10 categories.",
+      "We aggregate 275+ RSS feeds from top tech publications, research labs, engineering blogs, and industry leaders across 10 categories.",
     faqCancelQ: "Can I cancel anytime?",
     faqCancelA:
       "Yes! You can cancel your Premium subscription at any time. Your subscription is managed through Polar.",
@@ -379,7 +380,7 @@ const es: TranslationDict = {
     heroTitle: "Noticias tech, resumidas por IA.",
     heroSubtitle: "Entregadas a diario.",
     heroDescription:
-      "100+ fuentes. 10 categorías. Resúmenes curados por IA. Las noticias tech más importantes en 5 minutos.",
+      "275+ fuentes. 10 categorías. Resúmenes curados por IA. Las noticias tech más importantes en 5 minutos.",
     subscribe: "Suscribirse",
     subscribePlaceholder: "tu@email.com",
     subscribeSuccess:
@@ -444,6 +445,7 @@ const es: TranslationDict = {
       "Newsletter en tu idioma (9 idiomas)",
       "Entrega prioritaria",
       "Personalización de categorías",
+      "Resumen semanal — resumen de la semana con IA",
       "Acceso anticipado a nuevas funciones",
     ],
     recommended: "Recomendado",
@@ -458,7 +460,7 @@ const es: TranslationDict = {
       "Todos los días a las 8 AM en tu zona horaria. Los usuarios Premium pueden elegir su hora preferida en los ajustes.",
     faqSourcesQ: "¿Qué fuentes utilizan?",
     faqSourcesA:
-      "Agregamos más de 100 feeds RSS de las mejores publicaciones tech, laboratorios de investigación, blogs de ingeniería y líderes del sector en 10 categorías.",
+      "Agregamos más de 275 feeds RSS de las mejores publicaciones tech, laboratorios de investigación, blogs de ingeniería y líderes del sector en 10 categorías.",
     faqCancelQ: "¿Puedo cancelar en cualquier momento?",
     faqCancelA:
       "¡Sí! Puedes cancelar tu suscripción Premium en cualquier momento. Tu suscripción se gestiona a través de Polar.",
@@ -553,7 +555,7 @@ const fr: TranslationDict = {
     heroTitle: "L'actu tech, résumée par l'IA.",
     heroSubtitle: "Livrée chaque jour.",
     heroDescription:
-      "100+ sources. 10 catégories. Résumés IA. Les articles tech les plus importants en 5 minutes.",
+      "275+ sources. 10 catégories. Résumés IA. Les articles tech les plus importants en 5 minutes.",
     subscribe: "S'abonner",
     subscribePlaceholder: "vous@email.com",
     subscribeSuccess:
@@ -632,7 +634,7 @@ const fr: TranslationDict = {
       "Chaque jour à 8h dans votre fuseau horaire. Les abonnés Premium peuvent choisir leur heure préférée dans les paramètres.",
     faqSourcesQ: "Quelles sources utilisez-vous ?",
     faqSourcesA:
-      "Nous agrégeons plus de 100 flux RSS des meilleures publications tech, laboratoires de recherche, blogs d'ingénierie et leaders du secteur dans 10 catégories.",
+      "Nous agrégeons plus de 275 flux RSS des meilleures publications tech, laboratoires de recherche, blogs d'ingénierie et leaders du secteur dans 10 catégories.",
     faqCancelQ: "Puis-je annuler à tout moment ?",
     faqCancelA:
       "Oui ! Vous pouvez annuler votre abonnement Premium à tout moment. Votre abonnement est géré via Polar.",
@@ -728,7 +730,7 @@ const de: TranslationDict = {
     heroTitle: "Tech-News, zusammengefasst von KI.",
     heroSubtitle: "Täglich geliefert.",
     heroDescription:
-      "100+ Quellen. 10 Kategorien. KI-kuratierte Zusammenfassungen. Die wichtigsten Tech-Stories in 5 Minuten.",
+      "275+ Quellen. 10 Kategorien. KI-kuratierte Zusammenfassungen. Die wichtigsten Tech-Stories in 5 Minuten.",
     subscribe: "Abonnieren",
     subscribePlaceholder: "du@email.com",
     subscribeSuccess:
@@ -793,6 +795,7 @@ const de: TranslationDict = {
       "Newsletter in deiner Sprache (9 Sprachen)",
       "Prioritätslieferung",
       "Kategorie-Anpassung",
+      "Wochenrückblick — KI-gestützter Wochenüberblick",
       "Frühzugang zu neuen Funktionen",
     ],
     recommended: "Empfohlen",
@@ -807,7 +810,7 @@ const de: TranslationDict = {
       "Jeden Tag um 8 Uhr in deiner Zeitzone. Premium-Nutzer können ihre bevorzugte Lieferzeit in den Einstellungen wählen.",
     faqSourcesQ: "Welche Quellen verwendet ihr?",
     faqSourcesA:
-      "Wir aggregieren über 100 RSS-Feeds von führenden Tech-Publikationen, Forschungslaboren, Engineering-Blogs und Branchenführern in 10 Kategorien.",
+      "Wir aggregieren über 275 RSS-Feeds von führenden Tech-Publikationen, Forschungslaboren, Engineering-Blogs und Branchenführern in 10 Kategorien.",
     faqCancelQ: "Kann ich jederzeit kündigen?",
     faqCancelA:
       "Ja! Du kannst dein Premium-Abonnement jederzeit kündigen. Dein Abonnement wird über Polar verwaltet.",
@@ -903,7 +906,7 @@ const ja: TranslationDict = {
     heroTitle: "テックニュース、AIがまとめました。",
     heroSubtitle: "毎日お届け。",
     heroDescription:
-      "100以上のソース。10カテゴリ。AIキュレーション。テック界の重要ニュースを5分で。",
+      "275以上のソース。10カテゴリ。AIキュレーション。テック界の重要ニュースを5分で。",
     subscribe: "登録する",
     subscribePlaceholder: "you@example.com",
     subscribeSuccess: "登録完了！確認メールをご確認ください。",
@@ -967,6 +970,7 @@ const ja: TranslationDict = {
       "お好きな言語でニュースレター（9言語対応）",
       "優先配信",
       "カテゴリのカスタマイズ",
+      "週間ダイジェスト — AIによる週間レビュー",
       "新機能への早期アクセス",
     ],
     recommended: "おすすめ",
@@ -981,7 +985,7 @@ const ja: TranslationDict = {
       "毎日あなたのタイムゾーンの午前8時にお届けします。プレミアムユーザーは設定でお好きな配信時間を選択できます。",
     faqSourcesQ: "どのような情報源を使用していますか？",
     faqSourcesA:
-      "トップテック出版物、研究機関、エンジニアリングブログ、業界リーダーなど、10カテゴリにわたる100以上のRSSフィードを集約しています。",
+      "トップテック出版物、研究機関、エンジニアリングブログ、業界リーダーなど、10カテゴリにわたる275以上のRSSフィードを集約しています。",
     faqCancelQ: "いつでもキャンセルできますか？",
     faqCancelA:
       "はい！プレミアムサブスクリプションはいつでもキャンセルできます。サブスクリプションはPolarで管理されています。",
@@ -1076,7 +1080,7 @@ const zh: TranslationDict = {
     heroTitle: "科技新闻，AI为你总结。",
     heroSubtitle: "每日推送。",
     heroDescription:
-      "100+来源，10个分类，AI策划摘要。5分钟了解科技界最重要的新闻。",
+      "275+来源，10个分类，AI策划摘要。5分钟了解科技界最重要的新闻。",
     subscribe: "订阅",
     subscribePlaceholder: "you@example.com",
     subscribeSuccess: "订阅成功！请查看邮箱确认订阅。",
@@ -1152,7 +1156,7 @@ const zh: TranslationDict = {
     faqScheduleA: "每天你所在时区的早上8点。高级用户可以在设置中选择喜欢的发送时间。",
     faqSourcesQ: "你们使用哪些信息源？",
     faqSourcesA:
-      "我们汇总了来自顶级科技媒体、研究实验室、工程博客和行业领袖的100多个RSS源，涵盖10个分类。",
+      "我们汇总了来自顶级科技媒体、研究实验室、工程博客和行业领袖的275多个RSS源，涵盖10个分类。",
     faqCancelQ: "可以随时取消吗？",
     faqCancelA: "当然！你可以随时取消高级订阅。订阅通过Polar管理。",
   },
@@ -1244,7 +1248,7 @@ const pt: TranslationDict = {
     heroTitle: "Notícias de tecnologia, resumidas por IA.",
     heroSubtitle: "Entregue diariamente.",
     heroDescription:
-      "100+ fontes. 10 categorias. Resumos curados por IA. As notícias tech mais importantes em 5 minutos.",
+      "275+ fontes. 10 categorias. Resumos curados por IA. As notícias tech mais importantes em 5 minutos.",
     subscribe: "Inscrever-se",
     subscribePlaceholder: "voce@email.com",
     subscribeSuccess:
@@ -1309,6 +1313,7 @@ const pt: TranslationDict = {
       "Newsletter no seu idioma (9 idiomas)",
       "Entrega prioritária",
       "Personalização de categorias",
+      "Resumo semanal — revisão da semana com IA",
       "Acesso antecipado a novas funcionalidades",
     ],
     recommended: "Recomendado",
@@ -1323,7 +1328,7 @@ const pt: TranslationDict = {
       "Todo dia às 8h no seu fuso horário. Usuários Premium podem escolher seu horário preferido nas configurações.",
     faqSourcesQ: "Quais fontes vocês usam?",
     faqSourcesA:
-      "Agregamos mais de 100 feeds RSS das melhores publicações tech, laboratórios de pesquisa, blogs de engenharia e líderes do setor em 10 categorias.",
+      "Agregamos mais de 275 feeds RSS das melhores publicações tech, laboratórios de pesquisa, blogs de engenharia e líderes do setor em 10 categorias.",
     faqCancelQ: "Posso cancelar a qualquer momento?",
     faqCancelA:
       "Sim! Você pode cancelar sua assinatura Premium a qualquer momento. Sua assinatura é gerenciada através do Polar.",
@@ -1418,7 +1423,7 @@ const it: TranslationDict = {
     heroTitle: "Notizie tech, riassunte dall'IA.",
     heroSubtitle: "Consegnate ogni giorno.",
     heroDescription:
-      "100+ fonti. 10 categorie. Riassunti curati dall'IA. Le notizie tech più importanti in 5 minuti.",
+      "275+ fonti. 10 categorie. Riassunti curati dall'IA. Le notizie tech più importanti in 5 minuti.",
     subscribe: "Iscriviti",
     subscribePlaceholder: "tu@email.com",
     subscribeSuccess:
@@ -1483,6 +1488,7 @@ const it: TranslationDict = {
       "Newsletter nella tua lingua (9 lingue)",
       "Consegna prioritaria",
       "Personalizzazione delle categorie",
+      "Digest settimanale — riepilogo settimanale con IA",
       "Accesso anticipato alle nuove funzionalità",
     ],
     recommended: "Consigliato",
@@ -1497,7 +1503,7 @@ const it: TranslationDict = {
       "Ogni giorno alle 8 nel tuo fuso orario. Gli utenti Premium possono scegliere il loro orario preferito nelle impostazioni.",
     faqSourcesQ: "Quali fonti utilizzate?",
     faqSourcesA:
-      "Aggreghiamo oltre 100 feed RSS dalle migliori pubblicazioni tech, laboratori di ricerca, blog di ingegneria e leader del settore in 10 categorie.",
+      "Aggreghiamo oltre 275 feed RSS dalle migliori pubblicazioni tech, laboratori di ricerca, blog di ingegneria e leader del settore in 10 categorie.",
     faqCancelQ: "Posso cancellare in qualsiasi momento?",
     faqCancelA:
       "Sì! Puoi cancellare il tuo abbonamento Premium in qualsiasi momento. L'abbonamento è gestito tramite Polar.",
@@ -1593,7 +1599,7 @@ const ko: TranslationDict = {
     heroTitle: "테크 뉴스, AI가 요약했습니다.",
     heroSubtitle: "매일 배달됩니다.",
     heroDescription:
-      "100개 이상의 소스. 10개 카테고리. AI 큐레이션 요약. 5분 만에 테크 세계의 핵심 뉴스를 파악하세요.",
+      "275개 이상의 소스. 10개 카테고리. AI 큐레이션 요약. 5분 만에 테크 세계의 핵심 뉴스를 파악하세요.",
     subscribe: "구독하기",
     subscribePlaceholder: "you@example.com",
     subscribeSuccess: "등록 완료! 이메일을 확인하여 구독을 인증하세요.",
@@ -1656,6 +1662,7 @@ const ko: TranslationDict = {
       "원하는 언어로 뉴스레터 (9개 언어 지원)",
       "우선 배송",
       "카테고리 맞춤 설정",
+      "주간 다이제스트 — AI 기반 주간 리뷰",
       "신기능 조기 접근",
     ],
     recommended: "추천",
@@ -1670,7 +1677,7 @@ const ko: TranslationDict = {
       "매일 당신의 시간대 기준 오전 8시에 발송됩니다. 프리미엄 사용자는 설정에서 원하는 배달 시간을 선택할 수 있습니다.",
     faqSourcesQ: "어떤 소스를 사용하나요?",
     faqSourcesA:
-      "10개 카테고리에 걸쳐 최고의 테크 매체, 연구소, 엔지니어링 블로그, 업계 리더의 100개 이상의 RSS 피드를 수집합니다.",
+      "10개 카테고리에 걸쳐 최고의 테크 매체, 연구소, 엔지니어링 블로그, 업계 리더의 275개 이상의 RSS 피드를 수집합니다.",
     faqCancelQ: "언제든 취소할 수 있나요?",
     faqCancelA:
       "네! 프리미엄 구독은 언제든 취소할 수 있습니다. 구독은 Polar을 통해 관리됩니다.",

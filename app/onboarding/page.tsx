@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "../ThemeProvider";
@@ -36,21 +36,25 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (user === null) {
+      router.push("/signin");
+      return;
+    }
+    if (user?.onboardingComplete) {
+      router.push("/");
+    }
+  }, [user, router]);
+
   if (user === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-[#121218]">
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-dark-bg">
         <div className="text-zinc-400">{t.common.loading}</div>
       </div>
     );
   }
 
-  if (user === null) {
-    router.push("/signin");
-    return null;
-  }
-
-  if (user.onboardingComplete) {
-    router.push("/");
+  if (user === null || user.onboardingComplete) {
     return null;
   }
 
@@ -91,8 +95,8 @@ export default function OnboardingPage() {
   const allSelected = selected.length === CATEGORY_SLUGS.length;
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-[#121218]">
-      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-[#2a2a38] dark:bg-[#121218]/80">
+    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
+      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <Link
             href="/"
@@ -138,7 +142,7 @@ export default function OnboardingPage() {
                 className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-all ${
                   isSelected
                     ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                    : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:bg-[#1a1a24] dark:text-zinc-300 dark:hover:border-zinc-500"
+                    : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:bg-dark-card dark:text-zinc-300 dark:hover:border-zinc-500"
                 }`}
               >
                 <span className="text-2xl">{cat.icon}</span>

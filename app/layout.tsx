@@ -4,6 +4,7 @@ import "./globals.css";
 import ConvexClientProvider from "./ConvexClientProvider";
 import ThemeProvider from "./ThemeProvider";
 import LanguageProvider from "./LanguageProvider";
+import TimezoneReporter from "./components/TimezoneReporter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ConvexClientProvider>
+          <TimezoneReporter />
           <ThemeProvider>
             <LanguageProvider>{children}</LanguageProvider>
           </ThemeProvider>

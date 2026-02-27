@@ -9,9 +9,9 @@ export default function PricingPage() {
     const { t } = useTranslation();
 
     return (
-        <div className="min-h-screen bg-zinc-50 font-sans dark:bg-[#121218]">
+        <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
             {/* Header */}
-            <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-[#2a2a38] dark:bg-[#121218]/80">
+            <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
                 <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
                     <Link
                         href="/"
@@ -45,7 +45,7 @@ export default function PricingPage() {
 
                 <div className="grid gap-8 md:grid-cols-2">
                     {/* Free Plan */}
-                    <div className="rounded-2xl border border-zinc-200 bg-white p-8 dark:border-[#2a2a38] dark:bg-[#1a1a24]">
+                    <div className="rounded-2xl border border-zinc-200 bg-white p-8 dark:border-dark-border dark:bg-dark-card">
                         <div className="mb-6">
                             <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                                 {t.pricing.free}
@@ -73,14 +73,14 @@ export default function PricingPage() {
                         </ul>
                         <Link
                             href="/"
-                            className="block rounded-lg border border-zinc-200 px-6 py-3 text-center text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-[#2f2f3d]"
+                            className="block rounded-lg border border-zinc-200 px-6 py-3 text-center text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-dark-hover"
                         >
                             {t.pricing.getStartedFree}
                         </Link>
                     </div>
 
                     {/* Premium Plan */}
-                    <div className="relative rounded-2xl border-2 border-zinc-900 bg-white p-8 dark:border-zinc-100 dark:bg-[#1a1a24]">
+                    <div className="relative rounded-2xl border-2 border-zinc-900 bg-white p-8 dark:border-zinc-100 dark:bg-dark-card">
                         <span className="absolute -top-3 left-6 rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900">
                             {t.pricing.recommended}
                         </span>
@@ -163,7 +163,7 @@ export default function PricingPage() {
             </main>
 
             {/* Footer */}
-            <footer className="border-t border-zinc-100 bg-white dark:border-[#2a2a38] dark:bg-[#121218]">
+            <footer className="border-t border-zinc-100 bg-white dark:border-dark-border dark:bg-dark-bg">
                 <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
                     <p className="text-sm text-zinc-400">
                         &copy; {new Date().getFullYear()} TheNode.tech

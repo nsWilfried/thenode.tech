@@ -5,6 +5,7 @@ import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
+import type { AnyNode } from "domhandler";
 import { createHash } from "crypto";
 
 const parser = new Parser({
@@ -35,8 +36,8 @@ function generateDeduplicationHash(title: string, url: string): string {
 interface ScrapedContent {
     text: string;
     imageUrl?: string;
-    videoUrls: string[];
     links: string[];
+    httpStatus?: number;
 }
 
 function isAbsoluteUrl(href: string): boolean {
@@ -53,7 +54,7 @@ function resolveUrl(href: string, base: string): string | null {
 }
 
 async function scrapeArticleContent(url: string): Promise<ScrapedContent> {
-    const empty: ScrapedContent = { text: "", videoUrls: [], links: [] };
+    const empty: ScrapedContent = { text: "", links: [] };
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
@@ -69,13 +70,12 @@ async function scrapeArticleContent(url: string): Promise<ScrapedContent> {
 
         if (!response.ok) {
             console.warn(`HTTP ${response.status} fetching ${url}`);
-            return empty;
+            return { ...empty, httpStatus: response.status };
         }
 
         const html = await response.text();
         const $ = cheerio.load(html);
 
-        // --- Extract featured image ---
         let imageUrl: string | undefined;
         const ogImage = $('meta[property="og:image"]').attr("content");
         if (ogImage) {
@@ -98,40 +98,19 @@ async function scrapeArticleContent(url: string): Promise<ScrapedContent> {
             });
         }
 
-        // --- Extract video URLs ---
-        const videoUrls: string[] = [];
-        const ogVideo = $('meta[property="og:video"]').attr("content") ||
-            $('meta[property="og:video:url"]').attr("content");
-        if (ogVideo) {
-            const resolved = resolveUrl(ogVideo, url);
-            if (resolved) videoUrls.push(resolved);
-        }
-        $("iframe").each((_i, el) => {
-            const src = $(el).attr("src") || "";
-            if (/youtube\.com|youtu\.be|vimeo\.com|player\.vimeo/i.test(src)) {
-                const resolved = resolveUrl(src, url);
-                if (resolved && !videoUrls.includes(resolved)) videoUrls.push(resolved);
-            }
-        });
-        $("video source, video").each((_i, el) => {
-            const src = $(el).attr("src");
-            if (src) {
-                const resolved = resolveUrl(src, url);
-                if (resolved && !videoUrls.includes(resolved)) videoUrls.push(resolved);
-            }
-        });
-
-        // --- Extract article body links ---
         const articleLinks: string[] = [];
         const contentSelectors = [
             "article", '[role="main"]', ".post-content", ".article-content",
             ".entry-content", ".post-body", ".article-body", ".story-body",
             "main", ".content",
         ];
-        let contentEl = $("body");
+        let contentEl: cheerio.Cheerio<AnyNode> = $("body");
         for (const selector of contentSelectors) {
             const el = $(selector);
-            if (el.length > 0) { contentEl = el.first(); break; }
+            if (el.length > 0) {
+                contentEl = el.first() as cheerio.Cheerio<AnyNode>;
+                break;
+            }
         }
         contentEl.find("a[href]").each((_i, el) => {
             const href = $(el).attr("href");
@@ -148,7 +127,6 @@ async function scrapeArticleContent(url: string): Promise<ScrapedContent> {
             }
         });
 
-        // --- Remove non-content elements and extract text ---
         $(
             "script, style, nav, footer, header, iframe, noscript, " +
             "aside, .ad, .ads, .advertisement, .sidebar, .nav, .footer, " +
@@ -176,8 +154,8 @@ async function scrapeArticleContent(url: string): Promise<ScrapedContent> {
         return {
             text: content.substring(0, 5000),
             imageUrl,
-            videoUrls: videoUrls.slice(0, 5),
             links: articleLinks.slice(0, 15),
+            httpStatus: 200,
         };
     } catch (error) {
         console.warn(`Failed to scrape ${url}:`, error);
@@ -185,18 +163,45 @@ async function scrapeArticleContent(url: string): Promise<ScrapedContent> {
     }
 }
 
-// Fetch a single RSS feed and return parsed articles
-async function fetchFeed(
-    feedUrl: string
-): Promise<
-    { title: string; url: string; rssSnippet: string; publishedAt: number }[]
-> {
+interface FeedArticle {
+    title: string;
+    url: string;
+    rssSnippet: string;
+    publishedAt: number;
+}
+
+interface FeedResult {
+    articles: FeedArticle[];
+    error?: { status: number; message: string };
+}
+
+async function fetchFeed(feedUrl: string): Promise<FeedResult> {
     try {
-        const feed = await parser.parseURL(feedUrl);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch(feedUrl, {
+            headers: { "User-Agent": "TheNode.tech Newsletter Bot/1.0" },
+            signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            return {
+                articles: [],
+                error: {
+                    status: response.status,
+                    message: `HTTP ${response.status} ${response.statusText}`,
+                },
+            };
+        }
+
+        const xml = await response.text();
+        const feed = await parser.parseString(xml);
         const now = Date.now();
         const fortyEightHoursAgo = now - 48 * 60 * 60 * 1000;
 
-        return (feed.items || [])
+        const articles = (feed.items || [])
             .filter((item) => {
                 if (!item.title || !item.link) return false;
                 const pubDate = item.pubDate ? new Date(item.pubDate).getTime() : now;
@@ -211,32 +216,121 @@ async function fetchFeed(
                     ? new Date(item.pubDate).getTime()
                     : now,
             }));
+
+        return { articles };
     } catch (error) {
-        console.error(`Failed to fetch feed ${feedUrl}:`, error);
-        return [];
+        const message = error instanceof Error ? error.message : String(error);
+        return {
+            articles: [],
+            error: { status: -1, message },
+        };
     }
 }
 
-// Internal action to ingest feeds for a specific category
 export const ingestCategoryFeeds = internalAction({
     args: {
-        category: v.string(),
-        feedUrls: v.array(v.string()),
+        category: v.optional(v.string()),
+        feedUrls: v.optional(v.array(v.string())),
     },
     handler: async (ctx, args) => {
-        const { category, feedUrls } = args;
+        const { CATEGORIES, CATEGORY_SLUGS } = await import(
+            "../../lib/constants/categories"
+        );
+
+        if (!args.category || args.category.trim() === "") {
+            console.log("No category specified — ingesting all categories.");
+            let totalIngested = 0;
+            for (const slug of CATEGORY_SLUGS) {
+                try {
+                    const result = await ctx.runAction(
+                        internal.actions.ingestFeeds.ingestCategoryFeeds,
+                        { category: slug }
+                    );
+                    totalIngested += result.totalIngested;
+                } catch (error) {
+                    console.error(`Failed to ingest feeds for ${slug}:`, error);
+                }
+            }
+            console.log("Feed ingestion complete (all categories). Total new articles:", totalIngested);
+            return { category: "all", totalIngested };
+        }
+
+        let feedUrls = args.feedUrls;
+        if (!feedUrls || feedUrls.length === 0) {
+            const categoryConfig = CATEGORIES[args.category as CategorySlug];
+            if (!categoryConfig) {
+                console.error(
+                    `Unknown category "${args.category}". Valid slugs: ai, eng, sec, biz, tech, cloud-devops, web3-crypto, design-ux-frontend, emerging-tech-science, opensource-languages`
+                );
+                return { category: args.category, totalIngested: 0 };
+            }
+            feedUrls = [...categoryConfig.feeds];
+            console.log(
+                `[${args.category}] Loaded ${feedUrls.length} feeds from config (no feedUrls provided)`
+            );
+        }
+        const category = args.category;
         let totalIngested = 0;
+        let skippedInactive = 0;
+        let feedErrors = 0;
 
         for (const feedUrl of feedUrls) {
-            const articles = await fetchFeed(feedUrl);
+            const isActive: boolean = await ctx.runQuery(
+                internal.queries.sources.isSourceActive,
+                { url: feedUrl }
+            );
+            if (!isActive) {
+                skippedInactive++;
+                continue;
+            }
 
-            for (const article of articles) {
+            const feedResult = await fetchFeed(feedUrl);
+
+            const source = await ctx.runQuery(
+                internal.queries.sources.getByUrl,
+                { url: feedUrl }
+            );
+
+            let sourceId;
+            if (source) {
+                sourceId = source._id;
+            } else {
+                sourceId = await ctx.runMutation(
+                    internal.mutations.sources.create,
+                    {
+                        url: feedUrl,
+                        category: category as CategorySlug,
+                        isActive: true,
+                    }
+                );
+            }
+
+            if (feedResult.error) {
+                feedErrors++;
+                await ctx.runMutation(
+                    internal.mutations.sources.recordFeedFailure,
+                    {
+                        id: sourceId,
+                        httpStatus: feedResult.error.status,
+                        errorMessage: feedResult.error.message,
+                    }
+                );
+                continue;
+            }
+
+            if (source) {
+                await ctx.runMutation(
+                    internal.mutations.sources.resetFailureCount,
+                    { id: sourceId }
+                );
+            }
+
+            for (const article of feedResult.articles) {
                 const deduplicationHash = generateDeduplicationHash(
                     article.title,
                     article.url
                 );
 
-                // Check if already exists
                 const existing = await ctx.runQuery(
                     internal.queries.articles.getByDeduplicationHash,
                     { hash: deduplicationHash }
@@ -246,28 +340,14 @@ export const ingestCategoryFeeds = internalAction({
 
                 const scraped = await scrapeArticleContent(article.url);
 
+                if (scraped.httpStatus === 404 || scraped.httpStatus === 410) {
+                    console.warn(`Skipping article (HTTP ${scraped.httpStatus}): ${article.url}`);
+                    continue;
+                }
+
                 let fullContent = scraped.text;
                 if (!fullContent || fullContent.length < 50) {
                     fullContent = article.rssSnippet;
-                }
-
-                const source = await ctx.runQuery(
-                    internal.queries.sources.getByUrl,
-                    { url: feedUrl }
-                );
-
-                let sourceId;
-                if (source) {
-                    sourceId = source._id;
-                } else {
-                    sourceId = await ctx.runMutation(
-                        internal.mutations.sources.create,
-                        {
-                            url: feedUrl,
-                            category: category as CategorySlug,
-                            isActive: true,
-                        }
-                    );
                 }
 
                 await ctx.runMutation(internal.mutations.articles.create, {
@@ -280,37 +360,29 @@ export const ingestCategoryFeeds = internalAction({
                     deduplicationHash,
                     isSummarized: false,
                     imageUrl: scraped.imageUrl,
-                    videoUrls: scraped.videoUrls.length > 0 ? scraped.videoUrls : undefined,
                     links: scraped.links.length > 0 ? scraped.links : undefined,
                 });
 
                 totalIngested++;
             }
 
-            // Update source lastFetched
-            const source = await ctx.runQuery(internal.queries.sources.getByUrl, {
-                url: feedUrl,
+            await ctx.runMutation(internal.mutations.sources.updateLastFetched, {
+                id: sourceId,
+                lastFetched: Date.now(),
             });
-            if (source) {
-                await ctx.runMutation(internal.mutations.sources.updateLastFetched, {
-                    id: source._id,
-                    lastFetched: Date.now(),
-                });
-            }
         }
 
         console.log(
-            `[${category}] Ingested ${totalIngested} new articles from ${feedUrls.length} feeds`
+            `[${category}] Ingested ${totalIngested} new articles from ${feedUrls.length} feeds ` +
+            `(${skippedInactive} inactive skipped, ${feedErrors} feed errors)`
         );
         return { category, totalIngested };
     },
 });
 
-// Main ingestion action that kicks off all category ingestions
 export const ingestAllFeeds = internalAction({
     args: {},
     handler: async (ctx) => {
-        // Import categories dynamically since this runs in Node
         const { CATEGORIES, CATEGORY_SLUGS } = await import(
             "../../lib/constants/categories"
         );

@@ -74,6 +74,13 @@ export const handleWebhookEvent = internalAction({
           );
         }
 
+        if (isPremium) {
+          await ctx.runAction(
+            internal.actions.sendNewsletters.sendPremiumUpgradeEmail,
+            { userId: user._id }
+          );
+        }
+
         console.log(`Updated subscription for ${email}: premium=${isPremium}`);
         break;
       }
@@ -95,6 +102,11 @@ export const handleWebhookEvent = internalAction({
           isPremium: false,
           subscriptionStatus: "cancelled",
         });
+
+        await ctx.runAction(
+          internal.actions.sendNewsletters.sendPremiumCancellationEmail,
+          { userId: user._id }
+        );
 
         console.log(`Cancelled subscription for ${email}`);
         break;

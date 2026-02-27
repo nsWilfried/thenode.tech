@@ -30,7 +30,7 @@ export default function UserMenu() {
     return (
       <Link
         href="/signin"
-        className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-[#2f2f3d]"
+        className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-dark-hover"
       >
         {t.nav.signIn}
       </Link>
@@ -40,7 +40,7 @@ export default function UserMenu() {
   return (
     <Link
       href="/settings"
-      className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-base transition-colors hover:border-zinc-400 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-[#2f2f3d]"
+      className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-base transition-colors hover:border-zinc-400 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-dark-surface dark:hover:border-zinc-500 dark:hover:bg-dark-hover"
       title={user.email}
     >
       {getEmojiForUser(user.email ?? "")}

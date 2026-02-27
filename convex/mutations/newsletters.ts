@@ -47,6 +47,12 @@ export const create = internalMutation({
       caption: v.optional(v.string()),
       articleUrl: v.optional(v.string()),
     }))),
+    editorialContent: v.optional(v.array(v.object({
+      heading: v.string(),
+      body: v.string(),
+      imageUrl: v.optional(v.string()),
+      imageCaption: v.optional(v.string()),
+    }))),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("newsletters", {
@@ -59,6 +65,7 @@ export const create = internalMutation({
       deepDives: args.deepDives,
       stats: args.stats,
       mediaItems: args.mediaItems,
+      editorialContent: args.editorialContent,
     });
   },
 });

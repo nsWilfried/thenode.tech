@@ -73,6 +73,37 @@ export const getLatestAllCategories = query({
     },
 });
 
+export const getNewslettersByDateRange = internalQuery({
+    args: {
+        category: v.string(),
+        language: v.string(),
+        startDate: v.string(),
+        endDate: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const allForCategory = await ctx.db
+            .query("newsletters")
+            .withIndex("by_category_and_date", (q: any) =>
+                q.eq("category", args.category).gte("date", args.startDate).lte("date", args.endDate)
+            )
+            .collect();
+
+        const newsletters = allForCategory
+            .filter((nl) => nl.language === args.language)
+            .map((nl) => ({
+                date: nl.date,
+                category: nl.category,
+                articles: nl.articles,
+                summary: nl.summary,
+                deepDives: nl.deepDives,
+                stats: nl.stats,
+            }))
+            .sort((a, b) => a.date.localeCompare(b.date));
+
+        return newsletters;
+    },
+});
+
 export const getLatestByCategoryInternal = internalQuery({
     args: {
         category: v.string(),

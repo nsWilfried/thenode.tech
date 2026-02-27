@@ -108,7 +108,7 @@ export function LanguageSwitcher() {
       <button
         onClick={() => setOpen(!open)}
         aria-label="Change language"
-        className="flex h-8 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2 text-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-[#252530] dark:hover:bg-[#2f2f3d]"
+        className="flex h-8 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2 text-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-dark-surface dark:hover:bg-dark-hover"
       >
         <span>{current?.flag}</span>
         <span className="hidden text-xs font-medium text-zinc-600 dark:text-zinc-300 sm:inline">
@@ -126,7 +126,7 @@ export function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-1 w-44 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-[#252530]">
+        <div className="absolute right-0 z-50 mt-1 w-44 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-dark-surface">
           {SUPPORTED_LOCALES.map((l) => (
             <button
               key={l.code}
@@ -134,7 +134,7 @@ export function LanguageSwitcher() {
                 setLocale(l.code);
                 setOpen(false);
               }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-100 dark:hover:bg-[#2f2f3d] ${
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-100 dark:hover:bg-dark-hover ${
                 locale === l.code
                   ? "bg-zinc-50 font-semibold text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100"
                   : "text-zinc-600 dark:text-zinc-300"

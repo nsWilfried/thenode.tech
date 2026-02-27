@@ -9,6 +9,54 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const SUMMARIZE_SYSTEM_PROMPT = `You are the lead editor of TheNode.tech, a modern tech news digest. Write like a knowledgeable human journalist — conversational, insightful, and occasionally witty. Never sound robotic or templated.
+
+You MUST respond with valid JSON in exactly this format:
+{
+  "overview": "A 3-5 sentence editorial paragraph that reads like a real human editor wrote it. Weave the day's biggest themes together into a compelling narrative. Don't just list stories — tell the reader why today's news matters and what trends are emerging.",
+  "editorialContent": [
+    {
+      "heading": "A compelling section heading that captures the theme",
+      "body": "2-3 paragraphs of analytical narrative separated by \\n\\n. Each paragraph should be 3-5 sentences. Weave together related stories, provide context, explain implications, and connect dots between developments. This should read like a magazine article, not a summary list.",
+      "imageUrl": "Image URL from one of the articles covered in this section, or null if none available",
+      "imageCaption": "A descriptive caption for the image explaining what it shows"
+    }
+  ],
+  "deepDives": [
+    {
+      "title": "Compelling headline for the story",
+      "url": "original article URL",
+      "summary": "A rich 3-4 sentence analysis. Go beyond what happened — explain why it matters, who's affected, and what might happen next. Reference specific details from the article content.",
+      "imageUrl": "image URL if one was provided for this article, or null",
+      "source": "Source name"
+    }
+  ],
+  "stats": [
+    {
+      "stat": "The notable figure (e.g. $4.2B, 300%, 10M users)",
+      "context": "One sentence explaining what this number means and why it matters",
+      "sourceUrl": "URL of the article this stat came from"
+    }
+  ],
+  "articles": [
+    {
+      "title": "Catchy concise title",
+      "url": "original article URL",
+      "summary": "1-2 sentence quick summary — scannable and informative",
+      "source": "Source name"
+    }
+  ]
+}
+
+Rules:
+- "editorialContent": Write 3-5 thematic sections that together form a comprehensive editorial article covering the day's news. Each section should focus on a theme or cluster of related stories. Group related articles under a shared narrative. Use images from the source articles where available — pick the most visually relevant image for each section. The body text should feel like reading a well-written tech publication, not a bullet-point summary.
+- "deepDives": Pick the 2-3 MOST significant stories. These get detailed, analytical summaries.
+- "stats": Extract 3-5 notable statistics, funding amounts, user numbers, or percentages mentioned across ALL articles. Only include real numbers from the content — never make them up.
+- "articles": All remaining stories (5-7) get quick 1-2 sentence summaries for the Quick Links section.
+- If multiple articles cover the same story, combine them and credit all sources.
+- For imageUrl in deepDives and editorialContent, use the image URL provided with the relevant article. If none was provided, set it to null.
+- Write naturally — vary sentence structure, use active voice, and avoid clichés like "game-changer" or "revolutionize".`;
+
 type CategorySlug =
   | "ai"
   | "eng"
@@ -58,8 +106,6 @@ export const summarizeCategory = internalAction({
       .map((a, i) => {
         const parts = [`${i + 1}. Title: ${a.title}`, `   URL: ${a.url}`];
         if (a.imageUrl) parts.push(`   Image: ${a.imageUrl}`);
-        if (a.videoUrls && a.videoUrls.length > 0)
-          parts.push(`   Videos: ${a.videoUrls.join(", ")}`);
         if (a.links && a.links.length > 0)
           parts.push(`   Referenced links: ${a.links.slice(0, 5).join(", ")}`);
         parts.push(`   Content: ${(a.rawContent || "").substring(0, 1500)}`);
@@ -78,44 +124,7 @@ export const summarizeCategory = internalAction({
         messages: [
           {
             role: "system",
-            content: `You are the lead editor of TheNode.tech, a modern tech news digest. Write like a knowledgeable human journalist — conversational, insightful, and occasionally witty. Never sound robotic or templated.
-
-You MUST respond with valid JSON in exactly this format:
-{
-  "overview": "A 3-5 sentence editorial paragraph that reads like a real human editor wrote it. Weave the day's biggest themes together into a compelling narrative. Don't just list stories — tell the reader why today's news matters and what trends are emerging.",
-  "deepDives": [
-    {
-      "title": "Compelling headline for the story",
-      "url": "original article URL",
-      "summary": "A rich 3-4 sentence analysis. Go beyond what happened — explain why it matters, who's affected, and what might happen next. Reference specific details from the article content.",
-      "imageUrl": "image URL if one was provided for this article, or null",
-      "source": "Source name"
-    }
-  ],
-  "stats": [
-    {
-      "stat": "The notable figure (e.g. $4.2B, 300%, 10M users)",
-      "context": "One sentence explaining what this number means and why it matters",
-      "sourceUrl": "URL of the article this stat came from"
-    }
-  ],
-  "articles": [
-    {
-      "title": "Catchy concise title",
-      "url": "original article URL",
-      "summary": "1-2 sentence quick summary — scannable and informative",
-      "source": "Source name"
-    }
-  ]
-}
-
-Rules:
-- "deepDives": Pick the 2-3 MOST significant stories. These get detailed, analytical summaries.
-- "stats": Extract 3-5 notable statistics, funding amounts, user numbers, or percentages mentioned across ALL articles. Only include real numbers from the content — never make them up.
-- "articles": All remaining stories (5-7) get quick 1-2 sentence summaries for the Quick Links section.
-- If multiple articles cover the same story, combine them and credit all sources.
-- For imageUrl in deepDives, use the image URL provided with that article. If none was provided, set it to null.
-- Write naturally — vary sentence structure, use active voice, and avoid clichés like "game-changer" or "revolutionize".`,
+            content: SUMMARIZE_SYSTEM_PROMPT,
           },
           {
             role: "user",
@@ -137,6 +146,12 @@ ${articleList}`,
 
       const parsed = JSON.parse(content) as {
         overview?: string;
+        editorialContent?: {
+          heading: string;
+          body: string;
+          imageUrl?: string | null;
+          imageCaption?: string | null;
+        }[];
         deepDives?: {
           title: string;
           url: string;
@@ -166,7 +181,7 @@ ${articleList}`,
       }));
 
       const mediaItems: {
-        type: "image" | "video";
+        type: "image";
         url: string;
         caption?: string;
         articleUrl?: string;
@@ -181,19 +196,14 @@ ${articleList}`,
             articleUrl: a.url,
           });
         }
-        if (a.videoUrls) {
-          for (const vUrl of a.videoUrls) {
-            if (!mediaItems.some((m) => m.url === vUrl)) {
-              mediaItems.push({
-                type: "video" as const,
-                url: vUrl,
-                caption: a.title,
-                articleUrl: a.url,
-              });
-            }
-          }
-        }
       }
+
+      const editorialContent = (parsed.editorialContent || []).map((section) => ({
+        heading: section.heading,
+        body: section.body,
+        imageUrl: section.imageUrl || undefined,
+        imageCaption: section.imageCaption || undefined,
+      }));
 
       const today = new Date().toISOString().split("T")[0];
       await ctx.runMutation(internal.mutations.newsletters.create, {
@@ -211,6 +221,7 @@ ${articleList}`,
         deepDives: deepDives.length > 0 ? deepDives : undefined,
         stats: parsed.stats && parsed.stats.length > 0 ? parsed.stats : undefined,
         mediaItems: mediaItems.length > 0 ? mediaItems.slice(0, 10) : undefined,
+        editorialContent: editorialContent.length > 0 ? editorialContent : undefined,
       });
 
       await ctx.runMutation(internal.mutations.articles.markSummarized, {
@@ -218,7 +229,7 @@ ${articleList}`,
       });
 
       console.log(
-        `[${category}] Created newsletter: ${deepDives.length} deep dives, ${parsed.stats?.length || 0} stats, ${parsed.articles.length} quick links, ${mediaItems.length} media items`
+        `[${category}] Created newsletter: ${editorialContent.length} editorial sections, ${deepDives.length} deep dives, ${parsed.stats?.length || 0} stats, ${parsed.articles.length} quick links, ${mediaItems.length} media items`
       );
     } catch (error) {
       console.error(`[${category}] Summarization failed:`, error);
@@ -282,12 +293,13 @@ Respond with valid JSON in this format:
   "articles": [{ "title": "Translated title", "summary": "Translated summary" }],
   "deepDives": [{ "title": "Translated title", "summary": "Translated summary" }],
   "stats": [{ "stat": "Translated stat", "context": "Translated context" }],
+  "editorialContent": [{ "heading": "Translated heading", "body": "Translated body", "imageCaption": "Translated caption or null" }],
   "overview": "Translated overview"
 }`,
           },
           {
             role: "user",
-            content: `Overview: ${newsletter.summary || ""}\n\nDeep Dives:\n${deepDivesText}\n\nStats:\n${statsText}\n\nQuick Links:\n${articlesText}`,
+            content: `Overview: ${newsletter.summary || ""}\n\nEditorial Content:\n${(newsletter.editorialContent || []).map((s: { heading: string; body: string; imageCaption?: string }, i: number) => `${i + 1}. Heading: ${s.heading}\n   Body: ${s.body}${s.imageCaption ? `\n   Caption: ${s.imageCaption}` : ""}`).join("\n\n")}\n\nDeep Dives:\n${deepDivesText}\n\nStats:\n${statsText}\n\nQuick Links:\n${articlesText}`,
           },
         ],
         temperature: 0.3,
@@ -301,6 +313,7 @@ Respond with valid JSON in this format:
         articles: { title: string; summary: string }[];
         deepDives?: { title: string; summary: string }[];
         stats?: { stat: string; context: string }[];
+        editorialContent?: { heading: string; body: string; imageCaption?: string | null }[];
         overview?: string;
       };
 
@@ -322,6 +335,15 @@ Respond with valid JSON in this format:
           }))
         : undefined;
 
+      const translatedEditorial = newsletter.editorialContent
+        ? newsletter.editorialContent.map((s: { heading: string; body: string; imageUrl?: string; imageCaption?: string }, i: number) => ({
+            heading: translated.editorialContent?.[i]?.heading || s.heading,
+            body: translated.editorialContent?.[i]?.body || s.body,
+            imageUrl: s.imageUrl,
+            imageCaption: translated.editorialContent?.[i]?.imageCaption || s.imageCaption,
+          }))
+        : undefined;
+
       await ctx.runMutation(internal.mutations.newsletters.create, {
         date: newsletter.date,
         category: newsletter.category,
@@ -337,6 +359,7 @@ Respond with valid JSON in this format:
         deepDives: translatedDeepDives,
         stats: translatedStats,
         mediaItems: newsletter.mediaItems,
+        editorialContent: translatedEditorial,
       });
 
       console.log(

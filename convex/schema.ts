@@ -51,7 +51,8 @@ export default defineSchema({
   })
     .index("email", ["email"])
     .index("phone", ["phone"])
-    .index("by_premium", ["isPremium"]),
+    .index("by_premium", ["isPremium"])
+    .index("by_onboarding_complete", ["onboardingComplete"]),
 
   // RSS feed sources
   sources: defineTable({
@@ -60,6 +61,8 @@ export default defineSchema({
     lastFetched: v.optional(v.number()),
     isActive: v.boolean(),
     name: v.optional(v.string()),
+    failureCount: v.optional(v.number()),
+    lastError: v.optional(v.string()),
   })
     .index("by_category", ["category"])
     .index("by_url", ["url"]),
@@ -116,6 +119,12 @@ export default defineSchema({
       url: v.string(),
       caption: v.optional(v.string()),
       articleUrl: v.optional(v.string()),
+    }))),
+    editorialContent: v.optional(v.array(v.object({
+      heading: v.string(),
+      body: v.string(),
+      imageUrl: v.optional(v.string()),
+      imageCaption: v.optional(v.string()),
     }))),
   })
     .index("by_category", ["category"])

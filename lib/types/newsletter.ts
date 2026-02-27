@@ -30,6 +30,13 @@ export interface Article {
   source?: string;
 }
 
+export interface EditorialSection {
+  heading: string;
+  body: string;
+  imageUrl?: string;
+  imageCaption?: string;
+}
+
 export interface NewsletterWithSections {
   date: string;
   category: string;
@@ -40,4 +47,5 @@ export interface NewsletterWithSections {
   deepDives?: DeepDive[];
   stats?: Stat[];
   mediaItems?: MediaItem[];
+  editorialContent?: EditorialSection[];
 }

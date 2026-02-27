@@ -1,5 +1,6 @@
 import { convexAuth } from "@convex-dev/auth/server";
 import Resend from "@auth/core/providers/resend";
+import { internal } from "./_generated/api";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Resend],
@@ -15,6 +16,12 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
             categories: [],
           },
         });
+
+        await ctx.scheduler.runAfter(
+          0,
+          internal.actions.sendNewsletters.sendWelcomeEmail,
+          { userId }
+        );
       }
     },
   },

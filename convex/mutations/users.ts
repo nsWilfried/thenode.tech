@@ -2,6 +2,11 @@ import { v } from "convex/values";
 import { mutation, internalMutation } from "../_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
+const HOUR_MIN = 0;
+const HOUR_MAX = 23;
+const DIGEST_DAY_MIN = 0;
+const DIGEST_DAY_MAX = 6;
+
 const categoryValidator = v.union(
   v.literal("ai"),
   v.literal("eng"),
@@ -21,6 +26,8 @@ export const updatePreferences = mutation({
     timezone: v.optional(v.string()),
     categories: v.optional(v.array(categoryValidator)),
     preferredDeliveryHour: v.optional(v.number()),
+    weeklyDigestEnabled: v.optional(v.boolean()),
+    preferredDigestDay: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -33,9 +40,11 @@ export const updatePreferences = mutation({
       return { success: false, message: "User not found" };
     }
 
+    const isPremium = user.isPremium ?? false;
     const updates: Record<string, unknown> = {};
     if (args.language) updates.language = args.language;
-    if (args.timezone) updates.timezone = args.timezone;
+    // Only premium users can set timezone via settings
+    if (args.timezone && isPremium) updates.timezone = args.timezone;
 
     const existingPrefs = user.preferences ?? {};
     let prefsChanged = false;
@@ -45,11 +54,22 @@ export const updatePreferences = mutation({
       newPrefs.categories = args.categories;
       prefsChanged = true;
     }
-    if (args.preferredDeliveryHour !== undefined) {
-      if (args.preferredDeliveryHour < 0 || args.preferredDeliveryHour > 23) {
+    if (args.preferredDeliveryHour !== undefined && isPremium) {
+      if (args.preferredDeliveryHour < HOUR_MIN || args.preferredDeliveryHour > HOUR_MAX) {
         return { success: false, message: "Hour must be between 0 and 23" };
       }
       newPrefs.preferredDeliveryHour = args.preferredDeliveryHour;
+      prefsChanged = true;
+    }
+    if (args.weeklyDigestEnabled !== undefined) {
+      newPrefs.weeklyDigestEnabled = args.weeklyDigestEnabled;
+      prefsChanged = true;
+    }
+    if (args.preferredDigestDay !== undefined) {
+      if (args.preferredDigestDay < DIGEST_DAY_MIN || args.preferredDigestDay > DIGEST_DAY_MAX) {
+        return { success: false, message: "Day must be between 0 (Sunday) and 6 (Saturday)" };
+      }
+      newPrefs.preferredDigestDay = args.preferredDigestDay;
       prefsChanged = true;
     }
 
@@ -59,6 +79,46 @@ export const updatePreferences = mutation({
 
     await ctx.db.patch(userId, updates);
     return { success: true };
+  },
+});
+
+function isValidTimezone(tz: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const reportTimezoneSuccess = { success: true as const };
+function reportTimezoneError(message: string) {
+  return { success: false as const, message };
+}
+
+/**
+ * Report browser-detected timezone (login/app load).
+ * Free: always update. Premium: only when timezone not yet set.
+ */
+export const reportTimezone = mutation({
+  args: { timezone: v.string() },
+  returns: v.union(
+    v.object({ success: v.literal(true) }),
+    v.object({ success: v.literal(false), message: v.string() })
+  ),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return reportTimezoneError("Not authenticated");
+    if (!isValidTimezone(args.timezone)) return reportTimezoneError("Invalid timezone");
+
+    const user = await ctx.db.get(userId);
+    if (!user) return reportTimezoneError("User not found");
+
+    const isPremium = user.isPremium ?? false;
+    if (isPremium && user.timezone) return reportTimezoneSuccess;
+
+    await ctx.db.patch(userId, { timezone: args.timezone });
+    return reportTimezoneSuccess;
   },
 });
 
@@ -80,6 +140,7 @@ export const completeOnboarding = mutation({
         categories: args.categories,
       },
     });
+
     return { success: true };
   },
 });
@@ -93,6 +154,18 @@ export const updateLastNewsletterSent = internalMutation({
     await ctx.db.patch(args.id, {
       lastNewsletterSent: args.lastNewsletterSent,
     });
+  },
+});
+
+export const updateLastWeeklyDigestSent = internalMutation({
+  args: {
+    id: v.id("users"),
+    lastWeeklyDigestSent: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      lastWeeklyDigestSent: args.lastWeeklyDigestSent,
+    } as any);
   },
 });
 

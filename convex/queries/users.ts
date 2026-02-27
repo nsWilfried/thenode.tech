@@ -34,10 +34,23 @@ export const getByEmailInternal = internalQuery({
 export const getAllVerified = internalQuery({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const users = await ctx.db
       .query("users")
-      .filter((q: any) => q.neq(q.field("email"), undefined))
+      .withIndex("by_onboarding_complete", (q: any) =>
+        q.eq("onboardingComplete", true)
+      )
       .collect();
+
+    return users.filter(
+      (u: any) => u.email !== undefined && u.emailVerificationTime !== undefined
+    );
+  },
+});
+
+export const getById = internalQuery({
+  args: { id: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
   },
 });
 

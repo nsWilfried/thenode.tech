@@ -10,7 +10,26 @@ import { ThemeToggle } from "../ThemeProvider";
 import { useTranslation, LanguageSwitcher } from "../LanguageProvider";
 import { getCategoryName } from "../../lib/i18n/categoryHelpers";
 import { SUPPORTED_LOCALES } from "../../lib/i18n/translations";
+import { getTimeZoneOptions, formatTimeZoneLabel } from "../../lib/timezones";
 import UserMenu from "../components/UserMenu";
+
+const DEFAULT_PREFERRED_HOUR = 8;
+const HOURS_IN_DAY = 24;
+
+function formatHourLabel(hour: number): string {
+  if (hour === 0) return "12:00 AM";
+  if (hour < 12) return `${hour}:00 AM`;
+  if (hour === 12) return "12:00 PM";
+  return `${hour - 12}:00 PM`;
+}
+
+function getTimezoneSelectOptions(currentTimezone: string): { value: string; label: string }[] {
+  const options = getTimeZoneOptions();
+  const list = options.includes(currentTimezone)
+    ? options
+    : [currentTimezone, ...options].sort();
+  return list.map((tz) => ({ value: tz, label: formatTimeZoneLabel(tz) }));
+}
 
 const CATEGORY_SLUGS = [
   { slug: "ai", icon: "🤖" },
@@ -41,7 +60,9 @@ export default function SettingsPage() {
   const [timezone, setTimezone] = useState(
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
-  const [preferredHour, setPreferredHour] = useState(8);
+  const [preferredHour, setPreferredHour] = useState(DEFAULT_PREFERRED_HOUR);
+  const [weeklyDigestEnabled, setWeeklyDigestEnabled] = useState(false);
+  const [preferredDigestDay, setPreferredDigestDay] = useState(1);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
   );
@@ -64,6 +85,12 @@ export default function SettingsPage() {
       if (typeof user.preferences?.preferredDeliveryHour === "number") {
         setPreferredHour(user.preferences.preferredDeliveryHour);
       }
+      if ((user.preferences as any)?.weeklyDigestEnabled != null) {
+        setWeeklyDigestEnabled((user.preferences as any).weeklyDigestEnabled);
+      }
+      if (typeof (user.preferences as any)?.preferredDigestDay === "number") {
+        setPreferredDigestDay((user.preferences as any).preferredDigestDay);
+      }
     }
   }, [user, initialized]);
 
@@ -78,12 +105,17 @@ export default function SettingsPage() {
 
     setSaveStatus("saving");
     try {
-      await updatePreferences({
+      const payload = {
         language: selectedLanguage,
-        timezone,
         categories: selectedCategories as CategorySlug[],
-        ...(user.isPremium ? { preferredDeliveryHour: preferredHour } : {}),
-      });
+        ...(user.isPremium && {
+          timezone,
+          preferredDeliveryHour: preferredHour,
+          weeklyDigestEnabled,
+          preferredDigestDay,
+        }),
+      };
+      await updatePreferences(payload as Parameters<typeof updatePreferences>[0]);
       setSaveStatus("saved");
       setTimeout(() => setSaveStatus("idle"), 2000);
     } catch {
@@ -93,7 +125,7 @@ export default function SettingsPage() {
 
   if (user === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-[#121218]">
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-dark-bg">
         <div className="text-zinc-400">{t.common.loading}</div>
       </div>
     );
@@ -106,9 +138,9 @@ export default function SettingsPage() {
   const isPremium = user.isPremium ?? false;
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-[#121218]">
+    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-[#2a2a38] dark:bg-[#121218]/80">
+      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <Link
             href="/"
@@ -140,7 +172,7 @@ export default function SettingsPage() {
 
         <div className="space-y-8">
           {/* Account Info */}
-          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-[#2a2a38] dark:bg-[#1a1a24]">
+          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
             <h2 className="mb-1 text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {t.settings.account}
             </h2>
@@ -150,7 +182,7 @@ export default function SettingsPage() {
                 className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
                   isPremium
                     ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
-                    : "bg-zinc-100 text-zinc-600 dark:bg-[#252530] dark:text-zinc-400"
+                    : "bg-zinc-100 text-zinc-600 dark:bg-dark-surface dark:text-zinc-400"
                 }`}
               >
                 {isPremium ? t.settings.premiumBadge : t.settings.freeBadge}
@@ -166,14 +198,14 @@ export default function SettingsPage() {
             </div>
             <button
               onClick={() => void signOut()}
-              className="mt-4 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-[#2f2f3d] dark:hover:text-zinc-200"
+              className="mt-4 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-dark-hover dark:hover:text-zinc-200"
             >
               {t.nav.signOut}
             </button>
           </div>
 
           {/* Language */}
-          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-[#2a2a38] dark:bg-[#1a1a24]">
+          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
             <h2 className="mb-1 text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {t.settings.language}
             </h2>
@@ -186,7 +218,7 @@ export default function SettingsPage() {
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
               disabled={!isPremium}
-              className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-[#252530] dark:text-zinc-100"
+              className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-dark-surface dark:text-zinc-100"
             >
               {SUPPORTED_LOCALES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
@@ -197,7 +229,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Delivery Time */}
-          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-[#2a2a38] dark:bg-[#1a1a24]">
+          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
             <h2 className="mb-1 text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {t.settings.deliveryTime}
             </h2>
@@ -206,46 +238,143 @@ export default function SettingsPage() {
                 ? t.settings.deliveryTimeDescPremium
                 : t.settings.deliveryTimeDescFree}
             </p>
-            <select
-              value={preferredHour}
-              onChange={(e) => setPreferredHour(Number(e.target.value))}
-              disabled={!isPremium}
-              className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-[#252530] dark:text-zinc-100"
-            >
-              {Array.from({ length: 24 }, (_, i) => (
-                <option key={i} value={i}>
-                  {i === 0
-                    ? "12:00 AM"
-                    : i < 12
-                      ? `${i}:00 AM`
-                      : i === 12
-                        ? "12:00 PM"
-                        : `${i - 12}:00 PM`}
-                  {i === 8 ? " (default)" : ""}
-                </option>
-              ))}
-            </select>
+            {isPremium ? (
+              <select
+                value={preferredHour}
+                onChange={(e) => setPreferredHour(Number(e.target.value))}
+                className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-dark-surface dark:text-zinc-100"
+              >
+                {Array.from({ length: 24 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i === 0
+                      ? "12:00 AM"
+                      : i < 12
+                        ? `${i}:00 AM`
+                        : i === 12
+                          ? "12:00 PM"
+                          : `${i - 12}:00 PM`}
+                    {i === 8 ? " (default)" : ""}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-600 dark:border-dark-border dark:bg-dark-surface dark:text-zinc-400">
+                Daily newsletter: 8:00 AM in your timezone.{" "}
+                <Link
+                  href="/pricing"
+                  className="font-medium text-zinc-900 underline hover:no-underline dark:text-zinc-200"
+                >
+                  Upgrade to Premium
+                </Link>{" "}
+                to choose your delivery time.
+              </p>
+            )}
+          </div>
+
+          {/* Weekly Digest (Premium) */}
+          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
+            <h2 className="mb-1 text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              Weekly Digest
+            </h2>
+            <p className="mb-4 text-sm text-zinc-500">
+              {isPremium
+                ? "Get a curated week-in-review email summarizing trends and top stories across your categories."
+                : "Upgrade to Premium to receive a weekly digest with cross-category insights and trend analysis."}
+            </p>
+            <div className="flex items-center justify-between rounded-lg border border-zinc-100 p-4 dark:border-dark-border">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Enable Weekly Digest
+                </span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={weeklyDigestEnabled}
+                disabled={!isPremium}
+                onClick={() => setWeeklyDigestEnabled((prev) => !prev)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+                  weeklyDigestEnabled
+                    ? "bg-zinc-900 dark:bg-white"
+                    : "bg-zinc-200 dark:bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out dark:bg-zinc-900 ${
+                    weeklyDigestEnabled ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+            {weeklyDigestEnabled && isPremium && (
+              <div className="mt-4">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Delivery Day
+                </label>
+                <select
+                  value={preferredDigestDay}
+                  onChange={(e) => setPreferredDigestDay(Number(e.target.value))}
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-dark-surface dark:text-zinc-100"
+                >
+                  <option value={0}>Sunday</option>
+                  <option value={1}>Monday (default)</option>
+                  <option value={2}>Tuesday</option>
+                  <option value={3}>Wednesday</option>
+                  <option value={4}>Thursday</option>
+                  <option value={5}>Friday</option>
+                  <option value={6}>Saturday</option>
+                </select>
+                <p className="mt-2 text-xs text-zinc-400">
+                  Delivered at your preferred delivery hour.
+                </p>
+              </div>
+            )}
+            {!isPremium && (
+              <Link
+                href="/pricing"
+                className="mt-3 inline-block text-xs text-zinc-500 underline hover:text-zinc-900"
+              >
+                Upgrade to Premium
+              </Link>
+            )}
           </div>
 
           {/* Timezone */}
-          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-[#2a2a38] dark:bg-[#1a1a24]">
+          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
             <h2 className="mb-1 text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {t.settings.timezone}
             </h2>
             <p className="mb-4 text-sm text-zinc-500">
               {t.settings.timezoneDesc}
             </p>
-            <input
-              type="text"
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-[#252530] dark:text-zinc-100"
-              placeholder={t.settings.timezonePlaceholder}
-            />
+            {isPremium ? (
+              <select
+                value={timezone}
+                onChange={(e) => setTimezone(e.target.value)}
+                className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-dark-surface dark:text-zinc-100"
+              >
+                {getTimezoneSelectOptions(timezone).map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-600 dark:border-dark-border dark:bg-dark-surface dark:text-zinc-400">
+                Your timezone: {user.timezone ? formatTimeZoneLabel(user.timezone) : "Detected"} (detected).{" "}
+                <Link
+                  href="/pricing"
+                  className="font-medium text-zinc-900 underline hover:no-underline dark:text-zinc-200"
+                >
+                  Upgrade to Premium
+                </Link>{" "}
+                to choose your timezone and delivery time.
+              </p>
+            )}
           </div>
 
           {/* Categories */}
-          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-[#2a2a38] dark:bg-[#1a1a24]">
+          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
             <h2 className="mb-1 text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {t.settings.categoriesTitle}
             </h2>
@@ -256,7 +385,7 @@ export default function SettingsPage() {
               {CATEGORY_SLUGS.map((cat) => (
                 <label
                   key={cat.slug}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-100 p-3 transition-colors hover:bg-zinc-50 dark:border-[#2a2a38] dark:hover:bg-[#2f2f3d]"
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-100 p-3 transition-colors hover:bg-zinc-50 dark:border-dark-border dark:hover:bg-dark-hover"
                 >
                   <input
                     type="checkbox"

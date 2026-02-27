@@ -7,28 +7,40 @@ const crons = cronJobs();
 crons.interval(
   "ingest-feeds",
   { hours: 8 },
-  internal.actions.ingestFeeds.ingestAllFeeds
+  internal.actions.ingestFeeds.ingestAllFeeds,
+  {}
 );
 
 // Newsletter generation (AI summarization): Daily at 6:00 AM UTC
 crons.cron(
   "summarize-articles",
   "0 6 * * *",
-  internal.actions.summarizeArticles.summarizeAllCategories
+  internal.actions.summarizeArticles.summarizeAllCategories,
+  {}
 );
 
-// Newsletter delivery: Every hour (checks user timezones to send at 7-9 AM local)
+// Newsletter delivery: Every hour (8 AM local or premium preferred hour)
 crons.interval(
   "send-newsletters",
   { hours: 1 },
-  internal.actions.sendNewsletters.sendDailyNewsletters
+  internal.actions.sendNewsletters.sendDailyNewsletters,
+  {}
+);
+
+// Weekly digest delivery: Every hour (checks premium user timezone/day/hour)
+crons.interval(
+  "send-weekly-digests",
+  { hours: 1 },
+  internal.actions.weeklyDigest.sendWeeklyDigests,
+  {}
 );
 
 // Cleanup old articles: Daily at midnight UTC
 crons.cron(
   "cleanup-old-articles",
   "0 0 * * *",
-  internal.mutations.articles.cleanupOldArticles
+  internal.mutations.articles.cleanupOldArticles,
+  {}
 );
 
 export default crons;

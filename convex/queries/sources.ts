@@ -11,6 +11,18 @@ export const getByUrl = internalQuery({
   },
 });
 
+export const isSourceActive = internalQuery({
+  args: { url: v.string() },
+  handler: async (ctx, args) => {
+    const source = await ctx.db
+      .query("sources")
+      .withIndex("by_url", (q) => q.eq("url", args.url))
+      .first();
+    if (!source) return true;
+    return source.isActive;
+  },
+});
+
 export const getAllByCategory = query({
   args: { category: v.string() },
   handler: async (ctx, args) => {
