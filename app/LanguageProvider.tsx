@@ -132,7 +132,7 @@ export function LanguageSwitcher() {
   const current = SUPPORTED_LOCALES.find((l) => l.code === locale);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative inline-flex">
       <button
         onClick={() => setOpen(!open)}
         aria-label="Change language"
@@ -154,7 +154,9 @@ export function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-1 w-44 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-dark-surface">
+        <div
+          className="absolute left-0 z-50 mt-1 w-44 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-dark-surface sm:left-auto sm:right-0"
+        >
           {SUPPORTED_LOCALES.map((l) => (
             <button
               key={l.code}

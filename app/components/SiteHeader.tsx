@@ -67,12 +67,31 @@ export default function SiteHeader() {
           <button
             type="button"
             onClick={toggleMobile}
-            className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 dark:border-dark-border dark:bg-dark-card dark:text-zinc-100 dark:hover:bg-dark-hover"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 dark:border-dark-border dark:bg-dark-card dark:text-zinc-100 dark:hover:bg-dark-hover"
             aria-expanded={mobileOpen}
+            aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
           >
-            <span className="block h-[2px] w-3 rounded-full bg-current" />
-            <span className="block h-[2px] w-3 rounded-full bg-current" />
-            <span className="block h-[2px] w-2 rounded-full bg-current" />
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              {mobileOpen ? (
+                <path
+                  d="M6 6L18 18M6 18L18 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              ) : (
+                <path
+                  d="M4 7h16M4 12h16M4 17h10"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
           </button>
         </div>
       </div>

@@ -6,8 +6,7 @@ import { api } from "../../../convex/_generated/api";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ThemeToggle } from "../../ThemeProvider";
-import { useTranslation, LanguageSwitcher } from "../../LanguageProvider";
+import { useTranslation } from "../../LanguageProvider";
 import { getCategoryName } from "../../../lib/i18n/categoryHelpers";
 import { localePath } from "../../../lib/i18n/localePath";
 import { SUPPORTED_LOCALES } from "../../../lib/i18n/translations";
@@ -110,24 +109,7 @@ export default function SettingsPage() {
   const isPremium = user.isPremium ?? false;
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
-      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
-          <Link href={localePath("/", locale)} className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">
-            ⚡ TheNode<span className="text-zinc-400">.tech</span>
-          </Link>
-          <nav className="flex items-center gap-3">
-            <Link href={localePath("/pricing", locale)} className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200">
-              {t.nav.premium}
-            </Link>
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <UserMenu />
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-3xl px-4 py-12">
+    <main className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="mb-2 text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">{t.settings.title}</h1>
         <p className="mb-8 text-zinc-500">{t.settings.subtitle}</p>
 
@@ -240,6 +222,5 @@ export default function SettingsPage() {
           </div>
         </div>
       </main>
-    </div>
   );
 }
