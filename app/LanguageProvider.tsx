@@ -136,11 +136,10 @@ export function LanguageSwitcher() {
       <button
         onClick={() => setOpen(!open)}
         aria-label="Change language"
-        className="flex h-8 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2 text-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-dark-surface dark:hover:bg-dark-hover"
+        className="flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 text-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-dark-surface dark:hover:bg-dark-hover"
       >
-        <span>{current?.flag}</span>
-        <span className="hidden text-xs font-medium text-zinc-600 dark:text-zinc-300 sm:inline">
-          {current?.code.toUpperCase()}
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-50 text-xs dark:bg-zinc-800">
+          {current?.flag}
         </span>
         <svg
           className={`h-3 w-3 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}

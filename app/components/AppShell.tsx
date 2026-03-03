@@ -6,9 +6,9 @@ import SiteFooter from "./SiteFooter";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-dark-bg dark:text-zinc-100">
+    <div className="flex min-h-screen flex-col bg-zinc-50 font-sans text-zinc-900 dark:bg-dark-bg dark:text-zinc-100">
       <SiteHeader />
-      <main>{children}</main>
+      <main className="flex-1">{children}</main>
       <SiteFooter />
     </div>
   );

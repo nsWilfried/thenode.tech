@@ -34,14 +34,7 @@ export default function SiteHeader() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-3 md:flex">
-          {!user && isHome && (
-            <Link
-              href="#subscribe"
-              className="text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
-            >
-              {t.home.subscribe}
-            </Link>
-          )}
+         
           <Link
             href={localePath("/pricing", locale)}
             className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -100,15 +93,6 @@ export default function SiteHeader() {
       {mobileOpen && (
         <div className="border-t border-zinc-100 bg-white/95 px-4 pb-3 pt-2 shadow-sm dark:border-dark-border dark:bg-dark-bg/95 md:hidden">
           <div className="flex flex-col gap-2">
-            {!user && isHome && (
-              <Link
-                href="#subscribe"
-                onClick={() => setMobileOpen(false)}
-                className="text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
-              >
-                {t.home.subscribe}
-              </Link>
-            )}
             <Link
               href={localePath("/pricing", locale)}
               onClick={() => setMobileOpen(false)}
