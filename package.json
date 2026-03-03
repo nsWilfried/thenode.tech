@@ -19,6 +19,7 @@
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
     "next": "16.1.6",
+    "next-sitemap": "^4.2.3",
     "openai": "^6.22.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",

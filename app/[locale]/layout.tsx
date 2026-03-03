@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { isValidLocale, DEFAULT_LOCALE, LOCALE_CODES } from "../../lib/i18n/locales";
+import AppShell from "../components/AppShell";
 
 const BASE_URL = "https://thenode.tech";
 
@@ -45,5 +46,5 @@ export default async function LocaleLayout({
   if (!isValidLocale(locale)) {
     redirect(`/${DEFAULT_LOCALE}`);
   }
-  return <>{children}</>;
+  return <AppShell>{children}</AppShell>;
 }

@@ -25,25 +25,7 @@ export default function PricingPage() {
 
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
-      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <Link href={localePath("/", locale)} className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">
-            ⚡ TheNode<span className="text-zinc-400">.tech</span>
-          </Link>
-
-          
-          <nav className="flex items-center gap-3">
-            <Link href={localePath("/", locale)} className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200">
-              {t.nav.home}
-            </Link>
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <UserMenu />
-          </nav>
-        </div>
-      </header>
-
+    <>
       <main className="mx-auto max-w-4xl px-4 py-16">
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-extrabold text-zinc-900 dark:text-zinc-100">{t.pricing.title}</h1>
@@ -139,13 +121,6 @@ export default function PricingPage() {
           </div>
         </div>
       </main>
-
-      <footer className="border-t border-zinc-100 bg-white dark:border-dark-border dark:bg-dark-bg">
-        <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
-          <p className="text-sm text-zinc-400">&copy; {new Date().getFullYear()} TheNode.tech</p>
-          <Link href={localePath("/", locale)} className="text-sm text-zinc-400 hover:text-zinc-600">{t.common.backToHome}</Link>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }

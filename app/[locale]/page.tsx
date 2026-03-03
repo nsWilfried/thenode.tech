@@ -258,46 +258,11 @@ export default function Home() {
   const [featured, ...remaining] = CATEGORY_SLUGS_WITH_ICON;
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
-      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link
-            href={localePath("/", locale)}
-            className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100"
-          >
-            ⚡ TheNode<span className="text-zinc-400">.tech</span>
-          </Link>
-          <nav className="flex items-center gap-3">
-            {!user && (
-              <Link
-                href="#subscribe"
-                className="text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
-              >
-                {t.home.subscribe}
-              </Link>
-            )}
-            <Link
-              href={localePath("/pricing", locale)}
-              className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
-            >
-              {t.nav.premium}
-            </Link>
-            {user && (
-              <Link
-                href={localePath("/settings", locale)}
-                className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
-              >
-                {t.nav.settings}
-              </Link>
-            )}
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <UserMenu />
-          </nav>
-        </div>
-      </header>
-
-      <section id="subscribe" className="mx-auto max-w-6xl px-4 pb-8 pt-16 text-center scroll-mt-20">
+    <>
+      <section
+        id="subscribe"
+        className="mx-auto max-w-6xl px-4 pb-8 pt-16 text-center scroll-mt-20"
+      >
         <h2 className="mx-auto max-w-2xl text-4xl font-extrabold leading-tight tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
           {t.home.heroTitle}
           <br />
@@ -318,13 +283,16 @@ export default function Home() {
         )}
         <p className="mt-6 text-xs text-zinc-400">
           {t.home.freeNote}{" "}
-          <Link href={localePath("/pricing", locale)} className="underline hover:text-zinc-600">
+          <Link
+            href={localePath("/pricing", locale)}
+            className="underline hover:text-zinc-600"
+          >
             {t.home.learnMore}
           </Link>
         </p>
       </section>
 
-      <div className="mx-auto max-w-6xl px-4 pb-6">
+      <section className="mx-auto max-w-6xl px-4 pb-6">
         <div className="flex flex-wrap justify-center gap-2">
           {CATEGORY_SLUGS_WITH_ICON.map((cat) => (
             <Link
@@ -336,9 +304,9 @@ export default function Home() {
             </Link>
           ))}
         </div>
-      </div>
+      </section>
 
-      <main className="mx-auto max-w-6xl px-4 pb-16">
+      <section className="mx-auto max-w-6xl px-4 pb-16">
         <div className="grid gap-6 md:grid-cols-2">
           {featured && (
             <FeaturedCategory slug={featured.slug} icon={featured.icon} />
@@ -349,23 +317,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </main>
-
-      <footer className="border-t border-zinc-100 bg-white dark:border-dark-border dark:bg-dark-bg">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
-          <p className="text-sm text-zinc-400">
-            &copy; {new Date().getFullYear()} TheNode.tech. {t.common.allRightsReserved}
-          </p>
-          <div className="flex gap-6">
-            <Link href={localePath("/pricing", locale)} className="text-sm text-zinc-400 hover:text-zinc-600">
-              {t.nav.pricing}
-            </Link>
-            <Link href={localePath("/settings", locale)} className="text-sm text-zinc-400 hover:text-zinc-600">
-              {t.nav.settings}
-            </Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </section>
+    </>
   );
 }
