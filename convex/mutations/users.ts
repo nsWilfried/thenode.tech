@@ -20,6 +20,13 @@ const categoryValidator = v.union(
   v.literal("opensource-languages")
 );
 
+const subscriptionStatusValidator = v.union(
+  v.literal("active"),
+  v.literal("cancelled"),
+  v.literal("expired"),
+  v.literal("free")
+);
+
 export const updatePreferences = mutation({
   args: {
     language: v.optional(v.string()),
@@ -173,17 +180,34 @@ export const updatePremiumStatus = internalMutation({
   args: {
     id: v.id("users"),
     isPremium: v.boolean(),
-    subscriptionStatus: v.union(
-      v.literal("active"),
-      v.literal("cancelled"),
-      v.literal("expired"),
-      v.literal("free")
-    ),
+    subscriptionStatus: subscriptionStatusValidator,
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
       isPremium: args.isPremium,
       subscriptionStatus: args.subscriptionStatus,
     });
+  },
+});
+
+/** Syncs user premium state from Polar webhook subscription events. */
+export const syncPremiumStatusByEmail = internalMutation({
+  args: {
+    email: v.string(),
+    isPremium: v.boolean(),
+    subscriptionStatus: subscriptionStatusValidator,
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.email))
+      .first();
+    if (!user) return null;
+    await ctx.db.patch(user._id, {
+      isPremium: args.isPremium,
+      subscriptionStatus: args.subscriptionStatus,
+    });
+    return null;
   },
 });

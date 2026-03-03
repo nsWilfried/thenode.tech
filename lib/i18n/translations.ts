@@ -3,7 +3,11 @@
 // 9 supported languages
 // ────────────────────────────────────────────────
 
-export const SUPPORTED_LOCALES = [
+import type { Locale } from "./locales";
+
+export type { Locale };
+
+export const SUPPORTED_LOCALES: { code: Locale; name: string; flag: string }[] = [
   { code: "en", name: "English", flag: "🇬🇧" },
   { code: "es", name: "Español", flag: "🇪🇸" },
   { code: "fr", name: "Français", flag: "🇫🇷" },
@@ -13,9 +17,7 @@ export const SUPPORTED_LOCALES = [
   { code: "pt", name: "Português", flag: "🇧🇷" },
   { code: "it", name: "Italiano", flag: "🇮🇹" },
   { code: "ko", name: "한국어", flag: "🇰🇷" },
-] as const;
-
-export type Locale = (typeof SUPPORTED_LOCALES)[number]["code"];
+];
 
 export interface TranslationDict {
   // Navigation
@@ -119,6 +121,7 @@ export interface TranslationDict {
     premiumFeatures: string[];
     recommended: string;
     subscribeWithPolar: string;
+    signInToSubscribe: string;
     perMonth: string;
     faqTitle: string;
     faqLanguagesQ: string;
@@ -276,6 +279,7 @@ const en: TranslationDict = {
     ],
     recommended: "Recommended",
     subscribeWithPolar: "Subscribe with Polar",
+    signInToSubscribe: "Sign in to subscribe",
     perMonth: "/month",
     faqTitle: "Frequently asked questions",
     faqLanguagesQ: "What languages are supported?",
@@ -450,6 +454,7 @@ const es: TranslationDict = {
     ],
     recommended: "Recomendado",
     subscribeWithPolar: "Suscribirse con Polar",
+    signInToSubscribe: "Inicia sesión para suscribirte",
     perMonth: "/mes",
     faqTitle: "Preguntas frecuentes",
     faqLanguagesQ: "¿Qué idiomas están disponibles?",
@@ -624,6 +629,7 @@ const fr: TranslationDict = {
     ],
     recommended: "Recommandé",
     subscribeWithPolar: "S'abonner avec Polar",
+    signInToSubscribe: "Connectez-vous pour vous abonner",
     perMonth: "/mois",
     faqTitle: "Questions fréquentes",
     faqLanguagesQ: "Quelles langues sont supportées ?",
@@ -800,6 +806,7 @@ const de: TranslationDict = {
     ],
     recommended: "Empfohlen",
     subscribeWithPolar: "Mit Polar abonnieren",
+    signInToSubscribe: "Anmelden zum Abonnieren",
     perMonth: "/Monat",
     faqTitle: "Häufig gestellte Fragen",
     faqLanguagesQ: "Welche Sprachen werden unterstützt?",
@@ -975,6 +982,7 @@ const ja: TranslationDict = {
     ],
     recommended: "おすすめ",
     subscribeWithPolar: "Polarで購読",
+    signInToSubscribe: "購読するにはサインイン",
     perMonth: "/月",
     faqTitle: "よくある質問",
     faqLanguagesQ: "対応言語は？",
@@ -1147,6 +1155,7 @@ const zh: TranslationDict = {
     ],
     recommended: "推荐",
     subscribeWithPolar: "通过Polar订阅",
+    signInToSubscribe: "登录以订阅",
     perMonth: "/月",
     faqTitle: "常见问题",
     faqLanguagesQ: "支持哪些语言？",
@@ -1318,6 +1327,7 @@ const pt: TranslationDict = {
     ],
     recommended: "Recomendado",
     subscribeWithPolar: "Assinar com Polar",
+    signInToSubscribe: "Entre para assinar",
     perMonth: "/mês",
     faqTitle: "Perguntas frequentes",
     faqLanguagesQ: "Quais idiomas são suportados?",
@@ -1493,6 +1503,7 @@ const it: TranslationDict = {
     ],
     recommended: "Consigliato",
     subscribeWithPolar: "Iscriviti con Polar",
+    signInToSubscribe: "Accedi per abbonarti",
     perMonth: "/mese",
     faqTitle: "Domande frequenti",
     faqLanguagesQ: "Quali lingue sono supportate?",
@@ -1667,6 +1678,7 @@ const ko: TranslationDict = {
     ],
     recommended: "추천",
     subscribeWithPolar: "Polar로 구독",
+    signInToSubscribe: "구독하려면 로그인",
     perMonth: "/월",
     faqTitle: "자주 묻는 질문",
     faqLanguagesQ: "어떤 언어가 지원되나요?",

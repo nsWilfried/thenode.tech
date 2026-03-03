@@ -1,13 +1,14 @@
 "use client";
 
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "../../../convex/_generated/api";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ThemeToggle } from "../ThemeProvider";
-import { useTranslation, LanguageSwitcher } from "../LanguageProvider";
-import { getCategoryName } from "../../lib/i18n/categoryHelpers";
+import { ThemeToggle } from "../../ThemeProvider";
+import { useTranslation, LanguageSwitcher } from "../../LanguageProvider";
+import { getCategoryName } from "../../../lib/i18n/categoryHelpers";
+import { localePath } from "../../../lib/i18n/localePath";
 
 const CATEGORY_SLUGS = [
   { slug: "ai", icon: "🤖" },
@@ -25,12 +26,10 @@ const CATEGORY_SLUGS = [
 type CategorySlug = (typeof CATEGORY_SLUGS)[number]["slug"];
 
 export default function OnboardingPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const router = useRouter();
   const user = useQuery(api.queries.users.currentUser);
-  const completeOnboarding = useMutation(
-    api.mutations.users.completeOnboarding,
-  );
+  const completeOnboarding = useMutation(api.mutations.users.completeOnboarding);
 
   const [selected, setSelected] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -38,13 +37,13 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (user === null) {
-      router.push("/signin");
+      router.push(localePath("/signin", locale));
       return;
     }
     if (user?.onboardingComplete) {
-      router.push("/");
+      router.push(localePath("/", locale));
     }
-  }, [user, router]);
+  }, [user, router, locale]);
 
   if (user === undefined) {
     return (
@@ -60,7 +59,7 @@ export default function OnboardingPage() {
 
   const toggleCategory = (slug: string) => {
     setSelected((prev) =>
-      prev.includes(slug) ? prev.filter((c) => c !== slug) : [...prev, slug],
+      prev.includes(slug) ? prev.filter((c) => c !== slug) : [...prev, slug]
     );
     if (error) setError("");
   };
@@ -84,7 +83,7 @@ export default function OnboardingPage() {
       await completeOnboarding({
         categories: selected as CategorySlug[],
       });
-      router.push("/");
+      router.push(localePath("/", locale));
     } catch {
       setError(t.common.somethingWentWrong);
     } finally {
@@ -98,10 +97,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
       <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
-          <Link
-            href="/"
-            className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100"
-          >
+          <Link href={localePath("/", locale)} className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">
             ⚡ TheNode<span className="text-zinc-400">.tech</span>
           </Link>
           <nav className="flex items-center gap-3">
@@ -113,22 +109,13 @@ export default function OnboardingPage() {
 
       <main className="mx-auto max-w-2xl px-4 py-16">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">
-            {t.onboarding.title}
-          </h1>
-          <p className="mt-3 text-zinc-500 dark:text-zinc-400">
-            {t.onboarding.subtitle}
-          </p>
+          <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">{t.onboarding.title}</h1>
+          <p className="mt-3 text-zinc-500 dark:text-zinc-400">{t.onboarding.subtitle}</p>
         </div>
 
         <div className="mb-4 flex justify-end">
-          <button
-            onClick={toggleAll}
-            className="text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
-          >
-            {allSelected
-              ? t.onboarding.deselectAll
-              : t.onboarding.selectAll}
+          <button onClick={toggleAll} className="text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200">
+            {allSelected ? t.onboarding.deselectAll : t.onboarding.selectAll}
           </button>
         </div>
 
@@ -146,17 +133,13 @@ export default function OnboardingPage() {
                 }`}
               >
                 <span className="text-2xl">{cat.icon}</span>
-                <span className="text-sm font-semibold">
-                  {getCategoryName(t.categories, cat.slug)}
-                </span>
+                <span className="text-sm font-semibold">{getCategoryName(t.categories, cat.slug)}</span>
               </button>
             );
           })}
         </div>
 
-        {error && (
-          <p className="mt-4 text-center text-sm text-red-500">{error}</p>
-        )}
+        {error && <p className="mt-4 text-center text-sm text-red-500">{error}</p>}
 
         <div className="mt-8 flex justify-center">
           <button

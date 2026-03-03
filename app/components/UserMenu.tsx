@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Link from "next/link";
 import { useTranslation } from "../LanguageProvider";
+import { localePath } from "../../lib/i18n/localePath";
 
 const AVATAR_EMOJIS = [
   "🦊", "🐱", "🐶", "🐸", "🐵", "🦁", "🐼", "🐨",
@@ -19,7 +20,7 @@ function getEmojiForUser(email: string): string {
 }
 
 export default function UserMenu() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const user = useQuery(api.queries.users.currentUser);
 
   if (user === undefined) {
@@ -29,7 +30,7 @@ export default function UserMenu() {
   if (user === null) {
     return (
       <Link
-        href="/signin"
+        href={localePath("/signin", locale)}
         className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-dark-hover"
       >
         {t.nav.signIn}
@@ -39,7 +40,7 @@ export default function UserMenu() {
 
   return (
     <Link
-      href="/settings"
+      href={localePath("/settings", locale)}
       className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-base transition-colors hover:border-zinc-400 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-dark-surface dark:hover:border-zinc-500 dark:hover:bg-dark-hover"
       title={user.email}
     >

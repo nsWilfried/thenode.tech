@@ -5,8 +5,15 @@ import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { Resend } from "resend";
 import moment from "moment-timezone";
+import {
+    getEmailTranslations,
+    type EmailTemplateStrings,
+    type CategorySlug as EmailCategorySlug,
+} from "../emailTranslations";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const MAX_HEADLINE_SUBJECT_CHARS = 50;
 
 type CategorySlug =
     | "ai"
@@ -74,10 +81,61 @@ interface NewsletterData {
     editorialContent?: { heading: string; body: string; imageUrl?: string; imageCaption?: string }[];
 }
 
-function buildNewsletterHTML(newsletters: NewsletterData[], date: string): string {
+function truncateAtWord(text: string, maxLen: number): string {
+    if (text.length <= maxLen) return text;
+    const slice = text.slice(0, maxLen);
+    const lastSpace = slice.lastIndexOf(" ");
+    return lastSpace > 0 ? slice.slice(0, lastSpace) : slice;
+}
+
+function buildNewsletterSubject(
+    newsletters: NewsletterData[],
+    date: string,
+    language: string
+): string {
+    const t = getEmailTranslations(language);
+    const localeMoment = moment(date).locale(language);
+    const formattedDate = localeMoment.format("MMM D");
+
+    let headline: string | null = null;
+    for (const nl of newsletters) {
+        if (nl.deepDives?.length && nl.deepDives[0].title) {
+            headline = truncateAtWord(nl.deepDives[0].title, MAX_HEADLINE_SUBJECT_CHARS);
+            break;
+        }
+        if (nl.articles?.length && nl.articles[0].title) {
+            headline = truncateAtWord(nl.articles[0].title, MAX_HEADLINE_SUBJECT_CHARS);
+            break;
+        }
+    }
+
+    if (headline) {
+        return t.subjectWithHeadline
+            .replace("{{headline}}", headline)
+            .replace("{{date}}", formattedDate);
+    }
+
+    const topicNames = newsletters
+        .slice(0, 3)
+        .map((nl) => t.categoryShortNames[nl.category as EmailCategorySlug] ?? nl.category);
+    const topics =
+        topicNames.length > 2
+            ? `${topicNames.slice(0, 2).join(", ")} ${t.andMore}`
+            : topicNames.join(", ");
+
+    return t.subjectWithTopics
+        .replace("{{topics}}", topics)
+        .replace("{{date}}", formattedDate);
+}
+
+function buildNewsletterHTML(
+    newsletters: NewsletterData[],
+    date: string,
+    t: EmailTemplateStrings
+): string {
     const todayUtc = moment().utc().format("YYYY-MM-DD");
     const formattedDate =
-        date === todayUtc ? "Today" : moment(date).format("MMMM Do, YYYY");
+        date === todayUtc ? t.today : moment(date).format("MMMM Do, YYYY");
 
     const categorySections = newsletters
         .map((nl) => {
@@ -111,7 +169,7 @@ function buildNewsletterHTML(newsletters: NewsletterData[], date: string): strin
 
             const deepDivesHtml = (nl.deepDives || []).length > 0
                 ? `<tr><td style="padding: 24px 0 8px;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">Featured Stories</h3>
+                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.featuredStories}</h3>
                   </td></tr>` +
                   (nl.deepDives || []).map((dive) => {
                       const diveImg = dive.imageUrl
@@ -133,7 +191,7 @@ function buildNewsletterHTML(newsletters: NewsletterData[], date: string): strin
 
             const statsHtml = (nl.stats || []).length > 0
                 ? `<tr><td style="padding: 24px 0 12px;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">Key Numbers</h3>
+                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.keyNumbers}</h3>
                   </td></tr>
                   <tr><td>
                     <table width="100%" cellpadding="0" cellspacing="0">
@@ -161,7 +219,7 @@ function buildNewsletterHTML(newsletters: NewsletterData[], date: string): strin
 
             const mediaHtml = (nl.mediaItems || []).filter((m) => m.type === "image").length > 0
                 ? `<tr><td style="padding: 24px 0 12px;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">Media Spotlight</h3>
+                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.mediaSpotlight}</h3>
                   </td></tr>
                   <tr><td>
                     <table width="100%" cellpadding="0" cellspacing="0">
@@ -179,7 +237,7 @@ function buildNewsletterHTML(newsletters: NewsletterData[], date: string): strin
 
             const quickLinksHtml = nl.articles.length > 0
                 ? `<tr><td style="padding: 24px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">Quick Links</h3>
+                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quickLinks}</h3>
                   </td></tr>` +
                   nl.articles.map((a, i) => `
                 <tr><td style="padding: 10px 0; ${i < nl.articles.length - 1 ? "border-bottom: 1px solid #f5f5f5;" : ""}">
@@ -228,7 +286,7 @@ function buildNewsletterHTML(newsletters: NewsletterData[], date: string): strin
           <tr>
             <td style="text-align: center; padding: 32px 24px 24px; background: #0a0a0a;">
               <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff;">⚡ TheNode.tech</h1>
-              <p style="margin: 6px 0 0; color: #999; font-size: 14px;">${formattedDate} — Your daily dose of tech</p>
+              <p style="margin: 6px 0 0; color: #999; font-size: 14px;">${formattedDate} — ${t.dailyDoseOfTech}</p>
             </td>
           </tr>
           <tr>
@@ -241,7 +299,7 @@ function buildNewsletterHTML(newsletters: NewsletterData[], date: string): strin
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
-                    <a href="https://thenode.tech" style="display: inline-block; padding: 12px 28px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Read on TheNode.tech</a>
+                    <a href="https://thenode.tech" style="display: inline-block; padding: 12px 28px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">${t.readOnSite}</a>
                   </td>
                 </tr>
               </table>
@@ -250,10 +308,10 @@ function buildNewsletterHTML(newsletters: NewsletterData[], date: string): strin
           <tr>
             <td style="text-align: center; padding: 20px 24px 28px; background: #fafafa; border-top: 1px solid #eee;">
               <p style="color: #999; font-size: 12px; margin: 0; line-height: 1.6;">
-                You're receiving this because you subscribed to TheNode.tech newsletter.<br>
-                <a href="{{unsubscribe_url}}" style="color: #999;">Unsubscribe</a> &middot;
-                <a href="https://thenode.tech/settings" style="color: #999;">Manage preferences</a> &middot;
-                <a href="https://thenode.tech/pricing" style="color: #999;">Upgrade to Premium</a>
+                ${t.receivingBecause}<br>
+                <a href="{{unsubscribe_url}}" style="color: #999;">${t.unsubscribe}</a> &middot;
+                <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a> &middot;
+                <a href="https://thenode.tech/pricing" style="color: #999;">${t.upgradeToPremium}</a>
               </p>
             </td>
           </tr>
@@ -355,16 +413,15 @@ export const sendDailyNewsletters = internalAction({
                     continue;
                 }
 
-                const html = buildNewsletterHTML(
-                    newsletters as NewsletterData[],
-                    today
-                );
+                const newslettersData = newsletters as NewsletterData[];
+                const emailT = getEmailTranslations(language);
+                const subject = buildNewsletterSubject(newslettersData, today, language);
+                const html = buildNewsletterHTML(newslettersData, today, emailT);
 
-                // Send email via Resend
                 await resend.emails.send({
                     from: "TheNode.tech <newsletter@thenode.tech>",
                     to: user.email,
-                    subject: `⚡ TheNode.tech — ${moment(today).format("MMM D, YYYY")}`,
+                    subject,
                     html,
                 });
 
@@ -387,7 +444,7 @@ export const sendDailyNewsletters = internalAction({
     },
 });
 
-function buildWelcomeEmailHTML(): string {
+function buildWelcomeEmailHTML(t: EmailTemplateStrings): string {
     const categoryList = (Object.keys(CATEGORY_NAMES) as CategorySlug[])
         .map((slug) => `<li style="padding: 4px 0;">${CATEGORY_ICONS[slug]} ${CATEGORY_NAMES[slug]}</li>`)
         .join("");
@@ -403,31 +460,31 @@ function buildWelcomeEmailHTML(): string {
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <tr>
       <td style="text-align: center; padding: 32px 0 24px;">
-        <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #0a0a0a;">Welcome to TheNode.tech</h1>
-        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">Your daily tech intelligence, delivered.</p>
+        <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #0a0a0a;">${t.welcomeTitle}</h1>
+        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">${t.welcomeSubtitle}</p>
       </td>
     </tr>
     <tr>
       <td style="padding: 0 0 24px;">
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          Thanks for signing up! Every morning, we comb through hundreds of tech news sources and use AI to distill the signal from the noise — so you don't have to.
+          ${t.thanksForSigningUp}
         </p>
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          Here's what you'll get in each edition:
+          ${t.whatYouGet}
         </p>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
           <tr>
             <td style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
               <ul style="margin: 0; padding: 0 0 0 20px; color: #333; font-size: 14px; line-height: 1.8;">
-                <li style="padding: 2px 0;"><strong>Deep Dives</strong> — Expert analysis of the 2-3 biggest stories of the day</li>
-                <li style="padding: 2px 0;"><strong>Key Stats</strong> — Notable numbers and data points you should know</li>
-                <li style="padding: 2px 0;"><strong>Quick Links</strong> — Scannable summaries of everything else worth reading</li>
+                <li style="padding: 2px 0;">${t.deepDivesDesc}</li>
+                <li style="padding: 2px 0;">${t.keyStatsDesc}</li>
+                <li style="padding: 2px 0;">${t.quickLinksDesc}</li>
               </ul>
             </td>
           </tr>
         </table>
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 12px;">
-          We cover 10 categories across the tech landscape:
+          ${t.weCover}
         </p>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
           <tr>
@@ -439,12 +496,12 @@ function buildWelcomeEmailHTML(): string {
           </tr>
         </table>
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
-          Head to your settings to pick the categories you care about, set your timezone, and choose your preferred delivery time. Your first newsletter will arrive tomorrow morning.
+          ${t.headToSettings}
         </p>
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="text-align: center;">
-              <a href="https://thenode.tech/settings" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">Customize Your Preferences</a>
+              <a href="https://thenode.tech/settings" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">${t.customizePreferences}</a>
             </td>
           </tr>
         </table>
@@ -453,8 +510,8 @@ function buildWelcomeEmailHTML(): string {
     <tr>
       <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
         <p style="color: #999; font-size: 12px; margin: 0;">
-          You're receiving this because you signed up for TheNode.tech.<br>
-          <a href="https://thenode.tech/settings" style="color: #999;">Manage preferences</a>
+          ${t.receivingBecauseSignup}<br>
+          <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a>
         </p>
       </td>
     </tr>
@@ -478,12 +535,14 @@ export const sendWelcomeEmail = internalAction({
         }
 
         try {
-            const html = buildWelcomeEmailHTML();
+            const lang = user.language || "en";
+            const t = getEmailTranslations(lang);
+            const html = buildWelcomeEmailHTML(t);
 
             await resend.emails.send({
                 from: "TheNode.tech <newsletter@thenode.tech>",
                 to: user.email,
-                subject: "Welcome to TheNode.tech — Your daily tech digest starts now",
+                subject: t.welcomeSubject,
                 html,
             });
 
@@ -496,7 +555,7 @@ export const sendWelcomeEmail = internalAction({
 
 // --- Premium Upgrade Email ---
 
-function buildPremiumUpgradeEmailHTML(): string {
+function buildPremiumUpgradeEmailHTML(t: EmailTemplateStrings): string {
     return `
 <!DOCTYPE html>
 <html>
@@ -508,33 +567,33 @@ function buildPremiumUpgradeEmailHTML(): string {
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <tr>
       <td style="text-align: center; padding: 32px 0 24px;">
-        <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0a0a0a;">Welcome to Premium!</h1>
-        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">Thank you for upgrading your TheNode.tech experience.</p>
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0a0a0a;">${t.premiumWelcomeTitle}</h1>
+        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">${t.premiumWelcomeSubtitle}</p>
       </td>
     </tr>
     <tr>
       <td style="padding: 0 0 24px;">
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          You now have access to the full premium experience. Here's what's unlocked:
+          ${t.premiumThanks}
         </p>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
           <tr>
             <td style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
               <ul style="margin: 0; padding: 0 0 0 20px; color: #333; font-size: 14px; line-height: 2;">
-                <li><strong>Custom Delivery Time</strong> — Choose the exact hour you want your newsletter delivered</li>
-                <li><strong>Multi-Language Support</strong> — Receive your digest in your preferred language</li>
-                <li><strong>Priority Content</strong> — Get deeper analysis and more detailed coverage</li>
+                <li>${t.customDeliveryTime}</li>
+                <li>${t.multiLanguageSupport}</li>
+                <li>${t.priorityContent}</li>
               </ul>
             </td>
           </tr>
         </table>
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
-          Head to your settings to configure your premium features. Your next newsletter will include the enhanced premium content.
+          ${t.headToSettings}
         </p>
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="text-align: center;">
-              <a href="https://thenode.tech/settings" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">Configure Premium Settings</a>
+              <a href="https://thenode.tech/settings" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">${t.configurePremium}</a>
             </td>
           </tr>
         </table>
@@ -543,8 +602,8 @@ function buildPremiumUpgradeEmailHTML(): string {
     <tr>
       <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
         <p style="color: #999; font-size: 12px; margin: 0;">
-          You're receiving this because you upgraded to TheNode.tech Premium.<br>
-          <a href="https://thenode.tech/settings" style="color: #999;">Manage preferences</a>
+          ${t.receivingBecauseUpgrade}<br>
+          <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a>
         </p>
       </td>
     </tr>
@@ -568,12 +627,14 @@ export const sendPremiumUpgradeEmail = internalAction({
         }
 
         try {
-            const html = buildPremiumUpgradeEmailHTML();
+            const lang = user.language || "en";
+            const t = getEmailTranslations(lang);
+            const html = buildPremiumUpgradeEmailHTML(t);
 
             await resend.emails.send({
                 from: "TheNode.tech <newsletter@thenode.tech>",
                 to: user.email,
-                subject: "Welcome to Premium — Your upgraded experience starts now",
+                subject: t.premiumWelcomeSubject,
                 html,
             });
 
@@ -586,7 +647,7 @@ export const sendPremiumUpgradeEmail = internalAction({
 
 // --- Premium Cancellation Email ---
 
-function buildPremiumCancellationEmailHTML(): string {
+function buildPremiumCancellationEmailHTML(t: EmailTemplateStrings): string {
     return `
 <!DOCTYPE html>
 <html>
@@ -598,33 +659,33 @@ function buildPremiumCancellationEmailHTML(): string {
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <tr>
       <td style="text-align: center; padding: 32px 0 24px;">
-        <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0a0a0a;">Subscription Cancelled</h1>
-        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">We're sorry to see you go.</p>
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0a0a0a;">${t.cancellationTitle}</h1>
+        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">${t.cancellationSubtitle}</p>
       </td>
     </tr>
     <tr>
       <td style="padding: 0 0 24px;">
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          Your premium subscription has been cancelled. Here's what changes:
+          ${t.cancellationWhatChanges}
         </p>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
           <tr>
             <td style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
               <ul style="margin: 0; padding: 0 0 0 20px; color: #333; font-size: 14px; line-height: 2;">
-                <li><strong>You'll keep receiving</strong> your daily newsletter with all your selected categories</li>
-                <li><strong>Delivery window</strong> reverts to the default 7-9 AM window</li>
-                <li><strong>Language</strong> will revert to English</li>
+                <li>${t.keepReceiving}</li>
+                <li>${t.deliveryReverts}</li>
+                <li>${t.languageReverts}</li>
               </ul>
             </td>
           </tr>
         </table>
         <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          Your free newsletter will continue without interruption. If you change your mind, you can re-subscribe at any time.
+          ${t.freeContinues}
         </p>
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="text-align: center;">
-              <a href="https://thenode.tech/pricing" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">Re-subscribe to Premium</a>
+              <a href="https://thenode.tech/pricing" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">${t.resubscribe}</a>
             </td>
           </tr>
         </table>
@@ -633,8 +694,8 @@ function buildPremiumCancellationEmailHTML(): string {
     <tr>
       <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
         <p style="color: #999; font-size: 12px; margin: 0;">
-          You're receiving this because your TheNode.tech Premium subscription was cancelled.<br>
-          <a href="https://thenode.tech/settings" style="color: #999;">Manage preferences</a>
+          ${t.receivingBecauseCancelled}<br>
+          <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a>
         </p>
       </td>
     </tr>
@@ -658,12 +719,14 @@ export const sendPremiumCancellationEmail = internalAction({
         }
 
         try {
-            const html = buildPremiumCancellationEmailHTML();
+            const lang = user.language || "en";
+            const t = getEmailTranslations(lang);
+            const html = buildPremiumCancellationEmailHTML(t);
 
             await resend.emails.send({
                 from: "TheNode.tech <newsletter@thenode.tech>",
                 to: user.email,
-                subject: "Your Premium subscription has been cancelled",
+                subject: t.cancellationSubject,
                 html,
             });
 

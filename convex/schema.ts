@@ -44,6 +44,8 @@ export default defineSchema({
       v.object({
         categories: v.optional(v.array(categoryValidator)),
         preferredDeliveryHour: v.optional(v.number()),
+        weeklyDigestEnabled: v.optional(v.boolean()),
+        preferredDigestDay: v.optional(v.number()),
       })
     ),
     timezone: v.optional(v.string()),

@@ -69,7 +69,7 @@ export default function SignInForm({
           disabled={sending}
           className="rounded-lg bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
-          {sending ? t.auth.sending : (submitLabel ?? t.auth.subscribe)}
+          {sending ? t.auth.sending : (submitLabel ?? t.home.subscribe)}
         </button>
       </div>
       {error && (

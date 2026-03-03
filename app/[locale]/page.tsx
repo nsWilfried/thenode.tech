@@ -1,22 +1,23 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { api } from "../../convex/_generated/api";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ThemeToggle } from "./ThemeProvider";
-import { useTranslation, LanguageSwitcher } from "./LanguageProvider";
-import { getCategoryShortName } from "../lib/i18n/categoryHelpers";
-import { formatNewsletterDate } from "../lib/i18n/dateHelpers";
+import { ThemeToggle } from "../ThemeProvider";
+import { useTranslation, LanguageSwitcher } from "../LanguageProvider";
+import { getCategoryShortName } from "../../lib/i18n/categoryHelpers";
+import { formatNewsletterDate } from "../../lib/i18n/dateHelpers";
+import { localePath } from "../../lib/i18n/localePath";
 import {
   CATEGORY_SLUGS_WITH_ICON,
   getCategoryGradient,
-} from "../lib/constants/categoryDisplay";
-import type { DeepDive, NewsletterWithSections } from "../lib/types/newsletter";
-import UserMenu from "./components/UserMenu";
-import SignInForm from "./components/SignInForm";
+} from "../../lib/constants/categoryDisplay";
+import type { DeepDive, NewsletterWithSections } from "../../lib/types/newsletter";
+import UserMenu from "../components/UserMenu";
+import SignInForm from "../components/SignInForm";
 
 function getFirstNewsletterImage(
   newsletter: NewsletterWithSections | undefined
@@ -71,7 +72,7 @@ function FeaturedCategory({
 
   return (
     <Link
-      href={`/category/${slug}`}
+      href={localePath(`/category/${slug}`, locale)}
       className="group col-span-full block overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-xl dark:border-dark-border dark:bg-dark-card"
     >
       <div className="grid md:grid-cols-2">
@@ -133,7 +134,7 @@ function FeaturedCategory({
 
           <div className="mt-5">
             <span className="text-xs font-semibold text-zinc-500 transition-colors group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-200">
-              {t.home.viewFullEdition} →
+              {t.home.viewFullEdition}
             </span>
           </div>
         </div>
@@ -177,7 +178,7 @@ function CategorySection({
 
   return (
     <Link
-      href={`/category/${slug}`}
+      href={localePath(`/category/${slug}`, locale)}
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all hover:shadow-lg dark:border-dark-border dark:bg-dark-card"
     >
       <div className={`relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-gradient-to-br ${gradient}`}>
@@ -234,7 +235,7 @@ function CategorySection({
         {newsletters && newsletters.length > 0 && (
           <div className="mt-auto border-t border-zinc-100 pt-3 dark:border-dark-border">
             <span className="text-xs font-semibold text-zinc-500 transition-colors group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-200">
-              {t.home.viewFullEdition} →
+              {t.home.viewFullEdition}
             </span>
           </div>
         )}
@@ -244,15 +245,15 @@ function CategorySection({
 }
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const user = useQuery(api.queries.users.currentUser);
   const router = useRouter();
 
   useEffect(() => {
     if (user && user.onboardingComplete === false) {
-      router.push("/onboarding");
+      router.push(localePath("/onboarding", locale));
     }
-  }, [user, router]);
+  }, [user, router, locale]);
 
   const [featured, ...remaining] = CATEGORY_SLUGS_WITH_ICON;
 
@@ -260,27 +261,30 @@ export default function Home() {
     <div className="min-h-screen bg-zinc-50 font-sans dark:bg-dark-bg">
       <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <Link
+            href={localePath("/", locale)}
+            className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100"
+          >
             ⚡ TheNode<span className="text-zinc-400">.tech</span>
-          </h1>
+          </Link>
           <nav className="flex items-center gap-3">
             {!user && (
               <Link
                 href="#subscribe"
                 className="text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
               >
-                {t.auth.subscribe}
+                {t.home.subscribe}
               </Link>
             )}
             <Link
-              href="/pricing"
+              href={localePath("/pricing", locale)}
               className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             >
               {t.nav.premium}
             </Link>
             {user && (
               <Link
-                href="/settings"
+                href={localePath("/settings", locale)}
                 className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
               >
                 {t.nav.settings}
@@ -304,9 +308,6 @@ export default function Home() {
         </p>
         {!user && (
           <div className="relative mt-8 flex flex-col items-center justify-center gap-2">
-            <span className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
-              {t.auth.subscribe}
-            </span>
             <SignInForm />
           </div>
         )}
@@ -317,7 +318,7 @@ export default function Home() {
         )}
         <p className="mt-6 text-xs text-zinc-400">
           {t.home.freeNote}{" "}
-          <Link href="/pricing" className="underline hover:text-zinc-600">
+          <Link href={localePath("/pricing", locale)} className="underline hover:text-zinc-600">
             {t.home.learnMore}
           </Link>
         </p>
@@ -328,7 +329,7 @@ export default function Home() {
           {CATEGORY_SLUGS_WITH_ICON.map((cat) => (
             <Link
               key={cat.slug}
-              href={`/category/${cat.slug}`}
+              href={localePath(`/category/${cat.slug}`, locale)}
               className="rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:border-zinc-900 hover:bg-zinc-900 hover:text-white dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-400 dark:hover:bg-zinc-400 dark:hover:text-zinc-900"
             >
               {cat.icon} {getCategoryShortName(t.categories, cat.slug)}
@@ -356,10 +357,10 @@ export default function Home() {
             &copy; {new Date().getFullYear()} TheNode.tech. {t.common.allRightsReserved}
           </p>
           <div className="flex gap-6">
-            <Link href="/pricing" className="text-sm text-zinc-400 hover:text-zinc-600">
+            <Link href={localePath("/pricing", locale)} className="text-sm text-zinc-400 hover:text-zinc-600">
               {t.nav.pricing}
             </Link>
-            <Link href="/settings" className="text-sm text-zinc-400 hover:text-zinc-600">
+            <Link href={localePath("/settings", locale)} className="text-sm text-zinc-400 hover:text-zinc-600">
               {t.nav.settings}
             </Link>
           </div>

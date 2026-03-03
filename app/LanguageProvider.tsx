@@ -8,12 +8,14 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   translations,
   SUPPORTED_LOCALES,
   type Locale,
   type TranslationDict,
 } from "../lib/i18n/translations";
+import { isValidLocale } from "../lib/i18n/locales";
 
 interface LanguageContextValue {
   locale: Locale;
@@ -31,20 +33,44 @@ export function useTranslation() {
   return useContext(LanguageContext);
 }
 
+function getPathWithoutLocale(pathname: string): string {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length > 0 && isValidLocale(segments[0])) {
+    return "/" + segments.slice(1).join("/");
+  }
+  return pathname || "/";
+}
+
 export default function LanguageProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const [locale, setLocaleState] = useState<Locale>("en");
   const [mounted, setMounted] = useState(false);
 
+  // Sync locale from URL (pathname first segment)
   useEffect(() => {
-    // Read persisted language from localStorage
-    const stored = localStorage.getItem("thenode-locale") as Locale | null;
-    if (stored && translations[stored]) {
-      setLocaleState(stored);
-    } else {
-      // Try to detect browser language
-      const browserLang = navigator.language.slice(0, 2) as Locale;
-      if (translations[browserLang]) {
-        setLocaleState(browserLang);
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments.length > 0 && isValidLocale(segments[0])) {
+      const urlLocale = segments[0] as Locale;
+      setLocaleState(urlLocale);
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("thenode-locale", urlLocale);
+      }
+    }
+  }, [pathname]);
+
+  // Initial mount: if URL has no locale yet, use localStorage or browser
+  useEffect(() => {
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments.length === 0 || !isValidLocale(segments[0])) {
+      const stored = localStorage.getItem("thenode-locale") as Locale | null;
+      if (stored && translations[stored]) {
+        setLocaleState(stored);
+      } else {
+        const browserLang = navigator.language.slice(0, 2) as Locale;
+        if (translations[browserLang]) {
+          setLocaleState(browserLang);
+        }
       }
     }
     setMounted(true);
@@ -53,8 +79,10 @@ export default function LanguageProvider({ children }: { children: ReactNode }) 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem("thenode-locale", newLocale);
-    // Update <html lang="...">
     document.documentElement.lang = newLocale;
+    const pathWithoutLocale = getPathWithoutLocale(pathname);
+    const newPath = pathWithoutLocale === "/" ? `/${newLocale}` : `/${newLocale}${pathWithoutLocale}`;
+    router.push(newPath);
   };
 
   // Keep <html lang> in sync

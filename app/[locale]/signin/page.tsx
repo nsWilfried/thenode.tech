@@ -2,24 +2,39 @@
 
 import Link from "next/link";
 import { useQuery, useConvexAuth } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { useRouter } from "next/navigation";
+import { api } from "../../../convex/_generated/api";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { ThemeToggle } from "../ThemeProvider";
-import { useTranslation, LanguageSwitcher } from "../LanguageProvider";
-import SignInForm from "../components/SignInForm";
+import { ThemeToggle } from "../../ThemeProvider";
+import { useTranslation, LanguageSwitcher } from "../../LanguageProvider";
+import { localePath } from "../../../lib/i18n/localePath";
+import SignInForm from "../../components/SignInForm";
+
+function isSafeRedirect(path: string): boolean {
+  if (!path || typeof path !== "string") return false;
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return p.startsWith("/") && !p.startsWith("//") && !p.includes("//");
+}
 
 export default function SignInPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { isAuthenticated, isLoading } = useConvexAuth();
   const user = useQuery(api.queries.users.currentUser);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
-      router.push(user.onboardingComplete === false ? "/onboarding" : "/");
+      const target =
+        user.onboardingComplete === false
+          ? localePath("/onboarding", locale)
+          : isSafeRedirect(redirectTo ?? "")
+            ? redirectTo!
+            : localePath("/", locale);
+      router.push(target);
     }
-  }, [isLoading, isAuthenticated, user, router]);
+  }, [isLoading, isAuthenticated, user, router, locale, redirectTo]);
 
   if (isLoading) {
     return (
@@ -42,7 +57,7 @@ export default function SignInPage() {
       <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-lg dark:border-dark-border dark:bg-dark-bg/80">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <Link
-            href="/"
+            href={localePath("/", locale)}
             className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100"
           >
             ⚡ TheNode<span className="text-zinc-400">.tech</span>
@@ -68,7 +83,7 @@ export default function SignInPage() {
 
         <p className="mt-8 text-xs text-zinc-400">
           {t.home.freeNote}{" "}
-          <Link href="/pricing" className="underline hover:text-zinc-600">
+          <Link href={localePath("/pricing", locale)} className="underline hover:text-zinc-600">
             {t.home.learnMore}
           </Link>
         </p>
