@@ -9,6 +9,7 @@ import {
   Link,
   Hr,
   Heading,
+  Img,
 } from "@react-email/components";
 
 interface ArticleProps {
@@ -135,6 +136,12 @@ const logo = {
   color: "#0a0a0a",
   margin: "0",
 };
+
+const logoImage = {
+  display: "block",
+  margin: "0 auto 8px",
+  borderRadius: "12px",
+} as const;
 
 const dateText = {
   fontSize: "14px",

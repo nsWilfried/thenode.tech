@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { CheckoutLink, CustomerPortalLink } from "@convex-dev/polar/react";
 import { api } from "../../../convex/_generated/api";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -127,6 +128,14 @@ export default function SettingsPage() {
                 </Link>
               )}
             </div>
+            {isPremium && (
+              <CustomerPortalLink
+                polarApi={api.polar}
+                className="mt-3 inline-block text-xs text-zinc-500 underline hover:text-zinc-900"
+              >
+                {t.settings.manageSubscription}
+              </CustomerPortalLink>
+            )}
             <button onClick={() => void signOut()} className="mt-4 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-dark-hover dark:hover:text-zinc-200">
               {t.nav.signOut}
             </button>

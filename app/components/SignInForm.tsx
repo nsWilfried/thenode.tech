@@ -3,6 +3,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
 import { useTranslation } from "../LanguageProvider";
+import { trackEvent } from "../../lib/analytics/plausible";
 
 export default function SignInForm({
   onSuccess,
@@ -28,6 +29,7 @@ export default function SignInForm({
     try {
       await signIn("resend", { email });
       setStep("sent");
+      trackEvent("newsletter_signup");
       onSuccess?.();
     } catch {
       setError(t.common.somethingWentWrong);

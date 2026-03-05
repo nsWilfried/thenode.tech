@@ -3,7 +3,11 @@ import Resend from "@auth/core/providers/resend";
 import { internal } from "./_generated/api";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [Resend],
+  providers: [
+    Resend({
+      from: "TheNode.tech <login@thenode.tech>",
+    }),
+  ],
   callbacks: {
     async afterUserCreatedOrUpdated(ctx, { userId, existingUserId }) {
       if (existingUserId === null) {

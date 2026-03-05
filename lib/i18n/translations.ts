@@ -160,6 +160,7 @@ export interface TranslationDict {
     saving: string;
     saved: string;
     savePreferences: string;
+    manageSubscription: string;
   };
   // Newsletter detail page
   newsletter: {
@@ -324,6 +325,7 @@ const en: TranslationDict = {
     saving: "Saving...",
     saved: "Saved!",
     savePreferences: "Save preferences",
+    manageSubscription: "Manage or cancel subscription",
   },
   newsletter: {
     notFound: "Newsletter not found",
@@ -500,6 +502,7 @@ const es: TranslationDict = {
     saving: "Guardando...",
     saved: "¡Guardado!",
     savePreferences: "Guardar preferencias",
+    manageSubscription: "Gestionar o cancelar suscripción",
   },
   newsletter: {
     notFound: "Newsletter no encontrada",
@@ -677,6 +680,7 @@ const fr: TranslationDict = {
     saving: "Enregistrement...",
     saved: "Enregistré !",
     savePreferences: "Enregistrer les préférences",
+    manageSubscription: "Gérer ou annuler l'abonnement",
   },
   newsletter: {
     notFound: "Newsletter introuvable",
@@ -854,6 +858,7 @@ const de: TranslationDict = {
     saving: "Speichern...",
     saved: "Gespeichert!",
     savePreferences: "Einstellungen speichern",
+    manageSubscription: "Abo verwalten oder kündigen",
   },
   newsletter: {
     notFound: "Newsletter nicht gefunden",
@@ -1022,6 +1027,7 @@ const ja: TranslationDict = {
     saving: "保存中...",
     saved: "保存しました！",
     savePreferences: "設定を保存",
+    manageSubscription: "購読の管理・解約",
   },
   newsletter: {
     notFound: "ニュースレターが見つかりません",
@@ -1192,6 +1198,7 @@ const zh: TranslationDict = {
     saving: "保存中...",
     saved: "已保存！",
     savePreferences: "保存偏好",
+    manageSubscription: "管理或取消订阅",
   },
   newsletter: {
     notFound: "通讯未找到",
@@ -1368,6 +1375,7 @@ const pt: TranslationDict = {
     saving: "Salvando...",
     saved: "Salvo!",
     savePreferences: "Salvar preferências",
+    manageSubscription: "Gerenciar ou cancelar assinatura",
   },
   newsletter: {
     notFound: "Newsletter não encontrada",
@@ -1545,6 +1553,7 @@ const it: TranslationDict = {
     saving: "Salvataggio...",
     saved: "Salvato!",
     savePreferences: "Salva preferenze",
+    manageSubscription: "Gestisci o annulla l'abbonamento",
   },
   newsletter: {
     notFound: "Newsletter non trovata",
@@ -1718,6 +1727,7 @@ const ko: TranslationDict = {
     saving: "저장 중...",
     saved: "저장됨!",
     savePreferences: "설정 저장",
+    manageSubscription: "구독 관리 또는 취소",
   },
   newsletter: {
     notFound: "뉴스레터를 찾을 수 없습니다",

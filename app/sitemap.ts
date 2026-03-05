@@ -1,29 +1,31 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import { LOCALE_CODES } from "../lib/i18n/locales";
 import { CATEGORY_SLUGS } from "../lib/constants/categories";
+import { SITE_URL } from "../lib/seo/config";
 
-const BASE_URL = "https://thenode.tech";
+/** Public paths that should be crawled and indexed (private routes excluded). */
+const PUBLIC_PATHS: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [
+  { path: "", changeFrequency: "daily", priority: 1.0 },
+  { path: "pricing", changeFrequency: "weekly", priority: 0.7 },
+  ...CATEGORY_SLUGS.map((slug) => ({
+    path: `category/${slug}`,
+    changeFrequency: "daily" as const,
+    priority: 0.9,
+  })),
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = [
-    "",
-    "pricing",
-    "signin",
-    "onboarding",
-    "settings",
-    ...CATEGORY_SLUGS.map((slug) => `category/${slug}`),
-  ];
-
   const entries: MetadataRoute.Sitemap = [];
+  const now = new Date();
 
   for (const locale of LOCALE_CODES) {
-    for (const path of paths) {
+    for (const { path, changeFrequency, priority } of PUBLIC_PATHS) {
       const pathSegment = path ? `/${path}` : "";
       entries.push({
-        url: `${BASE_URL}/${locale}${pathSegment}`,
-        lastModified: new Date(),
-        changeFrequency: path === "" ? "daily" : "weekly",
-        priority: path === "" ? 1 : 0.8,
+        url: `${SITE_URL}/${locale}${pathSegment}`,
+        lastModified: now,
+        changeFrequency,
+        priority,
       });
     }
   }
