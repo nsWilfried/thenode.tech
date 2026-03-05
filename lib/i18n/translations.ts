@@ -979,6 +979,13 @@ const ja: TranslationDict = {
     premium: "プレミアム",
     premiumPriceLabel: "$2.99",
     premiumDescription: "テック愛好家のために。",
+    premiumFeatures: [
+      "無料版の全機能を含む、さらに：",
+      "お好きな言語でニュースレターを受け取る（9言語対応）",
+      "優先配信",
+      "毎週 AI サマリー — 週ごとのまとめ",
+      "新機能の先行体験",
+    ],
     recommended: "おすすめ",
     subscribeWithPolar: "購読する",
     signInToSubscribe: "購読するにはサインイン",
