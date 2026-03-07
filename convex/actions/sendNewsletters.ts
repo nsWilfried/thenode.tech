@@ -128,118 +128,125 @@ function buildNewsletterSubject(
         .replace("{{date}}", formattedDate);
 }
 
-function buildNewsletterHTML(
-    newsletters: NewsletterData[],
-    date: string,
+function renderCategorySection(
+    nl: NewsletterData,
     t: EmailTemplateStrings
 ): string {
-    const todayUtc = moment().utc().format("YYYY-MM-DD");
-    const formattedDate =
-        date === todayUtc ? t.today : moment(date).format("MMMM Do, YYYY");
+    const icon = CATEGORY_ICONS[nl.category] ?? "🗞️";
+    const name = CATEGORY_NAMES[nl.category] ?? nl.category;
 
-    const categorySections = newsletters
-        .map((nl) => {
-            const icon = CATEGORY_ICONS[nl.category];
-            const name = CATEGORY_NAMES[nl.category];
+    const overviewHtml = nl.summary
+        ? `<tr><td style="padding: 12px 0 16px; color: #333; font-size: 15px; line-height: 1.7;">${nl.summary}</td></tr>`
+        : "";
 
-            const overviewHtml = nl.summary
-                ? `<tr><td style="padding: 12px 0 16px; color: #333; font-size: 15px; line-height: 1.7;">${nl.summary}</td></tr>`
+    const editorialHtml = (nl.editorialContent || [])
+        .map((section) => {
+            const imgHtml = section.imageUrl
+                ? `<tr><td style="padding: 0 0 8px;">
+                        <img src="${section.imageUrl}" alt="${section.imageCaption || section.heading}" style="width: 100%; max-width: 560px; height: auto; border-radius: 8px; display: block;" />
+                        ${section.imageCaption ? `<p style="margin: 6px 0 0; font-size: 12px; color: #888; font-style: italic;">${section.imageCaption}</p>` : ""}
+                      </td></tr>`
                 : "";
-
-            const editorialHtml = (nl.editorialContent || [])
-                .map((section) => {
-                    const imgHtml = section.imageUrl
-                        ? `<tr><td style="padding: 0 0 8px;">
-                            <img src="${section.imageUrl}" alt="${section.imageCaption || section.heading}" style="width: 100%; max-width: 560px; height: auto; border-radius: 8px; display: block;" />
-                            ${section.imageCaption ? `<p style="margin: 6px 0 0; font-size: 12px; color: #888; font-style: italic;">${section.imageCaption}</p>` : ""}
-                          </td></tr>`
-                        : "";
-                    const bodyParagraphs = section.body
-                        .split("\n\n")
-                        .map((p) => `<p style="margin: 0 0 12px; color: #333; font-size: 15px; line-height: 1.7;">${p}</p>`)
-                        .join("");
-                    return `
+            const bodyParagraphs = section.body
+                .split("\n\n")
+                .map((p) => `<p style="margin: 0 0 12px; color: #333; font-size: 15px; line-height: 1.7;">${p}</p>`)
+                .join("");
+            return `
               <tr><td style="padding: 20px 0 4px;">
                 <h3 style="margin: 0 0 12px; font-size: 18px; font-weight: 700; color: #0a0a0a;">${section.heading}</h3>
               </td></tr>
               ${imgHtml}
               <tr><td>${bodyParagraphs}</td></tr>`;
-                })
-                .join("");
+        })
+        .join("");
 
-            const deepDivesHtml = (nl.deepDives || []).length > 0
-                ? `<tr><td style="padding: 24px 0 8px;">
+    const deepDivesHtml = (nl.deepDives || []).length > 0
+        ? `<tr><td style="padding: 24px 0 8px;">
                     <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.featuredStories}</h3>
                   </td></tr>` +
-                  (nl.deepDives || []).map((dive) => {
-                      const diveImg = dive.imageUrl
-                          ? `<tr><td style="padding: 0 0 8px;">
+          (nl.deepDives || [])
+              .map((dive) => {
+                  const diveImg = dive.imageUrl
+                      ? `<tr><td style="padding: 0 0 8px;">
                               <a href="${dive.url}" style="text-decoration: none;">
                                 <img src="${dive.imageUrl}" alt="${dive.title}" style="width: 100%; max-width: 560px; height: auto; border-radius: 8px; display: block;" />
                               </a>
                             </td></tr>`
-                          : "";
-                      return `
+                      : "";
+                  return `
                 ${diveImg}
                 <tr><td style="padding: 4px 0 16px;">
                   ${dive.source ? `<span style="display: inline-block; padding: 2px 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">${dive.source}</span><br/>` : ""}
                   <a href="${dive.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 700; font-size: 17px; line-height: 1.4;">${dive.title}</a>
                   <p style="margin: 6px 0 0; color: #555; font-size: 14px; line-height: 1.6;">${dive.summary}</p>
                 </td></tr>`;
-                  }).join("")
-                : "";
+              })
+              .join("")
+        : "";
 
-            const statsHtml = (nl.stats || []).length > 0
-                ? `<tr><td style="padding: 24px 0 12px;">
+    const statsHtml = (nl.stats || []).length > 0
+        ? `<tr><td style="padding: 24px 0 12px;">
                     <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.keyNumbers}</h3>
                   </td></tr>
                   <tr><td>
                     <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>${(nl.stats || []).map((s) => `
+                      <tr>${(nl.stats || [])
+                          .map((s) => `
                         <td width="${Math.floor(100 / Math.min((nl.stats || []).length, 3))}%" style="padding: 12px; background: #f8f9fa; border-radius: 8px; vertical-align: top;">
                           <p style="margin: 0 0 4px; font-size: 22px; font-weight: 800; color: #0a0a0a;">${s.stat}</p>
                           <p style="margin: 0; font-size: 13px; color: #666; line-height: 1.5;">${s.context}</p>
-                        </td>`).slice(0, 3).join('<td width="12"></td>')}
+                        </td>`)
+                          .slice(0, 3)
+                          .join('<td width="12"></td>')}
                       </tr>
                     </table>
                   </td></tr>` +
-                  ((nl.stats || []).length > 3
-                      ? `<tr><td style="padding: 8px 0 0;">
+          ((nl.stats || []).length > 3
+              ? `<tr><td style="padding: 8px 0 0;">
                           <table width="100%" cellpadding="0" cellspacing="0">
-                            <tr>${(nl.stats || []).slice(3).map((s) => `
+                            <tr>${(nl.stats || [])
+                                .slice(3)
+                                .map((s) => `
                               <td width="${Math.floor(100 / Math.min((nl.stats || []).slice(3).length, 3))}%" style="padding: 12px; background: #f8f9fa; border-radius: 8px; vertical-align: top;">
                                 <p style="margin: 0 0 4px; font-size: 22px; font-weight: 800; color: #0a0a0a;">${s.stat}</p>
                                 <p style="margin: 0; font-size: 13px; color: #666; line-height: 1.5;">${s.context}</p>
-                              </td>`).slice(0, 3).join('<td width="12"></td>')}
+                              </td>`)
+                                .slice(0, 3)
+                                .join('<td width="12"></td>')}
                             </tr>
                           </table>
                         </td></tr>`
-                      : "")
-                : "";
+              : "")
+        : "";
 
-            const mediaHtml = (nl.mediaItems || []).filter((m) => m.type === "image").length > 0
-                ? `<tr><td style="padding: 24px 0 12px;">
+    const mediaHtml = (nl.mediaItems || []).filter((m) => m.type === "image").length > 0
+        ? `<tr><td style="padding: 24px 0 12px;">
                     <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.mediaSpotlight}</h3>
                   </td></tr>
                   <tr><td>
                     <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>${(nl.mediaItems || []).filter((m) => m.type === "image").slice(0, 3).map((item) => `
+                      <tr>${(nl.mediaItems || [])
+                          .filter((m) => m.type === "image")
+                          .slice(0, 3)
+                          .map((item) => `
                         <td width="32%" style="vertical-align: top;">
                           <a href="${item.articleUrl || item.url}" style="text-decoration: none;">
                             <img src="${item.url}" alt="${item.caption || ""}" style="width: 100%; height: auto; border-radius: 6px; display: block;" />
                             ${item.caption ? `<p style="margin: 4px 0 0; font-size: 11px; color: #888; line-height: 1.4;">${item.caption}</p>` : ""}
                           </a>
-                        </td>`).join('<td width="2%"></td>')}
+                        </td>`)
+                          .join('<td width="2%"></td>')}
                       </tr>
                     </table>
                   </td></tr>`
-                : "";
+        : "";
 
-            const quickLinksHtml = nl.articles.length > 0
-                ? `<tr><td style="padding: 24px 0 8px; border-top: 1px solid #eee;">
+    const quickLinksHtml = nl.articles.length > 0
+        ? `<tr><td style="padding: 24px 0 8px; border-top: 1px solid #eee;">
                     <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quickLinks}</h3>
                   </td></tr>` +
-                  nl.articles.map((a, i) => `
+          nl.articles
+              .map((a, i) => `
                 <tr><td style="padding: 10px 0; ${i < nl.articles.length - 1 ? "border-bottom: 1px solid #f5f5f5;" : ""}">
                   <table width="100%" cellpadding="0" cellspacing="0"><tr>
                     <td width="28" style="vertical-align: top; padding-top: 2px;">
@@ -251,10 +258,11 @@ function buildNewsletterHTML(
                       ${a.source ? `<span style="font-size: 11px; color: #aaa;">${a.source}</span>` : ""}
                     </td>
                   </tr></table>
-                </td></tr>`).join("")
-                : "";
+                </td></tr>`)
+              .join("")
+        : "";
 
-            return `
+    return `
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
         <tr>
           <td style="padding: 14px 16px; background: #0a0a0a; border-radius: 8px;">
@@ -268,8 +276,20 @@ function buildNewsletterHTML(
         ${mediaHtml}
         ${quickLinksHtml}
       </table>`;
-        })
-        .join("");
+}
+
+function buildCategoryNewsletterHTML(
+    newsletter: NewsletterData,
+    date: string,
+    t: EmailTemplateStrings
+): string {
+    const todayUtc = moment().utc().format("YYYY-MM-DD");
+    const formattedDate =
+        date === todayUtc ? t.today : moment(date).format("MMMM Do, YYYY");
+
+    const headerIcon = CATEGORY_ICONS[newsletter.category] ?? "🗞️";
+    const headerName = CATEGORY_NAMES[newsletter.category] ?? newsletter.category;
+    const categorySection = renderCategorySection(newsletter, t);
 
     return `
 <!DOCTYPE html>
@@ -285,13 +305,13 @@ function buildNewsletterHTML(
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border-radius: 12px; overflow: hidden;">
           <tr>
             <td style="text-align: center; padding: 32px 24px 24px; background: #0a0a0a;">
-              <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff;">⚡ TheNode.tech</h1>
-              <p style="margin: 6px 0 0; color: #999; font-size: 14px;">${formattedDate} — ${t.dailyDoseOfTech}</p>
+              <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff;">${headerIcon} ${headerName}</h1>
+              <p style="margin: 6px 0 0; color: #999; font-size: 14px;">${formattedDate} &middot; ${t.dailyDoseOfTech}</p>
             </td>
           </tr>
           <tr>
             <td style="padding: 24px;">
-              ${categorySections}
+              ${categorySection}
             </td>
           </tr>
           <tr>
@@ -363,7 +383,7 @@ export const sendDailyNewsletters = internalAction({
         console.log(`[sendDailyNewsletters] Found ${users.length} verified users`);
 
         const stats = {
-            sent: 0,
+            sentEmails: 0,
             skippedNoEmail: 0,
             skippedAlreadySent: 0,
             skippedNoContent: 0,
@@ -395,35 +415,46 @@ export const sendDailyNewsletters = internalAction({
                 const isPremium = user.isPremium ?? false;
                 const language = isPremium ? (user.language || "en") : "en";
                 const categories = getCategoriesForUser(user);
+                const emailT = getEmailTranslations(language);
 
-                const newsletters: any[] = [];
+                let sentEmailsForUser = 0;
+
                 for (const category of categories) {
                     const nl = await ctx.runQuery(
                         internal.queries.newsletters.getLatestByCategoryInternal,
                         { category, language, date: today }
                     );
-                    if (nl) {
-                        newsletters.push(nl);
+
+                    if (!nl) {
+                        continue;
                     }
+
+                    const newsletter = nl as NewsletterData;
+                    const subject = buildNewsletterSubject([newsletter], today, language);
+                    const html = buildCategoryNewsletterHTML(newsletter, today, emailT);
+                    const senderIcon = CATEGORY_ICONS[category] ?? "🗞️";
+                    const senderName =
+                        `${senderIcon} ${CATEGORY_NAMES[category] ?? category} · TheNode.tech`;
+
+                    await resend.emails.send({
+                        from: `${senderName} <newsletter@thenode.tech>`,
+                        to: user.email,
+                        subject,
+                        html,
+                    });
+
+                    sentEmailsForUser++;
+                    stats.sentEmails++;
+                    console.log(
+                        `[sendDailyNewsletters] Newsletter (${category}) sent to ${user.email}`
+                    );
                 }
 
-                if (newsletters.length === 0) {
+                if (sentEmailsForUser === 0) {
                     stats.skippedNoContent++;
                     console.log(`[sendDailyNewsletters] No newsletters found for ${user.email} (date=${today}, language=${language}, categories=${categories.join(",")})`);
                     continue;
                 }
-
-                const newslettersData = newsletters as NewsletterData[];
-                const emailT = getEmailTranslations(language);
-                const subject = buildNewsletterSubject(newslettersData, today, language);
-                const html = buildNewsletterHTML(newslettersData, today, emailT);
-
-                await resend.emails.send({
-                    from: "TheNode.tech <newsletter@thenode.tech>",
-                    to: user.email,
-                    subject,
-                    html,
-                });
 
                 // Update last sent timestamp
                 await ctx.runMutation(internal.mutations.users.updateLastNewsletterSent, {
@@ -431,15 +462,16 @@ export const sendDailyNewsletters = internalAction({
                     lastNewsletterSent: Date.now(),
                 });
 
-                stats.sent++;
-                console.log(`[sendDailyNewsletters] Newsletter sent to ${user.email}`);
+                console.log(
+                    `[sendDailyNewsletters] ${sentEmailsForUser} newsletter(s) sent to ${user.email}`
+                );
             } catch (error) {
                 console.error(`[sendDailyNewsletters] Failed to send newsletter to ${user.email}:`, error);
             }
         }
 
         console.log(
-            `[sendDailyNewsletters] Complete — sent=${stats.sent}, skippedAlreadySent=${stats.skippedAlreadySent}, skippedNoContent=${stats.skippedNoContent}, skippedNoEmail=${stats.skippedNoEmail}`
+            `[sendDailyNewsletters] Complete — sentEmails=${stats.sentEmails}, skippedAlreadySent=${stats.skippedAlreadySent}, skippedNoContent=${stats.skippedNoContent}, skippedNoEmail=${stats.skippedNoEmail}`
         );
     },
 });
@@ -736,4 +768,3 @@ export const sendPremiumCancellationEmail = internalAction({
         }
     },
 });
-
