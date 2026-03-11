@@ -87,9 +87,14 @@ export default function SettingsPage() {
     setSaveStatus("saving");
     try {
       await updatePreferences({
-        language: selectedLanguage,
         categories: selectedCategories as CategorySlug[],
-        ...(user.isPremium && { timezone, preferredDeliveryHour: preferredHour, weeklyDigestEnabled, preferredDigestDay }),
+        ...(user.isPremium && {
+          language: selectedLanguage,
+          timezone,
+          preferredDeliveryHour: preferredHour,
+          weeklyDigestEnabled,
+          preferredDigestDay,
+        }),
       } as Parameters<typeof updatePreferences>[0]);
       setSaveStatus("saved");
       setTimeout(() => setSaveStatus("idle"), 2000);

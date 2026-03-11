@@ -10,7 +10,7 @@ import { getCategoryName, getCategoryDescription } from "../../../../lib/i18n/ca
 import { formatNewsletterDate } from "../../../../lib/i18n/dateHelpers";
 import { localePath } from "../../../../lib/i18n/localePath";
 import { isValidCategorySlug, getCategoryIcon } from "../../../../lib/constants/categoryDisplay";
-import type { DeepDive, Stat, MediaItem, Article, EditorialSection, NewsletterWithSections } from "../../../../lib/types/newsletter";
+import type { DeepDive, Stat, Article, EditorialSection, NewsletterWithSections } from "../../../../lib/types/newsletter";
 
 export default function CategoryContent({
   params,
@@ -108,20 +108,20 @@ export default function CategoryContent({
             {latestNewsletter.deepDives && latestNewsletter.deepDives.length > 0 && (
               <section>
                 <h2 className="mb-6 text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Featured Stories</h2>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {latestNewsletter.deepDives.map((dive: DeepDive, index: number) => (
-                    <a key={index} href={dive.url} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden rounded-xl border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-dark-border dark:bg-dark-card">
+                    <a key={index} href={dive.url} target="_blank" rel="noopener noreferrer" className="group flex overflow-hidden rounded-xl border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-dark-border dark:bg-dark-card">
                       {dive.imageUrl && (
-                        <div className="relative aspect-[2/1] w-full overflow-hidden bg-zinc-100 dark:bg-dark-surface">
-                          <Image src={dive.imageUrl} alt={dive.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 896px) 100vw, 896px" />
+                        <div className="relative h-24 w-28 shrink-0 overflow-hidden bg-zinc-100 dark:bg-dark-surface sm:h-28 sm:w-36">
+                          <Image src={dive.imageUrl} alt={dive.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="144px" />
                         </div>
                       )}
-                      <div className="p-6">
+                      <div className="min-w-0 flex-1 p-4">
                         {dive.source && (
-                          <span className="mb-2 inline-block rounded bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-dark-surface dark:text-zinc-400">{dive.source}</span>
+                          <span className="mb-1.5 inline-block rounded bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-dark-surface dark:text-zinc-400">{dive.source}</span>
                         )}
-                        <h3 className="mb-2 text-xl font-bold text-zinc-900 transition-colors group-hover:text-zinc-600 dark:text-zinc-100 dark:group-hover:text-zinc-400">{dive.title}</h3>
-                        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{dive.summary}</p>
+                        <h3 className="mb-1 text-base font-bold text-zinc-900 transition-colors group-hover:text-zinc-600 dark:text-zinc-100 dark:group-hover:text-zinc-400 sm:text-lg">{dive.title}</h3>
+                        <p className="line-clamp-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{dive.summary}</p>
                       </div>
                     </a>
                   ))}
@@ -141,26 +141,6 @@ export default function CategoryContent({
                         <a href={s.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-zinc-400 underline hover:text-zinc-600">Source</a>
                       )}
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {latestNewsletter.mediaItems && latestNewsletter.mediaItems.filter((m: MediaItem) => m.type === "image").length > 0 && (
-              <section>
-                <h2 className="mb-6 text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Media Spotlight</h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {latestNewsletter.mediaItems.filter((m: MediaItem) => m.type === "image").map((item: MediaItem, index: number) => (
-                    <a key={index} href={item.articleUrl || item.url} target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-dark-border dark:bg-dark-surface">
-                      <div className="relative aspect-video w-full">
-                        <Image src={item.url} alt={item.caption || ""} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 896px) 50vw, 33vw" />
-                      </div>
-                      {item.caption && (
-                        <div className="p-3">
-                          <p className="truncate text-xs text-zinc-600 dark:text-zinc-400">{item.caption}</p>
-                        </div>
-                      )}
-                    </a>
                   ))}
                 </div>
               </section>

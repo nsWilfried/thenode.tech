@@ -32,7 +32,6 @@ export interface EmailTemplateStrings {
   dailyDoseOfTech: string;
   featuredStories: string;
   keyNumbers: string;
-  mediaSpotlight: string;
   quickLinks: string;
   readOnSite: string;
   receivingBecause: string;
@@ -126,7 +125,6 @@ const en: EmailTemplateStrings = {
   dailyDoseOfTech: "Your daily dose of tech",
   featuredStories: "Featured Stories",
   keyNumbers: "Key Numbers",
-  mediaSpotlight: "Media Spotlight",
   quickLinks: "Quick Links",
   readOnSite: "Read on TheNode.tech",
   receivingBecause:
@@ -201,7 +199,6 @@ const es: EmailTemplateStrings = {
   dailyDoseOfTech: "Tu dosis diaria de tech",
   featuredStories: "Historias destacadas",
   keyNumbers: "Cifras clave",
-  mediaSpotlight: "En el foco",
   quickLinks: "Enlaces rápidos",
   readOnSite: "Leer en TheNode.tech",
   receivingBecause:
@@ -272,7 +269,6 @@ const fr: EmailTemplateStrings = {
   dailyDoseOfTech: "Votre dose quotidienne de tech",
   featuredStories: "À la une",
   keyNumbers: "Chiffres clés",
-  mediaSpotlight: "Médias à l'honneur",
   quickLinks: "Liens rapides",
   readOnSite: "Lire sur TheNode.tech",
   receivingBecause:
@@ -421,7 +417,6 @@ const ja: EmailTemplateStrings = {
   dailyDoseOfTech: "毎日のテックニュース",
   featuredStories: "注目記事",
   keyNumbers: "重要数字",
-  mediaSpotlight: "メディアスポットライト",
   quickLinks: "クイックリンク",
   readOnSite: "TheNode.techで読む",
   receivingBecause:
@@ -552,7 +547,6 @@ const pt: EmailTemplateStrings = {
   dailyDoseOfTech: "Sua dose diária de tech",
   featuredStories: "Destaques",
   keyNumbers: "Números-chave",
-  mediaSpotlight: "Destaque da mídia",
   quickLinks: "Links rápidos",
   readOnSite: "Ler no TheNode.tech",
   receivingBecause:
@@ -698,7 +692,6 @@ const ko: EmailTemplateStrings = {
   dailyDoseOfTech: "매일 전달되는 테크 브리핑",
   featuredStories: "주요 기사",
   keyNumbers: "핵심 숫자",
-  mediaSpotlight: "미디어 스포트라이트",
   quickLinks: "퀵 링크",
   readOnSite: "TheNode.tech에서 읽기",
   receivingBecause:
@@ -783,7 +776,8 @@ const VALID_LOCALES: EmailLocale[] = [
 ];
 
 export function getEmailTranslations(locale: string): EmailTemplateStrings {
-  const key = locale && typeof locale === "string" ? locale.toLowerCase() : "en";
+  const raw = locale && typeof locale === "string" ? locale : "en";
+  const key = raw.split(/[-_]/)[0].toLowerCase();
   if (VALID_LOCALES.includes(key as EmailLocale)) {
     return emailTranslations[key as EmailLocale];
   }

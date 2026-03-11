@@ -50,6 +50,7 @@ export default defineSchema({
     ),
     timezone: v.optional(v.string()),
     onboardingComplete: v.optional(v.boolean()),
+    welcomeEmailSent: v.optional(v.boolean()),
   })
     .index("email", ["email"])
     .index("phone", ["phone"])

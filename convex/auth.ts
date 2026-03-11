@@ -20,12 +20,16 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
             categories: [],
           },
         });
-
-        await ctx.scheduler.runAfter(
-          0,
-          internal.actions.sendNewsletters.sendWelcomeEmail,
-          { userId }
-        );
+      } else {
+        const user = await ctx.db.get(userId);
+        if (user && user.emailVerificationTime && !user.welcomeEmailSent) {
+          await ctx.db.patch(userId, { welcomeEmailSent: true });
+          await ctx.scheduler.runAfter(
+            0,
+            internal.actions.sendNewsletters.sendWelcomeEmail,
+            { userId }
+          );
+        }
       }
     },
   },

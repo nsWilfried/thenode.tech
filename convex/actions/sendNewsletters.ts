@@ -219,28 +219,6 @@ function renderCategorySection(
               : "")
         : "";
 
-    const mediaHtml = (nl.mediaItems || []).filter((m) => m.type === "image").length > 0
-        ? `<tr><td style="padding: 24px 0 12px;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.mediaSpotlight}</h3>
-                  </td></tr>
-                  <tr><td>
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>${(nl.mediaItems || [])
-                          .filter((m) => m.type === "image")
-                          .slice(0, 3)
-                          .map((item) => `
-                        <td width="32%" style="vertical-align: top;">
-                          <a href="${item.articleUrl || item.url}" style="text-decoration: none;">
-                            <img src="${item.url}" alt="${item.caption || ""}" style="width: 100%; height: auto; border-radius: 6px; display: block;" />
-                            ${item.caption ? `<p style="margin: 4px 0 0; font-size: 11px; color: #888; line-height: 1.4;">${item.caption}</p>` : ""}
-                          </a>
-                        </td>`)
-                          .join('<td width="2%"></td>')}
-                      </tr>
-                    </table>
-                  </td></tr>`
-        : "";
-
     const quickLinksHtml = nl.articles.length > 0
         ? `<tr><td style="padding: 24px 0 8px; border-top: 1px solid #eee;">
                     <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quickLinks}</h3>
@@ -273,7 +251,6 @@ function renderCategorySection(
         ${editorialHtml}
         ${deepDivesHtml}
         ${statsHtml}
-        ${mediaHtml}
         ${quickLinksHtml}
       </table>`;
 }
@@ -396,7 +373,14 @@ export const sendDailyNewsletters = internalAction({
                     continue;
                 }
 
-                const userTimezone = user.timezone || DEFAULT_TIMEZONE;
+                let userTimezone = DEFAULT_TIMEZONE;
+                try {
+                    const tz = user.timezone || DEFAULT_TIMEZONE;
+                    moment().tz(tz);
+                    userTimezone = tz;
+                } catch {
+                    userTimezone = DEFAULT_TIMEZONE;
+                }
                 const userNow = moment().tz(userTimezone);
                 const targetHour = getTargetDeliveryHour(user);
 

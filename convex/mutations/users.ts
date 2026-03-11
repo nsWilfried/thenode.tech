@@ -27,6 +27,13 @@ const subscriptionStatusValidator = v.union(
   v.literal("free")
 );
 
+const EMAIL_LOCALES = ["en", "es", "fr", "de", "ja", "zh", "pt", "it", "ko"] as const;
+
+function normalizeLanguage(value: string): string {
+  const key = value.split(/[-_]/)[0].toLowerCase();
+  return EMAIL_LOCALES.includes(key as (typeof EMAIL_LOCALES)[number]) ? key : "en";
+}
+
 export const updatePreferences = mutation({
   args: {
     language: v.optional(v.string()),
@@ -49,9 +56,15 @@ export const updatePreferences = mutation({
 
     const isPremium = user.isPremium ?? false;
     const updates: Record<string, unknown> = {};
-    if (args.language) updates.language = args.language;
-    // Only premium users can set timezone via settings
-    if (args.timezone && isPremium) updates.timezone = args.timezone;
+    if (args.language && isPremium) {
+      updates.language = normalizeLanguage(args.language);
+    }
+    if (args.timezone && isPremium) {
+      if (!isValidTimezone(args.timezone)) {
+        return { success: false, message: "Invalid timezone" };
+      }
+      updates.timezone = args.timezone;
+    }
 
     const existingPrefs = user.preferences ?? {};
     let prefsChanged = false;
