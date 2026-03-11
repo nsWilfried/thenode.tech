@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import OpenAI from "openai";
+import moment from "moment-timezone";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -205,7 +206,7 @@ ${articleList}`,
         imageCaption: section.imageCaption || undefined,
       }));
 
-      const today = new Date().toISOString().split("T")[0];
+      const today = moment.utc().format("YYYY-MM-DD");
       await ctx.runMutation(internal.mutations.newsletters.create, {
         date: today,
         category,
@@ -371,7 +372,7 @@ Respond with valid JSON in this format:
   },
 });
 
-// Summarize all categories
+// Summarize all categories, then translate for premium user languages
 export const summarizeAllCategories = internalAction({
   args: {},
   handler: async (ctx) => {
@@ -399,7 +400,45 @@ export const summarizeAllCategories = internalAction({
       }
     }
 
-    console.log("All categories summarized");
+    console.log("All categories summarized in English");
+
+    const premiumLanguages: string[] = await ctx.runQuery(
+      internal.queries.users.getPremiumLanguages
+    );
+
+    if (premiumLanguages.length === 0) {
+      console.log("No non-English premium languages to translate for");
+      return;
+    }
+
+    console.log(`Translating for premium languages: ${premiumLanguages.join(", ")}`);
+
+    const today = moment.utc().format("YYYY-MM-DD");
+
+    for (const category of categories) {
+      const newsletter = await ctx.runQuery(
+        internal.queries.newsletters.getLatestByCategoryInternal,
+        { category, language: "en", date: today }
+      );
+
+      if (!newsletter) {
+        console.log(`No English newsletter found for ${category} on ${today}, skipping translation`);
+        continue;
+      }
+
+      for (const lang of premiumLanguages) {
+        try {
+          await ctx.runAction(
+            internal.actions.summarizeArticles.translateNewsletter,
+            { newsletterId: newsletter._id, targetLanguage: lang }
+          );
+        } catch (error) {
+          console.error(`Failed to translate ${category} to ${lang}:`, error);
+        }
+      }
+    }
+
+    console.log("All translations complete");
   },
 });
 

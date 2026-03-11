@@ -63,3 +63,22 @@ export const getPremiumUsers = internalQuery({
       .collect();
   },
 });
+
+export const getPremiumLanguages = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const premiumUsers = await ctx.db
+      .query("users")
+      .withIndex("by_premium", (q: any) => q.eq("isPremium", true))
+      .collect();
+
+    const languages = new Set<string>();
+    for (const user of premiumUsers) {
+      const lang = user.language;
+      if (lang && lang !== "en") {
+        languages.add(lang);
+      }
+    }
+    return [...languages];
+  },
+});
