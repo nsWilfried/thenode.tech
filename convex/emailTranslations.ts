@@ -341,7 +341,6 @@ const de: EmailTemplateStrings = {
   dailyDoseOfTech: "Deine tägliche Tech-Dosis",
   featuredStories: "Top-Stories",
   keyNumbers: "Zahlen & Fakten",
-  mediaSpotlight: "Medien-Fokus",
   quickLinks: "Schnelllinks",
   readOnSite: "Auf TheNode.tech lesen",
   receivingBecause:
@@ -485,7 +484,6 @@ const zh: EmailTemplateStrings = {
   dailyDoseOfTech: "你的每日科技简报",
   featuredStories: "精选报道",
   keyNumbers: "关键数据",
-  mediaSpotlight: "媒体聚焦",
   quickLinks: "快链",
   readOnSite: "在 TheNode.tech 阅读",
   receivingBecause: "您收到此邮件是因为订阅了 TheNode.tech 通讯。",
@@ -619,7 +617,6 @@ const it: EmailTemplateStrings = {
   dailyDoseOfTech: "La tua dose quotidiana di tech",
   featuredStories: "In evidenza",
   keyNumbers: "Cifre chiave",
-  mediaSpotlight: "Focus media",
   quickLinks: "Link rapidi",
   readOnSite: "Leggi su TheNode.tech",
   receivingBecause:
