@@ -720,6 +720,68 @@ function buildPremiumCancellationEmailHTML(t: EmailTemplateStrings): string {
 </html>`;
 }
 
+export const testSendDailyNewsletter = internalAction({
+    args: {
+        userId: v.id("users"),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.runQuery(internal.queries.users.getById, {
+            id: args.userId,
+        });
+
+        if (!user || !user.email) {
+            throw new Error("User not found or has no email");
+        }
+
+        const today = moment().format("YYYY-MM-DD");
+        const isPremium = user.isPremium ?? false;
+        const language = isPremium ? (user.language || "en") : "en";
+        const categories = getCategoriesForUser(user);
+        const emailT = getEmailTranslations(language);
+
+        let sentCount = 0;
+
+        for (const category of categories) {
+            let nl: any = await ctx.runQuery(
+                internal.queries.newsletters.getLatestByCategoryInternal,
+                { category, language, date: today }
+            );
+
+            if (!nl) {
+                nl = await ctx.runQuery(
+                    internal.queries.newsletters.getLatestByCategoryInternalNoDate as any,
+                    { category, language }
+                );
+            }
+
+            if (!nl) {
+                console.log(`[TEST] No newsletter found for category=${category}, language=${language}`);
+                continue;
+            }
+
+            const newsletter = nl as NewsletterData;
+            const nlDate = (nl as any).date ?? today;
+            const subject = `[TEST] ${buildNewsletterSubject([newsletter], nlDate, language)}`;
+            const html = buildCategoryNewsletterHTML(newsletter, nlDate, emailT);
+            const senderIcon = CATEGORY_ICONS[category] ?? "🗞️";
+            const senderName =
+                `${senderIcon} ${CATEGORY_NAMES[category] ?? category} · TheNode.tech`;
+
+            await resend.emails.send({
+                from: `${senderName} <newsletter@thenode.tech>`,
+                to: user.email,
+                subject,
+                html,
+            });
+
+            sentCount++;
+            console.log(`[TEST] Daily newsletter (${category}, date=${nlDate}) sent to ${user.email}`);
+        }
+
+        console.log(`[TEST] Done — ${sentCount} daily newsletter(s) sent to ${user.email}`);
+    },
+});
+
 export const sendPremiumCancellationEmail = internalAction({
     args: {
         userId: v.id("users"),

@@ -136,6 +136,50 @@ export default defineSchema({
     .index("by_date", ["date"])
     .index("by_language_and_category", ["language", "category"]),
 
+  // Weekly digest editions
+  weeklyDigests: defineTable({
+    weekStartDate: v.string(),
+    weekEndDate: v.string(),
+    categories: v.array(categoryValidator),
+    language: v.string(),
+    createdAt: v.number(),
+    overview: v.string(),
+    topStories: v.array(
+      v.object({
+        title: v.string(),
+        url: v.string(),
+        summary: v.string(),
+        category: categoryValidator,
+        source: v.optional(v.string()),
+      })
+    ),
+    trendAnalysis: v.array(
+      v.object({
+        trend: v.string(),
+        analysis: v.string(),
+        relatedCategories: v.array(categoryValidator),
+      })
+    ),
+    weeklyStats: v.optional(
+      v.array(
+        v.object({
+          stat: v.string(),
+          context: v.string(),
+          sourceUrl: v.optional(v.string()),
+        })
+      )
+    ),
+    categoryHighlights: v.array(
+      v.object({
+        category: categoryValidator,
+        headline: v.string(),
+        summary: v.string(),
+      })
+    ),
+  })
+    .index("by_week_and_language", ["weekStartDate", "language"])
+    .index("by_language", ["language"]),
+
   // Polar subscription sync
   subscriptions: defineTable({
     userId: v.id("users"),

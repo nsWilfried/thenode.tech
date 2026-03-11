@@ -104,6 +104,22 @@ export const getNewslettersByDateRange = internalQuery({
     },
 });
 
+export const getLatestByCategoryInternalNoDate = internalQuery({
+    args: {
+        category: v.string(),
+        language: v.string(),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("newsletters")
+            .withIndex("by_language_and_category", (q: any) =>
+                q.eq("language", args.language).eq("category", args.category)
+            )
+            .order("desc")
+            .first();
+    },
+});
+
 export const getLatestByCategoryInternal = internalQuery({
     args: {
         category: v.string(),

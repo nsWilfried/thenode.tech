@@ -519,3 +519,113 @@ export const sendWeeklyDigests = internalAction({
     return null;
   },
 });
+
+export const testSendWeeklyDigest = internalAction({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const user: any = await ctx.runQuery(internal.queries.users.getById, {
+      id: args.userId,
+    });
+
+    if (!user || !user.email) {
+      throw new Error("User not found or has no email");
+    }
+
+    const userTimezone = user.timezone || "UTC";
+    const weekEnd = moment().tz(userTimezone).subtract(1, "day");
+    const weekStart = weekEnd.clone().subtract(6, "days");
+    const weekStartDate = weekStart.format("YYYY-MM-DD");
+    const weekEndDate = weekEnd.format("YYYY-MM-DD");
+
+    const allCategories: CategorySlug[] = [
+      "ai", "eng", "sec", "biz", "tech",
+      "cloud-devops", "web3-crypto", "design-ux-frontend",
+      "emerging-tech-science", "opensource-languages",
+    ];
+
+    const userCategories: CategorySlug[] =
+      user.preferences?.categories && user.preferences.categories.length > 0
+        ? user.preferences.categories
+        : allCategories;
+    const language = user.language || "en";
+
+    const existingDigests: any[] = await ctx.runQuery(
+      internal.queries.weeklyDigests.getByWeekAndLanguage,
+      { weekStartDate, language }
+    );
+
+    const sortedUserCats = [...userCategories].sort();
+    let digestDoc: WeeklyDigestData | null = null;
+
+    const match = existingDigests.find((d: any) => {
+      const digestCats = [...d.categories].sort();
+      return (
+        digestCats.length === sortedUserCats.length &&
+        digestCats.every((c: string, i: number) => c === sortedUserCats[i])
+      );
+    });
+
+    if (match) {
+      digestDoc = {
+        weekStartDate: match.weekStartDate,
+        weekEndDate: match.weekEndDate,
+        overview: match.overview,
+        topStories: match.topStories,
+        trendAnalysis: match.trendAnalysis,
+        weeklyStats: match.weeklyStats,
+        categoryHighlights: match.categoryHighlights,
+      };
+    } else {
+      console.log(`[TEST] No existing digest found, generating one...`);
+      await ctx.runAction(
+        internal.actions.weeklyDigest.generateWeeklyDigest,
+        {
+          categories: userCategories as string[],
+          weekStartDate,
+          weekEndDate,
+          language,
+        }
+      );
+      const newDigests: any[] = await ctx.runQuery(
+        internal.queries.weeklyDigests.getByWeekAndLanguage,
+        { weekStartDate, language }
+      );
+      const newMatch = newDigests.find((d: any) => {
+        const digestCats = [...d.categories].sort();
+        return (
+          digestCats.length === sortedUserCats.length &&
+          digestCats.every((c: string, i: number) => c === sortedUserCats[i])
+        );
+      });
+      if (newMatch) {
+        digestDoc = {
+          weekStartDate: newMatch.weekStartDate,
+          weekEndDate: newMatch.weekEndDate,
+          overview: newMatch.overview,
+          topStories: newMatch.topStories,
+          trendAnalysis: newMatch.trendAnalysis,
+          weeklyStats: newMatch.weeklyStats,
+          categoryHighlights: newMatch.categoryHighlights,
+        };
+      }
+    }
+
+    if (!digestDoc) {
+      throw new Error("Could not generate or find weekly digest data");
+    }
+
+    const html = buildWeeklyDigestHTML(digestDoc);
+    const subject = `[TEST] ⚡ TheNode.tech — Week in Review: ${moment(weekStartDate).format("MMM D")}–${moment(weekEndDate).format("MMM D, YYYY")}`;
+
+    await resend.emails.send({
+      from: "TheNode.tech <newsletter@thenode.tech>",
+      to: user.email,
+      subject,
+      html,
+    });
+
+    console.log(`[TEST] Weekly digest sent to ${user.email} (${weekStartDate} to ${weekEndDate})`);
+  },
+});
