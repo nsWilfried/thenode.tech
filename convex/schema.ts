@@ -88,7 +88,8 @@ export default defineSchema({
     .index("by_category", ["category"])
     .index("by_category_and_date", ["category", "publishedAt"])
     .index("by_dedup_hash", ["deduplicationHash"])
-    .index("by_published", ["publishedAt"]),
+    .index("by_published", ["publishedAt"])
+    .index("by_is_summarized", ["isSummarized"]),
 
   // Generated newsletter editions
   newsletters: defineTable({

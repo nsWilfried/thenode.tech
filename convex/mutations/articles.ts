@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation } from "../_generated/server";
+import { internal } from "../_generated/api";
 
 const categoryValidator = v.union(
   v.literal("ai"),
@@ -59,21 +60,28 @@ export const markSummarized = internalMutation({
 export const cleanupOldArticles = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    const oldArticles = await ctx.db
+    const batch = await ctx.db
       .query("articles")
-      .withIndex("by_published")
-      .filter((q) => q.lt(q.field("publishedAt"), thirtyDaysAgo))
-      .collect();
+      .withIndex("by_is_summarized", (q) => q.eq("isSummarized", true))
+      .take(100);
 
-    let deleted = 0;
-    for (const article of oldArticles) {
+    for (const article of batch) {
       await ctx.db.delete(article._id);
-      deleted++;
     }
 
-    if (deleted > 0) {
-      console.log(`Cleaned up ${deleted} articles older than 30 days`);
+    if (batch.length === 100) {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.mutations.articles.cleanupOldArticles,
+        {}
+      );
+    }
+
+    if (batch.length > 0) {
+      console.log(
+        `Cleaned up ${batch.length} summarized articles` +
+          (batch.length === 100 ? ", scheduling next batch" : "")
+      );
     }
   },
 });
