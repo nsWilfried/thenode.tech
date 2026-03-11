@@ -53,6 +53,22 @@ export const create = internalMutation({
       imageUrl: v.optional(v.string()),
       imageCaption: v.optional(v.string()),
     }))),
+    underTheRadar: v.optional(v.object({
+      title: v.string(),
+      url: v.string(),
+      summary: v.string(),
+      source: v.optional(v.string()),
+    })),
+    tryThis: v.optional(v.array(v.object({
+      name: v.string(),
+      url: v.string(),
+      oneLiner: v.string(),
+    }))),
+    quoteOfTheDay: v.optional(v.object({
+      quote: v.string(),
+      attribution: v.string(),
+      sourceUrl: v.optional(v.string()),
+    })),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("newsletters", {
@@ -66,6 +82,9 @@ export const create = internalMutation({
       stats: args.stats,
       mediaItems: args.mediaItems,
       editorialContent: args.editorialContent,
+      underTheRadar: args.underTheRadar,
+      tryThis: args.tryThis,
+      quoteOfTheDay: args.quoteOfTheDay,
     });
   },
 });

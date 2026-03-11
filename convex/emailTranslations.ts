@@ -32,6 +32,9 @@ export interface EmailTemplateStrings {
   dailyDoseOfTech: string;
   featuredStories: string;
   keyNumbers: string;
+  underTheRadar: string;
+  tryThis: string;
+  quoteOfTheDay: string;
   quickLinks: string;
   readOnSite: string;
   receivingBecause: string;
@@ -125,6 +128,9 @@ const en: EmailTemplateStrings = {
   dailyDoseOfTech: "Your daily dose of tech",
   featuredStories: "Featured Stories",
   keyNumbers: "Key Numbers",
+  underTheRadar: "Under the Radar",
+  tryThis: "Try This",
+  quoteOfTheDay: "Quote of the Day",
   quickLinks: "Quick Links",
   readOnSite: "Read on TheNode.tech",
   receivingBecause:
@@ -199,6 +205,9 @@ const es: EmailTemplateStrings = {
   dailyDoseOfTech: "Tu dosis diaria de tech",
   featuredStories: "Historias destacadas",
   keyNumbers: "Cifras clave",
+  underTheRadar: "Under the Radar",
+  tryThis: "Prueba esto",
+  quoteOfTheDay: "Cita del día",
   quickLinks: "Enlaces rápidos",
   readOnSite: "Leer en TheNode.tech",
   receivingBecause:
@@ -269,6 +278,9 @@ const fr: EmailTemplateStrings = {
   dailyDoseOfTech: "Votre dose quotidienne de tech",
   featuredStories: "À la une",
   keyNumbers: "Chiffres clés",
+  underTheRadar: "Sous le radar",
+  tryThis: "À essayer",
+  quoteOfTheDay: "Citation du jour",
   quickLinks: "Liens rapides",
   readOnSite: "Lire sur TheNode.tech",
   receivingBecause:
@@ -341,6 +353,9 @@ const de: EmailTemplateStrings = {
   dailyDoseOfTech: "Deine tägliche Tech-Dosis",
   featuredStories: "Top-Stories",
   keyNumbers: "Zahlen & Fakten",
+  underTheRadar: "Unter dem Radar",
+  tryThis: "Probier's",
+  quoteOfTheDay: "Zitat des Tages",
   quickLinks: "Schnelllinks",
   readOnSite: "Auf TheNode.tech lesen",
   receivingBecause:
@@ -416,6 +431,9 @@ const ja: EmailTemplateStrings = {
   dailyDoseOfTech: "毎日のテックニュース",
   featuredStories: "注目記事",
   keyNumbers: "重要数字",
+  underTheRadar: "アンダー・ザ・レーダー",
+  tryThis: "試してみる",
+  quoteOfTheDay: "今日の一言",
   quickLinks: "クイックリンク",
   readOnSite: "TheNode.techで読む",
   receivingBecause:
@@ -484,6 +502,9 @@ const zh: EmailTemplateStrings = {
   dailyDoseOfTech: "你的每日科技简报",
   featuredStories: "精选报道",
   keyNumbers: "关键数据",
+  underTheRadar: "冷门推荐",
+  tryThis: "试试这个",
+  quoteOfTheDay: "今日金句",
   quickLinks: "快链",
   readOnSite: "在 TheNode.tech 阅读",
   receivingBecause: "您收到此邮件是因为订阅了 TheNode.tech 通讯。",
@@ -545,6 +566,9 @@ const pt: EmailTemplateStrings = {
   dailyDoseOfTech: "Sua dose diária de tech",
   featuredStories: "Destaques",
   keyNumbers: "Números-chave",
+  underTheRadar: "Under the Radar",
+  tryThis: "Experimente",
+  quoteOfTheDay: "Citação do dia",
   quickLinks: "Links rápidos",
   readOnSite: "Ler no TheNode.tech",
   receivingBecause:
@@ -617,6 +641,9 @@ const it: EmailTemplateStrings = {
   dailyDoseOfTech: "La tua dose quotidiana di tech",
   featuredStories: "In evidenza",
   keyNumbers: "Cifre chiave",
+  underTheRadar: "Sotto il radar",
+  tryThis: "Prova questo",
+  quoteOfTheDay: "Citazione del giorno",
   quickLinks: "Link rapidi",
   readOnSite: "Leggi su TheNode.tech",
   receivingBecause:
@@ -689,6 +716,9 @@ const ko: EmailTemplateStrings = {
   dailyDoseOfTech: "매일 전달되는 테크 브리핑",
   featuredStories: "주요 기사",
   keyNumbers: "핵심 숫자",
+  underTheRadar: "숨은 보석",
+  tryThis: "한번 써보기",
+  quoteOfTheDay: "오늘의 한마디",
   quickLinks: "퀵 링크",
   readOnSite: "TheNode.tech에서 읽기",
   receivingBecause:

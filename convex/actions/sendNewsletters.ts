@@ -79,6 +79,9 @@ interface NewsletterData {
     stats?: { stat: string; context: string; sourceUrl?: string }[];
     mediaItems?: { type: "image" | "video"; url: string; caption?: string; articleUrl?: string }[];
     editorialContent?: { heading: string; body: string; imageUrl?: string; imageCaption?: string }[];
+    underTheRadar?: { title: string; url: string; summary: string; source?: string };
+    tryThis?: { name: string; url: string; oneLiner: string }[];
+    quoteOfTheDay?: { quote: string; attribution: string; sourceUrl?: string };
 }
 
 function truncateAtWord(text: string, maxLen: number): string {
@@ -136,7 +139,7 @@ function renderCategorySection(
     const name = CATEGORY_NAMES[nl.category] ?? nl.category;
 
     const overviewHtml = nl.summary
-        ? `<tr><td style="padding: 12px 0 16px; color: #333; font-size: 15px; line-height: 1.7;">${nl.summary}</td></tr>`
+        ? `<tr><td style="padding: 16px 0 20px; color: #333; font-size: 16px; line-height: 1.8;">${nl.summary}</td></tr>`
         : "";
 
     const editorialHtml = (nl.editorialContent || [])
@@ -144,16 +147,16 @@ function renderCategorySection(
             const imgHtml = section.imageUrl
                 ? `<tr><td style="padding: 0 0 8px;">
                         <img src="${section.imageUrl}" alt="${section.imageCaption || section.heading}" style="width: 100%; max-width: 560px; height: auto; border-radius: 8px; display: block;" />
-                        ${section.imageCaption ? `<p style="margin: 6px 0 0; font-size: 12px; color: #888; font-style: italic;">${section.imageCaption}</p>` : ""}
+                        ${section.imageCaption ? `<p style="margin: 6px 0 0; font-size: 13px; color: #888; font-style: italic;">${section.imageCaption}</p>` : ""}
                       </td></tr>`
                 : "";
             const bodyParagraphs = section.body
                 .split("\n\n")
-                .map((p) => `<p style="margin: 0 0 12px; color: #333; font-size: 15px; line-height: 1.7;">${p}</p>`)
+                .map((p) => `<p style="margin: 0 0 16px; color: #333; font-size: 16px; line-height: 1.8;">${p}</p>`)
                 .join("");
             return `
-              <tr><td style="padding: 20px 0 4px;">
-                <h3 style="margin: 0 0 12px; font-size: 18px; font-weight: 700; color: #0a0a0a;">${section.heading}</h3>
+              <tr><td style="padding: 28px 0 8px;">
+                <h3 style="margin: 0 0 12px; font-size: 20px; font-weight: 700; color: #0a0a0a;">${section.heading}</h3>
               </td></tr>
               ${imgHtml}
               <tr><td>${bodyParagraphs}</td></tr>`;
@@ -161,8 +164,8 @@ function renderCategorySection(
         .join("");
 
     const deepDivesHtml = (nl.deepDives || []).length > 0
-        ? `<tr><td style="padding: 24px 0 8px;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.featuredStories}</h3>
+        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
+                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.featuredStories}</h3>
                   </td></tr>` +
           (nl.deepDives || [])
               .map((dive) => {
@@ -175,65 +178,99 @@ function renderCategorySection(
                       : "";
                   return `
                 ${diveImg}
-                <tr><td style="padding: 4px 0 16px;">
-                  ${dive.source ? `<span style="display: inline-block; padding: 2px 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">${dive.source}</span><br/>` : ""}
-                  <a href="${dive.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 700; font-size: 17px; line-height: 1.4;">${dive.title}</a>
-                  <p style="margin: 6px 0 0; color: #555; font-size: 14px; line-height: 1.6;">${dive.summary}</p>
+                <tr><td style="padding: 8px 0 20px;">
+                  ${dive.source ? `<span style="display: inline-block; padding: 2px 8px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px;">${dive.source}</span><br/>` : ""}
+                  <a href="${dive.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 700; font-size: 18px; line-height: 1.4;">${dive.title}</a>
+                  <p style="margin: 8px 0 0; color: #555; font-size: 15px; line-height: 1.7;">${dive.summary}</p>
                 </td></tr>`;
               })
               .join("")
         : "";
 
     const statsHtml = (nl.stats || []).length > 0
-        ? `<tr><td style="padding: 24px 0 12px;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.keyNumbers}</h3>
+        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
+                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.keyNumbers}</h3>
                   </td></tr>
-                  <tr><td>
+                  <tr><td style="padding: 16px 0; border-top: 2px solid #0a0a0a;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>${(nl.stats || [])
                           .map((s) => `
-                        <td width="${Math.floor(100 / Math.min((nl.stats || []).length, 3))}%" style="padding: 12px; background: #f8f9fa; border-radius: 8px; vertical-align: top;">
+                        <td width="${Math.floor(100 / Math.min((nl.stats || []).length, 3))}%" style="padding: 0 12px 0 0; vertical-align: top;">
                           <p style="margin: 0 0 4px; font-size: 22px; font-weight: 800; color: #0a0a0a;">${s.stat}</p>
-                          <p style="margin: 0; font-size: 13px; color: #666; line-height: 1.5;">${s.context}</p>
+                          <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">${s.context}</p>
                         </td>`)
                           .slice(0, 3)
-                          .join('<td width="12"></td>')}
+                          .join("")}
                       </tr>
                     </table>
                   </td></tr>` +
           ((nl.stats || []).length > 3
-              ? `<tr><td style="padding: 8px 0 0;">
+              ? `<tr><td style="padding: 12px 0 0;">
                           <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>${(nl.stats || [])
                                 .slice(3)
                                 .map((s) => `
-                              <td width="${Math.floor(100 / Math.min((nl.stats || []).slice(3).length, 3))}%" style="padding: 12px; background: #f8f9fa; border-radius: 8px; vertical-align: top;">
+                              <td width="${Math.floor(100 / Math.min((nl.stats || []).slice(3).length, 3))}%" style="padding: 0 12px 0 0; vertical-align: top;">
                                 <p style="margin: 0 0 4px; font-size: 22px; font-weight: 800; color: #0a0a0a;">${s.stat}</p>
-                                <p style="margin: 0; font-size: 13px; color: #666; line-height: 1.5;">${s.context}</p>
+                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">${s.context}</p>
                               </td>`)
                                 .slice(0, 3)
-                                .join('<td width="12"></td>')}
+                                .join("")}
                             </tr>
                           </table>
                         </td></tr>`
               : "")
         : "";
 
+    const underTheRadarHtml = nl.underTheRadar
+        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
+                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.underTheRadar}</h3>
+                  </td></tr>
+                  <tr><td style="padding: 12px 0 20px 16px; border-left: 4px solid #0a0a0a;">
+                    ${nl.underTheRadar.source ? `<span style="font-size: 12px; color: #666; margin-bottom: 4px;">${nl.underTheRadar.source}</span><br/>` : ""}
+                    <a href="${nl.underTheRadar.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 700; font-size: 18px; line-height: 1.4;">${nl.underTheRadar.title}</a>
+                    <p style="margin: 8px 0 0; color: #555; font-size: 15px; line-height: 1.7;">${nl.underTheRadar.summary}</p>
+                  </td></tr>`
+        : "";
+
+    const tryThisHtml = (nl.tryThis && nl.tryThis.length > 0)
+        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
+                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.tryThis}</h3>
+                  </td></tr>` +
+          nl.tryThis
+              .map((item) => `
+                <tr><td style="padding: 10px 0;">
+                  <a href="${item.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 600; font-size: 16px;">${item.name}</a>
+                  <p style="margin: 4px 0 0; color: #555; font-size: 14px; line-height: 1.6;">${item.oneLiner}</p>
+                </td></tr>`)
+              .join("")
+        : "";
+
+    const quoteOfTheDayHtml = nl.quoteOfTheDay
+        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
+                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quoteOfTheDay}</h3>
+                  </td></tr>
+                  <tr><td style="padding: 16px 0 20px;">
+                    <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #0a0a0a; font-style: italic;">"${nl.quoteOfTheDay.quote}"</p>
+                    <p style="margin: 10px 0 0; font-size: 14px; color: #666;">— ${nl.quoteOfTheDay.attribution}</p>
+                  </td></tr>`
+        : "";
+
     const quickLinksHtml = nl.articles.length > 0
-        ? `<tr><td style="padding: 24px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quickLinks}</h3>
+        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
+                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quickLinks}</h3>
                   </td></tr>` +
           nl.articles
               .map((a, i) => `
-                <tr><td style="padding: 10px 0; ${i < nl.articles.length - 1 ? "border-bottom: 1px solid #f5f5f5;" : ""}">
+                <tr><td style="padding: 12px 0; ${i < nl.articles.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : ""}">
                   <table width="100%" cellpadding="0" cellspacing="0"><tr>
                     <td width="28" style="vertical-align: top; padding-top: 2px;">
-                      <span style="display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 4px; background: #f0f0f0; font-size: 11px; font-weight: 700; color: #999;">${i + 1}</span>
+                      <span style="display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; font-size: 12px; font-weight: 700; color: #999;">${i + 1}</span>
                     </td>
                     <td style="padding-left: 8px;">
-                      <a href="${a.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 600; font-size: 14px; line-height: 1.4;">${a.title}</a>
-                      <p style="margin: 3px 0 0; color: #666; font-size: 13px; line-height: 1.5;">${a.summary}</p>
-                      ${a.source ? `<span style="font-size: 11px; color: #aaa;">${a.source}</span>` : ""}
+                      <a href="${a.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 600; font-size: 15px; line-height: 1.4;">${a.title}</a>
+                      <p style="margin: 4px 0 0; color: #666; font-size: 14px; line-height: 1.6;">${a.summary}</p>
+                      ${a.source ? `<span style="font-size: 12px; color: #aaa;">${a.source}</span>` : ""}
                     </td>
                   </tr></table>
                 </td></tr>`)
@@ -241,16 +278,19 @@ function renderCategorySection(
         : "";
 
     return `
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 0;">
         <tr>
-          <td style="padding: 14px 16px; background: #0a0a0a; border-radius: 8px;">
-            <span style="font-size: 17px; font-weight: 700; color: #ffffff;">${icon} ${name}</span>
+          <td style="padding: 16px 0; background: #0a0a0a;">
+            <span style="font-size: 19px; font-weight: 700; color: #ffffff;">${icon} ${name}</span>
           </td>
         </tr>
         ${overviewHtml}
         ${editorialHtml}
         ${deepDivesHtml}
         ${statsHtml}
+        ${underTheRadarHtml}
+        ${tryThisHtml}
+        ${quoteOfTheDayHtml}
         ${quickLinksHtml}
       </table>`;
 }
@@ -278,8 +318,8 @@ function buildCategoryNewsletterHTML(
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background: #f5f5f5;">
     <tr>
-      <td align="center" style="padding: 24px 16px;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border-radius: 12px; overflow: hidden;">
+      <td align="center" style="padding: 16px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 640px; background: #ffffff;">
           <tr>
             <td style="text-align: center; padding: 32px 24px 24px; background: #0a0a0a;">
               <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff;">${headerIcon} ${headerName}</h1>
@@ -287,7 +327,7 @@ function buildCategoryNewsletterHTML(
             </td>
           </tr>
           <tr>
-            <td style="padding: 24px;">
+            <td style="padding: 32px 24px;">
               ${categorySection}
             </td>
           </tr>

@@ -10,53 +10,73 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const SUMMARIZE_SYSTEM_PROMPT = `You are the lead editor of TheNode.tech, a modern tech news digest. Write like a knowledgeable human journalist — conversational, insightful, and occasionally witty. Never sound robotic or templated.
+const SUMMARIZE_SYSTEM_PROMPT = `You are the lead editor of TheNode.tech, a modern tech news digest. Write like a sharp friend explaining the news over coffee — casual-smart, punchy, and scannable. Never sound like a documentary narrator or a formal report. Use short sentences. Keep paragraphs to 2-3 sentences max.
 
 You MUST respond with valid JSON in exactly this format:
 {
-  "overview": "A 3-5 sentence editorial paragraph that reads like a real human editor wrote it. Weave the day's biggest themes together into a compelling narrative. Don't just list stories — tell the reader why today's news matters and what trends are emerging.",
+  "overview": "2-3 short sentences. Weave the day's biggest themes into a quick take. Tell the reader why today matters — no long-winded narrative.",
   "editorialContent": [
     {
       "heading": "A compelling section heading that captures the theme",
-      "body": "2-3 paragraphs of analytical narrative separated by \\n\\n. Each paragraph should be 3-5 sentences. Weave together related stories, provide context, explain implications, and connect dots between developments. This should read like a magazine article, not a summary list.",
-      "imageUrl": "Image URL from one of the articles covered in this section, or null if none available",
-      "imageCaption": "A descriptive caption for the image explaining what it shows"
+      "body": "2-3 short paragraphs separated by \\n\\n. Each paragraph = 2-3 sentences max. Quick takes, not essays. Connect the dots without dense prose.",
+      "imageUrl": "Image URL from one of the articles in this section, or null",
+      "imageCaption": "Short caption for the image, or null"
     }
   ],
   "deepDives": [
     {
-      "title": "Compelling headline for the story",
+      "title": "Compelling headline",
       "url": "original article URL",
-      "summary": "A rich 3-4 sentence analysis. Go beyond what happened — explain why it matters, who's affected, and what might happen next. Reference specific details from the article content.",
-      "imageUrl": "image URL if one was provided for this article, or null",
+      "summary": "2-3 sentences. What happened, why it matters. No fluff.",
+      "imageUrl": "image URL for this article, or null",
       "source": "Source name"
     }
   ],
   "stats": [
     {
-      "stat": "The notable figure (e.g. $4.2B, 300%, 10M users)",
-      "context": "One sentence explaining what this number means and why it matters",
-      "sourceUrl": "URL of the article this stat came from"
+      "stat": "Notable figure (e.g. $4.2B, 300%)",
+      "context": "One sentence — what this number means",
+      "sourceUrl": "URL of the article"
     }
   ],
   "articles": [
     {
       "title": "Catchy concise title",
       "url": "original article URL",
-      "summary": "1-2 sentence quick summary — scannable and informative",
+      "summary": "1-2 sentence quick summary",
       "source": "Source name"
     }
-  ]
+  ],
+  "underTheRadar": {
+    "title": "Headline for one overlooked-but-interesting story",
+    "url": "original article URL from input",
+    "summary": "1-2 sentences. Why this is a hidden gem.",
+    "source": "Source name or null"
+  },
+  "tryThis": [
+    {
+      "name": "Tool/library/product name",
+      "url": "URL from the articles where this is mentioned",
+      "oneLiner": "One sentence: what it is and why try it"
+    }
+  ],
+  "quoteOfTheDay": {
+    "quote": "Exact quote from one of the articles — something sharp, memorable, or provocative said by a founder, analyst, or developer",
+    "attribution": "Who said it (e.g. Name, Title at Company)",
+    "sourceUrl": "URL of the article containing this quote, or null"
+  }
 }
 
 Rules:
-- "editorialContent": Write 3-5 thematic sections that together form a comprehensive editorial article covering the day's news. Each section should focus on a theme or cluster of related stories. Group related articles under a shared narrative. Use images from the source articles where available — pick the most visually relevant image for each section. The body text should feel like reading a well-written tech publication, not a bullet-point summary.
-- "deepDives": Pick the 2-3 MOST significant stories. These get detailed, analytical summaries.
-- "stats": Extract 3-5 notable statistics, funding amounts, user numbers, or percentages mentioned across ALL articles. Only include real numbers from the content — never make them up.
-- "articles": All remaining stories (5-7) get quick 1-2 sentence summaries for the Quick Links section.
-- If multiple articles cover the same story, combine them and credit all sources.
-- For imageUrl in deepDives and editorialContent, use the image URL provided with the relevant article. If none was provided, set it to null.
-- Write naturally — vary sentence structure, use active voice, and avoid clichés like "game-changer" or "revolutionize".`;
+- "editorialContent": 3-5 thematic sections. Short paragraphs (2-3 sentences). Quick takes, not essays. Use images from source articles when available.
+- "deepDives": 2-3 most significant stories. Summaries in 2-3 sentences.
+- "stats": 3-5 real numbers from the content. Never make them up.
+- "articles": 5-7 remaining stories with 1-2 sentence summaries.
+- "underTheRadar": Pick ONE article that is genuinely interesting but did not make deep dives — smaller launches, niche discussions, sleeper picks. Must use a real URL from the input. If nothing fits, set to null.
+- "tryThis": 1-3 tools, libraries, APIs, betas, or open-source projects mentioned in the articles that readers can actually try today. Each: name, URL from input, one-liner. If none, use empty array [].
+- "quoteOfTheDay": One notable quote from the articles — must be a real quote from the content. If no good quote, set to null.
+- For imageUrl in deepDives and editorialContent, use the image URL from the relevant article or null.
+- Write in short punchy sentences. No dense multi-clause constructions. Avoid clichés like "game-changer" or "revolutionize."`;
 
 type CategorySlug =
   | "ai"
@@ -171,6 +191,18 @@ ${articleList}`,
           summary: string;
           source?: string;
         }[];
+        underTheRadar?: {
+          title: string;
+          url: string;
+          summary: string;
+          source?: string;
+        } | null;
+        tryThis?: Array<{ name: string; url: string; oneLiner: string }>;
+        quoteOfTheDay?: {
+          quote: string;
+          attribution: string;
+          sourceUrl?: string;
+        } | null;
       };
 
       const deepDives = (parsed.deepDives || []).map((d) => ({
@@ -207,6 +239,36 @@ ${articleList}`,
       }));
 
       const today = moment.utc().format("YYYY-MM-DD");
+      const underTheRadar =
+        parsed.underTheRadar &&
+        parsed.underTheRadar.url &&
+        parsed.underTheRadar.title
+          ? {
+              title: parsed.underTheRadar.title,
+              url: parsed.underTheRadar.url,
+              summary: parsed.underTheRadar.summary || "",
+              source: parsed.underTheRadar.source,
+            }
+          : undefined;
+      const tryThis =
+        parsed.tryThis && Array.isArray(parsed.tryThis) && parsed.tryThis.length > 0
+          ? parsed.tryThis.map((t) => ({
+              name: t.name,
+              url: t.url,
+              oneLiner: t.oneLiner,
+            }))
+          : undefined;
+      const quoteOfTheDay =
+        parsed.quoteOfTheDay &&
+        parsed.quoteOfTheDay.quote &&
+        parsed.quoteOfTheDay.attribution
+          ? {
+              quote: parsed.quoteOfTheDay.quote,
+              attribution: parsed.quoteOfTheDay.attribution,
+              sourceUrl: parsed.quoteOfTheDay.sourceUrl,
+            }
+          : undefined;
+
       await ctx.runMutation(internal.mutations.newsletters.create, {
         date: today,
         category,
@@ -223,6 +285,9 @@ ${articleList}`,
         stats: parsed.stats && parsed.stats.length > 0 ? parsed.stats : undefined,
         mediaItems: mediaItems.length > 0 ? mediaItems.slice(0, 10) : undefined,
         editorialContent: editorialContent.length > 0 ? editorialContent : undefined,
+        underTheRadar,
+        tryThis,
+        quoteOfTheDay,
       });
 
       await ctx.runMutation(internal.mutations.articles.markSummarized, {
@@ -295,12 +360,15 @@ Respond with valid JSON in this format:
   "deepDives": [{ "title": "Translated title", "summary": "Translated summary" }],
   "stats": [{ "stat": "Translated stat", "context": "Translated context" }],
   "editorialContent": [{ "heading": "Translated heading", "body": "Translated body", "imageCaption": "Translated caption or null" }],
-  "overview": "Translated overview"
+  "overview": "Translated overview",
+  "underTheRadar": { "title": "Translated title", "summary": "Translated summary" } or null if absent,
+  "tryThis": [{ "name": "Translated name", "oneLiner": "Translated oneLiner" }],
+  "quoteOfTheDay": { "quote": "Translated quote", "attribution": "Translated attribution" } or null if absent
 }`,
           },
           {
             role: "user",
-            content: `Overview: ${newsletter.summary || ""}\n\nEditorial Content:\n${(newsletter.editorialContent || []).map((s: { heading: string; body: string; imageCaption?: string }, i: number) => `${i + 1}. Heading: ${s.heading}\n   Body: ${s.body}${s.imageCaption ? `\n   Caption: ${s.imageCaption}` : ""}`).join("\n\n")}\n\nDeep Dives:\n${deepDivesText}\n\nStats:\n${statsText}\n\nQuick Links:\n${articlesText}`,
+            content: `Overview: ${newsletter.summary || ""}\n\nEditorial Content:\n${(newsletter.editorialContent || []).map((s: { heading: string; body: string; imageCaption?: string }, i: number) => `${i + 1}. Heading: ${s.heading}\n   Body: ${s.body}${s.imageCaption ? `\n   Caption: ${s.imageCaption}` : ""}`).join("\n\n")}\n\nDeep Dives:\n${deepDivesText}\n\nStats:\n${statsText}\n\nQuick Links:\n${articlesText}${(newsletter as any).underTheRadar ? `\n\nUnder the Radar:\nTitle: ${(newsletter as any).underTheRadar.title}\nSummary: ${(newsletter as any).underTheRadar.summary}` : ""}${(newsletter as any).tryThis?.length ? `\n\nTry This:\n${(newsletter as any).tryThis.map((t: { name: string; oneLiner: string }, i: number) => `${i + 1}. Name: ${t.name}\n   OneLiner: ${t.oneLiner}`).join("\n")}` : ""}${(newsletter as any).quoteOfTheDay ? `\n\nQuote of the Day:\nQuote: ${(newsletter as any).quoteOfTheDay.quote}\nAttribution: ${(newsletter as any).quoteOfTheDay.attribution}` : ""}`,
           },
         ],
         temperature: 0.3,
@@ -316,6 +384,9 @@ Respond with valid JSON in this format:
         stats?: { stat: string; context: string }[];
         editorialContent?: { heading: string; body: string; imageCaption?: string | null }[];
         overview?: string;
+        underTheRadar?: { title: string; summary: string } | null;
+        tryThis?: { name: string; oneLiner: string }[];
+        quoteOfTheDay?: { quote: string; attribution: string } | null;
       };
 
       const translatedDeepDives = newsletter.deepDives
@@ -345,6 +416,37 @@ Respond with valid JSON in this format:
           }))
         : undefined;
 
+      const origUnder = (newsletter as { underTheRadar?: { title: string; url: string; summary: string; source?: string } }).underTheRadar;
+      const translatedUnderTheRadar =
+        origUnder && translated.underTheRadar
+          ? {
+              title: translated.underTheRadar.title,
+              url: origUnder.url,
+              summary: translated.underTheRadar.summary,
+              source: origUnder.source,
+            }
+          : undefined;
+
+      const origTryThis = (newsletter as { tryThis?: Array<{ name: string; url: string; oneLiner: string }> }).tryThis;
+      const translatedTryThis =
+        origTryThis && origTryThis.length > 0 && translated.tryThis && translated.tryThis.length >= origTryThis.length
+          ? origTryThis.map((t, i) => ({
+              name: translated.tryThis![i]?.name ?? t.name,
+              url: t.url,
+              oneLiner: translated.tryThis![i]?.oneLiner ?? t.oneLiner,
+            }))
+          : origTryThis;
+
+      const origQuote = (newsletter as { quoteOfTheDay?: { quote: string; attribution: string; sourceUrl?: string } }).quoteOfTheDay;
+      const translatedQuoteOfTheDay =
+        origQuote && translated.quoteOfTheDay
+          ? {
+              quote: translated.quoteOfTheDay.quote,
+              attribution: translated.quoteOfTheDay.attribution,
+              sourceUrl: origQuote.sourceUrl,
+            }
+          : undefined;
+
       await ctx.runMutation(internal.mutations.newsletters.create, {
         date: newsletter.date,
         category: newsletter.category,
@@ -361,6 +463,9 @@ Respond with valid JSON in this format:
         stats: translatedStats,
         mediaItems: newsletter.mediaItems,
         editorialContent: translatedEditorial,
+        underTheRadar: translatedUnderTheRadar,
+        tryThis: translatedTryThis,
+        quoteOfTheDay: translatedQuoteOfTheDay,
       });
 
       console.log(
