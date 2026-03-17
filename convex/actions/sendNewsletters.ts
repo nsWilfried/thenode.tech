@@ -135,9 +135,6 @@ function renderCategorySection(
     nl: NewsletterData,
     t: EmailTemplateStrings
 ): string {
-    const icon = CATEGORY_ICONS[nl.category] ?? "🗞️";
-    const name = CATEGORY_NAMES[nl.category] ?? nl.category;
-
     const overviewHtml = nl.summary
         ? `<tr><td style="padding: 16px 0 20px; color: #333; font-size: 16px; line-height: 1.8;">${nl.summary}</td></tr>`
         : "";
@@ -180,7 +177,7 @@ function renderCategorySection(
                 ${diveImg}
                 <tr><td style="padding: 8px 0 20px;">
                   ${dive.source ? `<span style="display: inline-block; padding: 2px 8px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px;">${dive.source}</span><br/>` : ""}
-                  <a href="${dive.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 700; font-size: 18px; line-height: 1.4;">${dive.title}</a>
+                  <a href="${dive.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; font-weight: 700; font-size: 19px; line-height: 1.5;">${dive.title}</a>
                   <p style="margin: 8px 0 0; color: #555; font-size: 15px; line-height: 1.7;">${dive.summary}</p>
                 </td></tr>`;
               })
@@ -228,7 +225,7 @@ function renderCategorySection(
                   </td></tr>
                   <tr><td style="padding: 12px 0 20px 16px; border-left: 4px solid #0a0a0a;">
                     ${nl.underTheRadar.source ? `<span style="font-size: 12px; color: #666; margin-bottom: 4px;">${nl.underTheRadar.source}</span><br/>` : ""}
-                    <a href="${nl.underTheRadar.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 700; font-size: 18px; line-height: 1.4;">${nl.underTheRadar.title}</a>
+                    <a href="${nl.underTheRadar.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; font-weight: 700; font-size: 18px; line-height: 1.5;">${nl.underTheRadar.title}</a>
                     <p style="margin: 8px 0 0; color: #555; font-size: 15px; line-height: 1.7;">${nl.underTheRadar.summary}</p>
                   </td></tr>`
         : "";
@@ -240,7 +237,7 @@ function renderCategorySection(
           nl.tryThis
               .map((item) => `
                 <tr><td style="padding: 10px 0;">
-                  <a href="${item.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 600; font-size: 16px;">${item.name}</a>
+                  <a href="${item.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; font-weight: 600; font-size: 16px;">${item.name}</a>
                   <p style="margin: 4px 0 0; color: #555; font-size: 14px; line-height: 1.6;">${item.oneLiner}</p>
                 </td></tr>`)
               .join("")
@@ -268,7 +265,7 @@ function renderCategorySection(
                       <span style="display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; font-size: 12px; font-weight: 700; color: #999;">${i + 1}</span>
                     </td>
                     <td style="padding-left: 8px;">
-                      <a href="${a.url}" style="color: #0a0a0a; text-decoration: none; font-weight: 600; font-size: 15px; line-height: 1.4;">${a.title}</a>
+                      <a href="${a.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; font-weight: 600; font-size: 16px; line-height: 1.5;">${a.title}</a>
                       <p style="margin: 4px 0 0; color: #666; font-size: 14px; line-height: 1.6;">${a.summary}</p>
                       ${a.source ? `<span style="font-size: 12px; color: #aaa;">${a.source}</span>` : ""}
                     </td>
@@ -279,11 +276,6 @@ function renderCategorySection(
 
     return `
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 0;">
-        <tr>
-          <td style="padding: 16px 0; background: #0a0a0a;">
-            <span style="font-size: 19px; font-weight: 700; color: #ffffff;">${icon} ${name}</span>
-          </td>
-        </tr>
         ${overviewHtml}
         ${editorialHtml}
         ${deepDivesHtml}
@@ -321,9 +313,10 @@ function buildCategoryNewsletterHTML(
       <td align="center" style="padding: 16px 0;">
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 640px; background: #ffffff;">
           <tr>
-            <td style="text-align: center; padding: 32px 24px 24px; background: #0a0a0a;">
-              <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff;">${headerIcon} ${headerName}</h1>
-              <p style="margin: 6px 0 0; color: #999; font-size: 14px;">${formattedDate} &middot; ${t.dailyDoseOfTech}</p>
+            <td style="text-align: center; padding: 32px 24px 16px; background: #0a0a0a;">
+              <img src="https://thenode.tech/logo.png" alt="TheNode.tech" style="display: block; margin: 0 auto 16px; max-width: 140px; height: auto; border-radius: 12px;" />
+              <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #ffffff;">${headerIcon} ${headerName}</h1>
+              <p style="margin: 8px 0 0; color: #d1d5db; font-size: 15px; line-height: 1.6;">${formattedDate} &middot; ${t.dailyDoseOfTech}</p>
             </td>
           </tr>
           <tr>
