@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { CheckoutLink, CustomerPortalLink } from "@convex-dev/polar/react";
+import { CustomerPortalLink } from "@convex-dev/polar/react";
 import { api } from "../../../convex/_generated/api";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -120,7 +120,7 @@ export default function SettingsPage() {
         <p className="mb-8 text-zinc-500">{t.settings.subtitle}</p>
 
         <div className="space-y-8">
-          <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
+          <div id="account" className="scroll-mt-24 rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">
             <h2 className="mb-1 text-lg font-bold text-zinc-900 dark:text-zinc-100">{t.settings.account}</h2>
             <p className="text-sm text-zinc-500">{user.email}</p>
             <div className="mt-2 flex items-center gap-2">
@@ -128,22 +128,23 @@ export default function SettingsPage() {
                 {isPremium ? t.settings.premiumBadge : t.settings.freeBadge}
               </span>
               {!isPremium && (
-                <Link href={localePath("/pricing", locale)} className="text-xs text-zinc-500 underline hover:text-zinc-900">
+                <Link href={localePath("/pricing", locale)} className="text-xs text-zinc-500 underline hover:text-zinc-900 dark:hover:text-zinc-200">
                   {t.settings.upgradeToPremium}
                 </Link>
               )}
             </div>
+
+            <button onClick={() => void signOut()} className="mt-4 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-dark-hover dark:hover:text-zinc-200">
+              {t.nav.signOut}
+            </button>
             {isPremium && (
               <CustomerPortalLink
                 polarApi={api.polar}
-                className="mt-3 inline-block text-xs text-zinc-500 underline hover:text-zinc-900"
+                className="mt-3 inline-block text-sm text-zinc-500 underline decoration-zinc-400 underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
               >
                 {t.settings.manageSubscription}
               </CustomerPortalLink>
             )}
-            <button onClick={() => void signOut()} className="mt-4 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-dark-hover dark:hover:text-zinc-200">
-              {t.nav.signOut}
-            </button>
           </div>
 
           <div className="rounded-lg border border-zinc-100 bg-white p-6 dark:border-dark-border dark:bg-dark-card">

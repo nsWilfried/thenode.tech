@@ -15,6 +15,7 @@ import type * as actions_weeklyDigest from "../actions/weeklyDigest.js";
 import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
 import type * as emailTranslations from "../emailTranslations.js";
+import type * as email_categoryNewsletterHtml from "../email/categoryNewsletterHtml.js";
 import type * as http from "../http.js";
 import type * as mutations_articles from "../mutations/articles.js";
 import type * as mutations_newsletters from "../mutations/newsletters.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   crons: typeof crons;
   emailTranslations: typeof emailTranslations;
+  "email/categoryNewsletterHtml": typeof email_categoryNewsletterHtml;
   http: typeof http;
   "mutations/articles": typeof mutations_articles;
   "mutations/newsletters": typeof mutations_newsletters;

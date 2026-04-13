@@ -10,48 +10,21 @@ import {
     type EmailTemplateStrings,
     type CategorySlug as EmailCategorySlug,
 } from "../emailTranslations";
+import {
+    buildCategoryNewsletterHTML,
+    CATEGORY_DISPLAY_NAMES_EN,
+    CATEGORY_ICONS,
+    localizedCategoryTitle,
+    NEWSLETTER_EMAIL_LOGO_MARK,
+    type NewsletterData,
+    type NewsletterCategorySlug,
+} from "../email/categoryNewsletterHtml";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const MAX_HEADLINE_SUBJECT_CHARS = 50;
 
-type CategorySlug =
-    | "ai"
-    | "eng"
-    | "sec"
-    | "biz"
-    | "tech"
-    | "cloud-devops"
-    | "web3-crypto"
-    | "design-ux-frontend"
-    | "emerging-tech-science"
-    | "opensource-languages";
-
-const CATEGORY_NAMES: Record<CategorySlug, string> = {
-    ai: "AI & Machine Learning",
-    eng: "Engineering & Web Dev",
-    sec: "Cybersecurity & InfoSec",
-    biz: "Startups & VC",
-    tech: "Big Tech & Innovation",
-    "cloud-devops": "Cloud & DevOps",
-    "web3-crypto": "Web3 & Crypto",
-    "design-ux-frontend": "Design, UX & Frontend",
-    "emerging-tech-science": "Emerging Tech & Science",
-    "opensource-languages": "Open Source & Languages",
-};
-
-const CATEGORY_ICONS: Record<CategorySlug, string> = {
-    ai: "🤖",
-    eng: "⚙️",
-    sec: "🔒",
-    biz: "💼",
-    tech: "📱",
-    "cloud-devops": "☁️",
-    "web3-crypto": "🔗",
-    "design-ux-frontend": "🎨",
-    "emerging-tech-science": "🔬",
-    "opensource-languages": "📦",
-};
+type CategorySlug = NewsletterCategorySlug;
 
 const DEFAULT_DELIVERY_HOUR = 8;
 const DEFAULT_TIMEZONE = "UTC";
@@ -70,19 +43,6 @@ const ALL_CATEGORY_SLUGS: CategorySlug[] = [
     "emerging-tech-science",
     "opensource-languages",
 ];
-
-interface NewsletterData {
-    category: CategorySlug;
-    articles: { title: string; url: string; summary: string; source?: string }[];
-    summary?: string;
-    deepDives?: { title: string; url: string; summary: string; imageUrl?: string; source?: string }[];
-    stats?: { stat: string; context: string; sourceUrl?: string }[];
-    mediaItems?: { type: "image" | "video"; url: string; caption?: string; articleUrl?: string }[];
-    editorialContent?: { heading: string; body: string; imageUrl?: string; imageCaption?: string }[];
-    underTheRadar?: { title: string; url: string; summary: string; source?: string };
-    tryThis?: { name: string; url: string; oneLiner: string }[];
-    quoteOfTheDay?: { quote: string; attribution: string; sourceUrl?: string };
-}
 
 function truncateAtWord(text: string, maxLen: number): string {
     if (text.length <= maxLen) return text;
@@ -129,228 +89,6 @@ function buildNewsletterSubject(
     return t.subjectWithTopics
         .replace("{{topics}}", topics)
         .replace("{{date}}", formattedDate);
-}
-
-function renderCategorySection(
-    nl: NewsletterData,
-    t: EmailTemplateStrings
-): string {
-    const overviewHtml = nl.summary
-        ? `<tr><td style="padding: 16px 0 20px; color: #333; font-size: 16px; line-height: 1.8;">${nl.summary}</td></tr>`
-        : "";
-
-    const editorialHtml = (nl.editorialContent || [])
-        .map((section) => {
-            const imgHtml = section.imageUrl
-                ? `<tr><td style="padding: 0 0 8px;">
-                        <img src="${section.imageUrl}" alt="${section.imageCaption || section.heading}" style="width: 100%; max-width: 560px; height: auto; border-radius: 8px; display: block;" />
-                        ${section.imageCaption ? `<p style="margin: 6px 0 0; font-size: 13px; color: #888; font-style: italic;">${section.imageCaption}</p>` : ""}
-                      </td></tr>`
-                : "";
-            const bodyParagraphs = section.body
-                .split("\n\n")
-                .map((p) => `<p style="margin: 0 0 16px; color: #333; font-size: 16px; line-height: 1.8;">${p}</p>`)
-                .join("");
-            return `
-              <tr><td style="padding: 28px 0 8px;">
-                <h3 style="margin: 0 0 12px; font-size: 20px; font-weight: 700; color: #0a0a0a;">${section.heading}</h3>
-              </td></tr>
-              ${imgHtml}
-              <tr><td>${bodyParagraphs}</td></tr>`;
-        })
-        .join("");
-
-    const deepDivesHtml = (nl.deepDives || []).length > 0
-        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.featuredStories}</h3>
-                  </td></tr>` +
-          (nl.deepDives || [])
-              .map((dive) => {
-                  const diveImg = dive.imageUrl
-                      ? `<tr><td style="padding: 0 0 8px;">
-                              <a href="${dive.url}" style="text-decoration: none;">
-                                <img src="${dive.imageUrl}" alt="${dive.title}" style="width: 100%; max-width: 560px; height: auto; border-radius: 8px; display: block;" />
-                              </a>
-                            </td></tr>`
-                      : "";
-                  return `
-                ${diveImg}
-                <tr><td style="padding: 8px 0 20px;">
-                  ${dive.source ? `<span style="display: inline-block; padding: 2px 8px; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px;">${dive.source}</span><br/>` : ""}
-                  <a href="${dive.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; font-weight: 700; font-size: 19px; line-height: 1.5;">${dive.title}</a>
-                  <p style="margin: 8px 0 0; color: #555; font-size: 15px; line-height: 1.7;">${dive.summary}</p>
-                </td></tr>`;
-              })
-              .join("")
-        : "";
-
-    const statsHtml = (nl.stats || []).length > 0
-        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.keyNumbers}</h3>
-                  </td></tr>
-                  <tr><td style="padding: 16px 0; border-top: 2px solid #0a0a0a;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>${(nl.stats || [])
-                          .map((s) => `
-                        <td width="${Math.floor(100 / Math.min((nl.stats || []).length, 3))}%" style="padding: 0 12px 0 0; vertical-align: top;">
-                          <p style="margin: 0 0 4px; font-size: 22px; font-weight: 800; color: #0a0a0a;">${s.stat}</p>
-                          <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">${s.context}</p>
-                        </td>`)
-                          .slice(0, 3)
-                          .join("")}
-                      </tr>
-                    </table>
-                  </td></tr>` +
-          ((nl.stats || []).length > 3
-              ? `<tr><td style="padding: 12px 0 0;">
-                          <table width="100%" cellpadding="0" cellspacing="0">
-                            <tr>${(nl.stats || [])
-                                .slice(3)
-                                .map((s) => `
-                              <td width="${Math.floor(100 / Math.min((nl.stats || []).slice(3).length, 3))}%" style="padding: 0 12px 0 0; vertical-align: top;">
-                                <p style="margin: 0 0 4px; font-size: 22px; font-weight: 800; color: #0a0a0a;">${s.stat}</p>
-                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">${s.context}</p>
-                              </td>`)
-                                .slice(0, 3)
-                                .join("")}
-                            </tr>
-                          </table>
-                        </td></tr>`
-              : "")
-        : "";
-
-    const underTheRadarHtml = nl.underTheRadar
-        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.underTheRadar}</h3>
-                  </td></tr>
-                  <tr><td style="padding: 12px 0 20px 16px; border-left: 4px solid #0a0a0a;">
-                    ${nl.underTheRadar.source ? `<span style="font-size: 12px; color: #666; margin-bottom: 4px;">${nl.underTheRadar.source}</span><br/>` : ""}
-                    <a href="${nl.underTheRadar.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; font-weight: 700; font-size: 18px; line-height: 1.5;">${nl.underTheRadar.title}</a>
-                    <p style="margin: 8px 0 0; color: #555; font-size: 15px; line-height: 1.7;">${nl.underTheRadar.summary}</p>
-                  </td></tr>`
-        : "";
-
-    const tryThisHtml = (nl.tryThis && nl.tryThis.length > 0)
-        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.tryThis}</h3>
-                  </td></tr>` +
-          nl.tryThis
-              .map((item) => `
-                <tr><td style="padding: 10px 0;">
-                  <a href="${item.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; font-weight: 600; font-size: 16px;">${item.name}</a>
-                  <p style="margin: 4px 0 0; color: #555; font-size: 14px; line-height: 1.6;">${item.oneLiner}</p>
-                </td></tr>`)
-              .join("")
-        : "";
-
-    const quoteOfTheDayHtml = nl.quoteOfTheDay
-        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quoteOfTheDay}</h3>
-                  </td></tr>
-                  <tr><td style="padding: 16px 0 20px;">
-                    <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #0a0a0a; font-style: italic;">"${nl.quoteOfTheDay.quote}"</p>
-                    <p style="margin: 10px 0 0; font-size: 14px; color: #666;">— ${nl.quoteOfTheDay.attribution}</p>
-                  </td></tr>`
-        : "";
-
-    const quickLinksHtml = nl.articles.length > 0
-        ? `<tr><td style="padding: 28px 0 8px; border-top: 1px solid #eee;">
-                    <h3 style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888;">${t.quickLinks}</h3>
-                  </td></tr>` +
-          nl.articles
-              .map((a, i) => `
-                <tr><td style="padding: 12px 0; ${i < nl.articles.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : ""}">
-                  <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                    <td width="28" style="vertical-align: top; padding-top: 2px;">
-                      <span style="display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; font-size: 12px; font-weight: 700; color: #999;">${i + 1}</span>
-                    </td>
-                    <td style="padding-left: 8px;">
-                      <a href="${a.url}" style="color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; font-weight: 600; font-size: 16px; line-height: 1.5;">${a.title}</a>
-                      <p style="margin: 4px 0 0; color: #666; font-size: 14px; line-height: 1.6;">${a.summary}</p>
-                      ${a.source ? `<span style="font-size: 12px; color: #aaa;">${a.source}</span>` : ""}
-                    </td>
-                  </tr></table>
-                </td></tr>`)
-              .join("")
-        : "";
-
-    return `
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 0;">
-        ${overviewHtml}
-        ${editorialHtml}
-        ${deepDivesHtml}
-        ${statsHtml}
-        ${underTheRadarHtml}
-        ${tryThisHtml}
-        ${quoteOfTheDayHtml}
-        ${quickLinksHtml}
-      </table>`;
-}
-
-function buildCategoryNewsletterHTML(
-    newsletter: NewsletterData,
-    date: string,
-    t: EmailTemplateStrings
-): string {
-    const todayUtc = moment().utc().format("YYYY-MM-DD");
-    const formattedDate =
-        date === todayUtc ? t.today : moment(date).format("MMMM Do, YYYY");
-
-    const headerIcon = CATEGORY_ICONS[newsletter.category] ?? "🗞️";
-    const headerName = CATEGORY_NAMES[newsletter.category] ?? newsletter.category;
-    const categorySection = renderCategorySection(newsletter, t);
-
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background: #f5f5f5;">
-    <tr>
-      <td align="center" style="padding: 16px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 640px; background: #ffffff;">
-          <tr>
-            <td style="text-align: center; padding: 32px 24px 16px; background: #0a0a0a;">
-              <img src="https://thenode.tech/logo.png" alt="TheNode.tech" style="display: block; margin: 0 auto 16px; max-width: 140px; height: auto; border-radius: 12px;" />
-              <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #ffffff;">${headerIcon} ${headerName}</h1>
-              <p style="margin: 8px 0 0; color: #d1d5db; font-size: 15px; line-height: 1.6;">${formattedDate} &middot; ${t.dailyDoseOfTech}</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 32px 24px;">
-              ${categorySection}
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 0 24px;">
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
-                    <a href="https://thenode.tech" style="display: inline-block; padding: 12px 28px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">${t.readOnSite}</a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td style="text-align: center; padding: 20px 24px 28px; background: #fafafa; border-top: 1px solid #eee;">
-              <p style="color: #999; font-size: 12px; margin: 0; line-height: 1.6;">
-                ${t.receivingBecause}<br>
-                <a href="{{unsubscribe_url}}" style="color: #999;">${t.unsubscribe}</a> &middot;
-                <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a> &middot;
-                <a href="https://thenode.tech/pricing" style="color: #999;">${t.upgradeToPremium}</a>
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
 }
 
 function getTargetDeliveryHour(user: {
@@ -448,10 +186,15 @@ export const sendDailyNewsletters = internalAction({
 
                     const newsletter = nl as NewsletterData;
                     const subject = buildNewsletterSubject([newsletter], today, language);
-                    const html = buildCategoryNewsletterHTML(newsletter, today, emailT);
-                    const senderIcon = CATEGORY_ICONS[category] ?? "🗞️";
+                    const html = buildCategoryNewsletterHTML({
+                        newsletter,
+                        date: today,
+                        t: emailT,
+                        isPremium,
+                        language,
+                    });
                     const senderName =
-                        `${senderIcon} ${CATEGORY_NAMES[category] ?? category} · TheNode.tech`;
+                        `${NEWSLETTER_EMAIL_LOGO_MARK} ${localizedCategoryTitle(emailT, category)} · TheNode.tech`;
 
                     await resend.emails.send({
                         from: `${senderName} <newsletter@thenode.tech>`,
@@ -494,8 +237,11 @@ export const sendDailyNewsletters = internalAction({
 });
 
 function buildWelcomeEmailHTML(t: EmailTemplateStrings): string {
-    const categoryList = (Object.keys(CATEGORY_NAMES) as CategorySlug[])
-        .map((slug) => `<li style="padding: 4px 0;">${CATEGORY_ICONS[slug]} ${CATEGORY_NAMES[slug]}</li>`)
+    const categoryList = (Object.keys(CATEGORY_DISPLAY_NAMES_EN) as CategorySlug[])
+        .map(
+            (slug) =>
+                `<li style="padding: 4px 0;">${CATEGORY_ICONS[slug]} ${localizedCategoryTitle(t, slug)}</li>`
+        )
         .join("");
 
     return `
@@ -795,10 +541,15 @@ export const testSendDailyNewsletter = internalAction({
             const newsletter = nl as NewsletterData;
             const nlDate = (nl as any).date ?? today;
             const subject = `[TEST] ${buildNewsletterSubject([newsletter], nlDate, language)}`;
-            const html = buildCategoryNewsletterHTML(newsletter, nlDate, emailT);
-            const senderIcon = CATEGORY_ICONS[category] ?? "🗞️";
+            const html = buildCategoryNewsletterHTML({
+                newsletter,
+                date: nlDate,
+                t: emailT,
+                isPremium,
+                language,
+            });
             const senderName =
-                `${senderIcon} ${CATEGORY_NAMES[category] ?? category} · TheNode.tech`;
+                `${NEWSLETTER_EMAIL_LOGO_MARK} ${localizedCategoryTitle(emailT, category)} · TheNode.tech`;
 
             await resend.emails.send({
                 from: `${senderName} <newsletter@thenode.tech>`,

@@ -38,9 +38,13 @@ export interface EmailTemplateStrings {
   quickLinks: string;
   readOnSite: string;
   receivingBecause: string;
+  /** Weekly digest footer (Premium-only product) */
+  receivingBecauseWeeklyDigest: string;
   unsubscribe: string;
   managePreferences: string;
   upgradeToPremium: string;
+  /** Premium billing / Polar portal entry — linked from newsletter footers */
+  manageSubscription: string;
   // Subject line templates ({{headline}}, {{topics}}, {{date}})
   subjectFallback: string;
   subjectWithTopics: string;
@@ -135,9 +139,12 @@ const en: EmailTemplateStrings = {
   readOnSite: "Read on TheNode.tech",
   receivingBecause:
     "You're receiving this because you subscribed to TheNode.tech newsletter.",
+  receivingBecauseWeeklyDigest:
+    "You're receiving this because you enabled the weekly digest (Premium).",
   unsubscribe: "Unsubscribe",
   managePreferences: "Manage preferences",
   upgradeToPremium: "Upgrade to Premium",
+  manageSubscription: "Manage or cancel subscription",
   subjectFallback: "Your daily tech digest — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -212,9 +219,12 @@ const es: EmailTemplateStrings = {
   readOnSite: "Leer en TheNode.tech",
   receivingBecause:
     "Recibes este correo porque te suscribiste al newsletter de TheNode.tech.",
+  receivingBecauseWeeklyDigest:
+    "Recibes este correo porque activaste el resumen semanal (Premium).",
   unsubscribe: "Darse de baja",
   managePreferences: "Gestionar preferencias",
   upgradeToPremium: "Pasar a Premium",
+  manageSubscription: "Gestionar o cancelar suscripción",
   subjectFallback: "Tu resumen tech diario — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -285,9 +295,12 @@ const fr: EmailTemplateStrings = {
   readOnSite: "Lire sur TheNode.tech",
   receivingBecause:
     "Vous recevez ceci car vous êtes inscrit à la newsletter TheNode.tech.",
+  receivingBecauseWeeklyDigest:
+    "Vous recevez ceci car vous avez activé la synthèse hebdomadaire (Premium).",
   unsubscribe: "Se désabonner",
   managePreferences: "Gérer les préférences",
   upgradeToPremium: "Passer à Premium",
+  manageSubscription: "Gérer ou annuler l'abonnement",
   subjectFallback: "Votre digest tech quotidien — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -360,9 +373,12 @@ const de: EmailTemplateStrings = {
   readOnSite: "Auf TheNode.tech lesen",
   receivingBecause:
     "Du erhältst diese E-Mail, weil du den TheNode.tech-Newsletter abonniert hast.",
+  receivingBecauseWeeklyDigest:
+    "Du erhältst diese E-Mail, weil du den wöchentlichen Digest (Premium) aktiviert hast.",
   unsubscribe: "Abmelden",
   managePreferences: "Einstellungen",
   upgradeToPremium: "Auf Premium upgraden",
+  manageSubscription: "Abo verwalten oder kündigen",
   subjectFallback: "Dein täglicher Tech-Überblick — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -438,9 +454,12 @@ const ja: EmailTemplateStrings = {
   readOnSite: "TheNode.techで読む",
   receivingBecause:
     "TheNode.techニュースレターに登録いただいたため、このメールをお送りしています。",
+  receivingBecauseWeeklyDigest:
+    "週次ダイジェスト（プレミアム）を有効にしたため、このメールをお送りしています。",
   unsubscribe: "配信停止",
   managePreferences: "設定を管理",
   upgradeToPremium: "プレミアムへ",
+  manageSubscription: "購読の管理・解約",
   subjectFallback: "本日のテックダイジェスト — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -508,9 +527,12 @@ const zh: EmailTemplateStrings = {
   quickLinks: "快链",
   readOnSite: "在 TheNode.tech 阅读",
   receivingBecause: "您收到此邮件是因为订阅了 TheNode.tech 通讯。",
+  receivingBecauseWeeklyDigest:
+    "您收到此邮件是因为启用了每周摘要（高级版）。",
   unsubscribe: "退订",
   managePreferences: "管理偏好",
   upgradeToPremium: "升级到高级版",
+  manageSubscription: "管理或取消订阅",
   subjectFallback: "你的每日科技摘要 — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -573,9 +595,12 @@ const pt: EmailTemplateStrings = {
   readOnSite: "Ler no TheNode.tech",
   receivingBecause:
     "Você recebe este e-mail porque se inscreveu na newsletter TheNode.tech.",
+  receivingBecauseWeeklyDigest:
+    "Você recebe este e-mail porque ativou o resumo semanal (Premium).",
   unsubscribe: "Cancelar inscrição",
   managePreferences: "Gerenciar preferências",
   upgradeToPremium: "Fazer upgrade para Premium",
+  manageSubscription: "Gerenciar ou cancelar assinatura",
   subjectFallback: "Seu resumo tech diário — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -648,9 +673,12 @@ const it: EmailTemplateStrings = {
   readOnSite: "Leggi su TheNode.tech",
   receivingBecause:
     "Ricevi questa email perché ti sei iscritto alla newsletter TheNode.tech.",
+  receivingBecauseWeeklyDigest:
+    "Ricevi questa email perché hai attivato il digest settimanale (Premium).",
   unsubscribe: "Annulla iscrizione",
   managePreferences: "Gestisci preferenze",
   upgradeToPremium: "Passa a Premium",
+  manageSubscription: "Gestisci o annulla l'abbonamento",
   subjectFallback: "Il tuo digest tech quotidiano — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -723,9 +751,12 @@ const ko: EmailTemplateStrings = {
   readOnSite: "TheNode.tech에서 읽기",
   receivingBecause:
     "TheNode.tech 뉴스레터에 구독하신 관계로 이 메일을 보내드립니다.",
+  receivingBecauseWeeklyDigest:
+    "주간 다이제스트(프리미엄)를 켜 두셨기에 이 메일을 보내드립니다.",
   unsubscribe: "구독 취소",
   managePreferences: "설정 관리",
   upgradeToPremium: "프리미엄 업그레이드",
+  manageSubscription: "구독 관리 또는 취소",
   subjectFallback: "오늘의 테크 다이제스트 — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -801,6 +832,16 @@ const VALID_LOCALES: EmailLocale[] = [
   "it",
   "ko",
 ];
+
+const VALID_LOCALE_SET = new Set<string>(VALID_LOCALES);
+
+/** Locale-prefixed origin for links in emails (keeps #hash on settings URLs). */
+export function siteBaseUrlForEmailLocale(language: string): string {
+  const raw = language && typeof language === "string" ? language : "en";
+  const key = raw.split(/[-_]/)[0].toLowerCase();
+  const loc = VALID_LOCALE_SET.has(key) ? key : "en";
+  return `https://thenode.tech/${loc}`;
+}
 
 export function getEmailTranslations(locale: string): EmailTemplateStrings {
   const raw = locale && typeof locale === "string" ? locale : "en";

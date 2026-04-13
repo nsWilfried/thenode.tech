@@ -3,6 +3,7 @@
 import { v } from "convex/values";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
+import { getEmailTranslations, siteBaseUrlForEmailLocale } from "../emailTranslations";
 import { Resend } from "resend";
 import moment from "moment-timezone";
 import OpenAI from "openai";
@@ -117,7 +118,9 @@ interface WeeklyDigestData {
   }>;
 }
 
-function buildWeeklyDigestHTML(digest: WeeklyDigestData): string {
+function buildWeeklyDigestHTML(digest: WeeklyDigestData, language: string): string {
+  const t = getEmailTranslations(language);
+  const siteBase = siteBaseUrlForEmailLocale(language);
   const overviewParagraphs = digest.overview
     .split("\n\n")
     .map(
@@ -213,15 +216,15 @@ function buildWeeklyDigestHTML(digest: WeeklyDigestData): string {
           </tr>
           <tr>
             <td style="text-align: center; padding: 24px; border-top: 1px solid #eee;">
-              <a href="https://thenode.tech" style="display: inline-block; padding: 12px 28px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">Read on TheNode.tech</a>
+              <a href="${siteBase}" style="display: inline-block; padding: 12px 28px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">${t.readOnSite}</a>
             </td>
           </tr>
           <tr>
             <td style="text-align: center; padding: 20px 24px 28px; background: #fafafa; border-top: 1px solid #eee;">
               <p style="color: #999; font-size: 12px; margin: 0; line-height: 1.6;">
-                You're receiving this because you enabled the weekly digest (Premium).<br>
-                <a href="https://thenode.tech/settings" style="color: #999;">Manage preferences</a> &middot;
-                <a href="https://thenode.tech/pricing" style="color: #999;">Premium</a>
+                ${t.receivingBecauseWeeklyDigest}<br>
+                <a href="${siteBase}/settings" style="color: #999;">${t.managePreferences}</a> &middot;
+                <a href="${siteBase}/settings#account" style="color: #999;">${t.manageSubscription}</a>
               </p>
             </td>
           </tr>
@@ -494,7 +497,7 @@ export const sendWeeklyDigests = internalAction({
 
         if (!digestDoc) continue;
 
-        const html = buildWeeklyDigestHTML(digestDoc);
+        const html = buildWeeklyDigestHTML(digestDoc, language);
         const subject = `⚡ TheNode.tech — Week in Review: ${moment(weekStartDate).format("MMM D")}–${moment(weekEndDate).format("MMM D, YYYY")}`;
 
         await resend.emails.send({
@@ -616,7 +619,7 @@ export const testSendWeeklyDigest = internalAction({
       throw new Error("Could not generate or find weekly digest data");
     }
 
-    const html = buildWeeklyDigestHTML(digestDoc);
+    const html = buildWeeklyDigestHTML(digestDoc, language);
     const subject = `[TEST] ⚡ TheNode.tech — Week in Review: ${moment(weekStartDate).format("MMM D")}–${moment(weekEndDate).format("MMM D, YYYY")}`;
 
     await resend.emails.send({
