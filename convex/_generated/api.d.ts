@@ -15,8 +15,10 @@ import type * as actions_summarizeArticles from "../actions/summarizeArticles.js
 import type * as actions_weeklyDigest from "../actions/weeklyDigest.js";
 import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
+import type * as email_authEmailHtml from "../email/authEmailHtml.js";
 import type * as email_categoryNewsletterHtml from "../email/categoryNewsletterHtml.js";
 import type * as email_verifyNewsletterImages from "../email/verifyNewsletterImages.js";
+import type * as email_weeklyDigestHtml from "../email/weeklyDigestHtml.js";
 import type * as emailTranslations from "../emailTranslations.js";
 import type * as http from "../http.js";
 import type * as mutations_articles from "../mutations/articles.js";
@@ -47,8 +49,10 @@ declare const fullApi: ApiFromModules<{
   "actions/weeklyDigest": typeof actions_weeklyDigest;
   auth: typeof auth;
   crons: typeof crons;
+  "email/authEmailHtml": typeof email_authEmailHtml;
   "email/categoryNewsletterHtml": typeof email_categoryNewsletterHtml;
   "email/verifyNewsletterImages": typeof email_verifyNewsletterImages;
+  "email/weeklyDigestHtml": typeof email_weeklyDigestHtml;
   emailTranslations: typeof emailTranslations;
   http: typeof http;
   "mutations/articles": typeof mutations_articles;
