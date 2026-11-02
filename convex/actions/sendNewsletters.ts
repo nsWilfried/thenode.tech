@@ -18,7 +18,18 @@ import {
     NEWSLETTER_EMAIL_LOGO_MARK,
     type NewsletterData,
     type NewsletterCategorySlug,
+    C,
+    FONT_TEXT,
+    FONT_LABEL,
+    SITE_ORIGIN,
+    escapeHtml,
+    emailButton,
+    emailDocument,
+    emailFooterRow,
+    emailHeaderRows,
+    normalizeEmailLang,
 } from "../email/categoryNewsletterHtml";
+import { filterNewsletterImages } from "../email/verifyNewsletterImages";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -91,6 +102,15 @@ function buildNewsletterSubject(
         .replace("{{date}}", formattedDate);
 }
 
+/** Resend "From" display name: `{category icon} {localized short name} · TheNode.tech`. */
+function categoryNewsletterSenderDisplayName(
+    t: EmailTemplateStrings,
+    category: CategorySlug
+): string {
+    const icon = CATEGORY_ICONS[category] ?? NEWSLETTER_EMAIL_LOGO_MARK;
+    return `${icon} ${localizedCategoryTitle(t, category)} · TheNode.tech`;
+}
+
 function getTargetDeliveryHour(user: {
     isPremium?: boolean;
     preferences?: { preferredDeliveryHour?: number };
@@ -110,8 +130,11 @@ function getTargetDeliveryHour(user: {
 function getCategoriesForUser(user: {
     preferences?: { categories?: CategorySlug[] };
 }): CategorySlug[] {
-    const categories = user.preferences?.categories;
-    return categories && categories.length > 0 ? categories : ALL_CATEGORY_SLUGS;
+    // Only send the categories the user explicitly chose. Never fall back to
+    // "all categories": an empty/missing list means the user gets nothing.
+    const categories = user.preferences?.categories ?? [];
+    const valid = new Set<CategorySlug>(ALL_CATEGORY_SLUGS);
+    return [...new Set(categories)].filter((c) => valid.has(c));
 }
 
 // Send newsletters to all subscribers
@@ -135,6 +158,7 @@ export const sendDailyNewsletters = internalAction({
             skippedNoEmail: 0,
             skippedAlreadySent: 0,
             skippedNoContent: 0,
+            skippedNoCategories: 0,
         };
 
         for (const user of users) {
@@ -170,6 +194,10 @@ export const sendDailyNewsletters = internalAction({
                 const isPremium = user.isPremium ?? false;
                 const language = isPremium ? (user.language || "en") : "en";
                 const categories = getCategoriesForUser(user);
+                if (categories.length === 0) {
+                    stats.skippedNoCategories++;
+                    continue;
+                }
                 const emailT = getEmailTranslations(language);
 
                 let sentEmailsForUser = 0;
@@ -184,7 +212,8 @@ export const sendDailyNewsletters = internalAction({
                         continue;
                     }
 
-                    const newsletter = nl as NewsletterData;
+                    let newsletter = nl as NewsletterData;
+                    newsletter = await filterNewsletterImages(newsletter);
                     const subject = buildNewsletterSubject([newsletter], today, language);
                     const html = buildCategoryNewsletterHTML({
                         newsletter,
@@ -193,8 +222,7 @@ export const sendDailyNewsletters = internalAction({
                         isPremium,
                         language,
                     });
-                    const senderName =
-                        `${NEWSLETTER_EMAIL_LOGO_MARK} ${localizedCategoryTitle(emailT, category)} · TheNode.tech`;
+                    const senderName = categoryNewsletterSenderDisplayName(emailT, category);
 
                     await resend.emails.send({
                         from: `${senderName} <newsletter@thenode.tech>`,
@@ -231,88 +259,75 @@ export const sendDailyNewsletters = internalAction({
         }
 
         console.log(
-            `[sendDailyNewsletters] Complete — sentEmails=${stats.sentEmails}, skippedAlreadySent=${stats.skippedAlreadySent}, skippedNoContent=${stats.skippedNoContent}, skippedNoEmail=${stats.skippedNoEmail}`
+            `[sendDailyNewsletters] Complete — sentEmails=${stats.sentEmails}, skippedAlreadySent=${stats.skippedAlreadySent}, skippedNoContent=${stats.skippedNoContent}, skippedNoEmail=${stats.skippedNoEmail}, skippedNoCategories=${stats.skippedNoCategories}`
         );
     },
 });
 
-function buildWelcomeEmailHTML(t: EmailTemplateStrings): string {
-    const categoryList = (Object.keys(CATEGORY_DISPLAY_NAMES_EN) as CategorySlug[])
-        .map(
-            (slug) =>
-                `<li style="padding: 4px 0;">${CATEGORY_ICONS[slug]} ${localizedCategoryTitle(t, slug)}</li>`
-        )
-        .join("");
+/** Shared simple-email body for welcome / premium / cancellation (2026 rebrand). */
+function simpleEmailHTML(args: {
+    lang: string;
+    headerLabel: string;
+    title: string;
+    subtitle: string;
+    paragraphs: string[];
+    listIntro?: string;
+    list?: string[];
+    list2Intro?: string;
+    list2?: string[];
+    list2Outro?: string;
+    cta?: { label: string; href: string };
+    footerNote: string;
+    links: { label: string; href: string }[];
+}): string {
+    const P = (txt: string, extra = "") =>
+        `<tr><td style="font-family:${FONT_TEXT}; font-size:17px; line-height:28px; color:${C.text}; padding-bottom:16px;${extra}">${escapeHtml(txt)}</td></tr>`;
+    const listBox = (items: string[]) =>
+        `<tr><td style="padding:2px 0 22px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:${C.box}; border-radius:8px; padding:14px 22px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${items
+            .map(
+                (it, i) =>
+                    `<tr><td width="26" valign="top" style="width:26px; font-family:${FONT_LABEL}; font-size:12px; line-height:22px; font-weight:bold; color:${C.orangeDeep}; padding:6px 0;">${String(i + 1).padStart(2, "0")}</td><td valign="top" style="padding:6px 0; font-family:${FONT_TEXT}; font-size:15px; line-height:22px; color:${C.ink};">${escapeHtml(it)}</td></tr>`
+            )
+            .join("")}</table></td></tr></table></td></tr>`;
+    const body = [
+        `<tr><td class="h1" style="font-family:${FONT_TEXT}; font-size:34px; line-height:40px; font-weight:bold; letter-spacing:-1px; color:${C.ink}; padding-bottom:12px;">${escapeHtml(args.title)}</td></tr>`,
+        args.subtitle ? P(args.subtitle, ` font-size:18px; line-height:29px; padding-bottom:24px;`) : "",
+        ...args.paragraphs.filter(Boolean).map((x) => P(x)),
+        args.listIntro ? P(args.listIntro) : "",
+        args.list?.length ? listBox(args.list) : "",
+        args.list2Intro ? P(args.list2Intro) : "",
+        args.list2?.length ? listBox(args.list2) : "",
+        args.list2Outro ? P(args.list2Outro) : "",
+        args.cta ? `<tr><td style="padding-top:8px;">${emailButton(args.cta.label, args.cta.href, "orange")}</td></tr>` : "",
+    ].join("");
+    const rows = [
+        emailHeaderRows(args.headerLabel),
+        `<tr><td style="background-color:${C.paper}; padding:40px 36px 40px;" class="pad"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${body}</table></td></tr>`,
+        emailFooterRow({ blurb: args.footerNote, links: args.links }),
+    ].join("");
+    return emailDocument({ lang: args.lang, title: `${args.title} — TheNode`, preheader: args.subtitle || args.title, rows });
+}
 
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <tr>
-      <td style="text-align: center; padding: 32px 0 24px;">
-        <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #0a0a0a;">${t.welcomeTitle}</h1>
-        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">${t.welcomeSubtitle}</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding: 0 0 24px;">
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          ${t.thanksForSigningUp}
-        </p>
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          ${t.whatYouGet}
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
-          <tr>
-            <td style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
-              <ul style="margin: 0; padding: 0 0 0 20px; color: #333; font-size: 14px; line-height: 1.8;">
-                <li style="padding: 2px 0;">${t.deepDivesDesc}</li>
-                <li style="padding: 2px 0;">${t.keyStatsDesc}</li>
-                <li style="padding: 2px 0;">${t.quickLinksDesc}</li>
-              </ul>
-            </td>
-          </tr>
-        </table>
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 12px;">
-          ${t.weCover}
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
-          <tr>
-            <td style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
-              <ul style="margin: 0; padding: 0 0 0 20px; color: #333; font-size: 14px; line-height: 1.6; columns: 2;">
-                ${categoryList}
-              </ul>
-            </td>
-          </tr>
-        </table>
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
-          ${t.headToSettings}
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="text-align: center;">
-              <a href="https://thenode.tech/settings" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">${t.customizePreferences}</a>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
-        <p style="color: #999; font-size: 12px; margin: 0;">
-          ${t.receivingBecauseSignup}<br>
-          <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a>
-        </p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+function buildWelcomeEmailHTML(t: EmailTemplateStrings, userCategories: CategorySlug[] = [], language = "en"): string {
+    const lang = normalizeEmailLang(language);
+    const slugs = userCategories.length > 0
+        ? userCategories
+        : (Object.keys(CATEGORY_DISPLAY_NAMES_EN) as CategorySlug[]);
+    return simpleEmailHTML({
+        lang,
+        headerLabel: "Welcome",
+        title: t.welcomeTitle,
+        subtitle: t.welcomeSubtitle,
+        paragraphs: [t.thanksForSigningUp],
+        listIntro: t.whatYouGet,
+        list: [t.deepDivesDesc, t.keyStatsDesc, t.quickLinksDesc],
+        list2Intro: t.weCover,
+        list2: slugs.map((slug) => `${CATEGORY_ICONS[slug]} ${localizedCategoryTitle(t, slug)}`),
+        list2Outro: t.headToSettings,
+        cta: { label: t.customizePreferences, href: `${SITE_ORIGIN}/${lang}/settings` },
+        footerNote: t.receivingBecauseSignup,
+        links: [{ label: t.managePreferences, href: `${SITE_ORIGIN}/${lang}/settings` }],
+    });
 }
 
 export const sendWelcomeEmail = internalAction({
@@ -332,7 +347,7 @@ export const sendWelcomeEmail = internalAction({
         try {
             const lang = user.language || "en";
             const t = getEmailTranslations(lang);
-            const html = buildWelcomeEmailHTML(t);
+            const html = buildWelcomeEmailHTML(t, getCategoriesForUser(user), lang);
 
             await resend.emails.send({
                 from: "TheNode.tech <newsletter@thenode.tech>",
@@ -350,61 +365,19 @@ export const sendWelcomeEmail = internalAction({
 
 // --- Premium Upgrade Email ---
 
-function buildPremiumUpgradeEmailHTML(t: EmailTemplateStrings): string {
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <tr>
-      <td style="text-align: center; padding: 32px 0 24px;">
-        <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0a0a0a;">${t.premiumWelcomeTitle}</h1>
-        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">${t.premiumWelcomeSubtitle}</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding: 0 0 24px;">
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          ${t.premiumThanks}
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
-          <tr>
-            <td style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
-              <ul style="margin: 0; padding: 0 0 0 20px; color: #333; font-size: 14px; line-height: 2;">
-                <li>${t.customDeliveryTime}</li>
-                <li>${t.multiLanguageSupport}</li>
-                <li>${t.priorityContent}</li>
-              </ul>
-            </td>
-          </tr>
-        </table>
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
-          ${t.headToSettings}
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="text-align: center;">
-              <a href="https://thenode.tech/settings" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">${t.configurePremium}</a>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
-        <p style="color: #999; font-size: 12px; margin: 0;">
-          ${t.receivingBecauseUpgrade}<br>
-          <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a>
-        </p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+function buildPremiumUpgradeEmailHTML(t: EmailTemplateStrings, language = "en"): string {
+    const lang = normalizeEmailLang(language);
+    return simpleEmailHTML({
+        lang,
+        headerLabel: "Premium",
+        title: t.premiumWelcomeTitle,
+        subtitle: t.premiumWelcomeSubtitle,
+        paragraphs: [t.premiumThanks],
+        list: [t.customDeliveryTime, t.multiLanguageSupport, t.priorityContent],
+        cta: { label: t.configurePremium, href: `${SITE_ORIGIN}/${lang}/settings` },
+        footerNote: t.receivingBecauseUpgrade,
+        links: [{ label: t.managePreferences, href: `${SITE_ORIGIN}/${lang}/settings` }],
+    });
 }
 
 export const sendPremiumUpgradeEmail = internalAction({
@@ -424,7 +397,7 @@ export const sendPremiumUpgradeEmail = internalAction({
         try {
             const lang = user.language || "en";
             const t = getEmailTranslations(lang);
-            const html = buildPremiumUpgradeEmailHTML(t);
+            const html = buildPremiumUpgradeEmailHTML(t, lang);
 
             await resend.emails.send({
                 from: "TheNode.tech <newsletter@thenode.tech>",
@@ -442,61 +415,20 @@ export const sendPremiumUpgradeEmail = internalAction({
 
 // --- Premium Cancellation Email ---
 
-function buildPremiumCancellationEmailHTML(t: EmailTemplateStrings): string {
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <tr>
-      <td style="text-align: center; padding: 32px 0 24px;">
-        <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0a0a0a;">${t.cancellationTitle}</h1>
-        <p style="margin: 8px 0 0; color: #888; font-size: 16px;">${t.cancellationSubtitle}</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding: 0 0 24px;">
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          ${t.cancellationWhatChanges}
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
-          <tr>
-            <td style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
-              <ul style="margin: 0; padding: 0 0 0 20px; color: #333; font-size: 14px; line-height: 2;">
-                <li>${t.keepReceiving}</li>
-                <li>${t.deliveryReverts}</li>
-                <li>${t.languageReverts}</li>
-              </ul>
-            </td>
-          </tr>
-        </table>
-        <p style="color: #333; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
-          ${t.freeContinues}
-        </p>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="text-align: center;">
-              <a href="https://thenode.tech/pricing" style="display: inline-block; padding: 14px 32px; background: #0a0a0a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">${t.resubscribe}</a>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align: center; padding: 24px 0; border-top: 1px solid #eee;">
-        <p style="color: #999; font-size: 12px; margin: 0;">
-          ${t.receivingBecauseCancelled}<br>
-          <a href="https://thenode.tech/settings" style="color: #999;">${t.managePreferences}</a>
-        </p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+function buildPremiumCancellationEmailHTML(t: EmailTemplateStrings, language = "en"): string {
+    const lang = normalizeEmailLang(language);
+    return simpleEmailHTML({
+        lang,
+        headerLabel: "TheNode",
+        title: t.cancellationTitle,
+        subtitle: t.cancellationSubtitle,
+        paragraphs: [],
+        listIntro: t.cancellationWhatChanges,
+        list: [t.keepReceiving, t.deliveryReverts, t.languageReverts, t.freeContinues],
+        cta: { label: t.resubscribe, href: `${SITE_ORIGIN}/${lang}/pricing` },
+        footerNote: t.receivingBecauseCancelled,
+        links: [{ label: t.managePreferences, href: `${SITE_ORIGIN}/${lang}/settings` }],
+    });
 }
 
 export const testSendDailyNewsletter = internalAction({
@@ -538,7 +470,8 @@ export const testSendDailyNewsletter = internalAction({
                 continue;
             }
 
-            const newsletter = nl as NewsletterData;
+            let newsletter = nl as NewsletterData;
+            newsletter = await filterNewsletterImages(newsletter);
             const nlDate = (nl as any).date ?? today;
             const subject = `[TEST] ${buildNewsletterSubject([newsletter], nlDate, language)}`;
             const html = buildCategoryNewsletterHTML({
@@ -548,8 +481,7 @@ export const testSendDailyNewsletter = internalAction({
                 isPremium,
                 language,
             });
-            const senderName =
-                `${NEWSLETTER_EMAIL_LOGO_MARK} ${localizedCategoryTitle(emailT, category)} · TheNode.tech`;
+            const senderName = categoryNewsletterSenderDisplayName(emailT, category);
 
             await resend.emails.send({
                 from: `${senderName} <newsletter@thenode.tech>`,
@@ -583,7 +515,7 @@ export const sendPremiumCancellationEmail = internalAction({
         try {
             const lang = user.language || "en";
             const t = getEmailTranslations(lang);
-            const html = buildPremiumCancellationEmailHTML(t);
+            const html = buildPremiumCancellationEmailHTML(t, lang);
 
             await resend.emails.send({
                 from: "TheNode.tech <newsletter@thenode.tech>",

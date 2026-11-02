@@ -46,6 +46,8 @@ export default defineSchema({
         preferredDeliveryHour: v.optional(v.number()),
         weeklyDigestEnabled: v.optional(v.boolean()),
         preferredDigestDay: v.optional(v.number()),
+        // true = user unsubscribed from all emails (daily + weekly)
+        unsubscribed: v.optional(v.boolean()),
       })
     ),
     timezone: v.optional(v.string()),

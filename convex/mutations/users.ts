@@ -71,7 +71,11 @@ export const updatePreferences = mutation({
     const newPrefs: Record<string, unknown> = { ...existingPrefs };
 
     if (args.categories) {
-      newPrefs.categories = args.categories;
+      const categories = [...new Set(args.categories)];
+      if (categories.length === 0) {
+        return { success: false, message: "Select at least one category" };
+      }
+      newPrefs.categories = categories;
       prefsChanged = true;
     }
     if (args.preferredDeliveryHour !== undefined && isPremium) {
@@ -154,13 +158,31 @@ export const completeOnboarding = mutation({
     if (args.categories.length === 0) {
       return { success: false, message: "Select at least one category" };
     }
+    const user = await ctx.db.get(userId);
     await ctx.db.patch(userId, {
       onboardingComplete: true,
       preferences: {
-        categories: args.categories,
+        ...(user?.preferences ?? {}),
+        categories: [...new Set(args.categories)],
       },
     });
 
+    return { success: true };
+  },
+});
+
+/** Unsubscribe from (or resubscribe to) every TheNode email. */
+export const setUnsubscribed = mutation({
+  args: { unsubscribed: v.boolean() },
+  returns: v.object({ success: v.boolean() }),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return { success: false };
+    const user = await ctx.db.get(userId);
+    if (!user) return { success: false };
+    await ctx.db.patch(userId, {
+      preferences: { ...(user.preferences ?? {}), unsubscribed: args.unsubscribed },
+    });
     return { success: true };
   },
 });

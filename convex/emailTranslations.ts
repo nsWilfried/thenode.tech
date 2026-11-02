@@ -37,9 +37,28 @@ export interface EmailTemplateStrings {
   quoteOfTheDay: string;
   quickLinks: string;
   readOnSite: string;
+  /** New design (2026 rebrand) */
+  inBrief: string;
+  minRead: string;
+  minShort: string;
+  readArticle: string;
+  tryItCta: string;
+  sourceLabel: string;
+  feedbackQuestion: string;
+  feedbackHint: string;
+  feedbackYes: string;
+  feedbackNo: string;
+  forwardToColleague: string;
+  footerBlurb: string;
   receivingBecause: string;
   /** Weekly digest footer (Premium-only product) */
   receivingBecauseWeeklyDigest: string;
+  /** Weekly digest email section titles */
+  weeklyDigestTitle: string;
+  weeklyDigestOverview: string;
+  weeklyDigestTrends: string;
+  weeklyDigestTopStories: string;
+  weeklyDigestByCategory: string;
   unsubscribe: string;
   managePreferences: string;
   upgradeToPremium: string;
@@ -136,11 +155,28 @@ const en: EmailTemplateStrings = {
   tryThis: "Try This",
   quoteOfTheDay: "Quote of the Day",
   quickLinks: "Quick Links",
-  readOnSite: "Read on TheNode.tech",
+  readOnSite: "Read online",
+  inBrief: "In brief",
+  minRead: "{{n}} min read",
+  minShort: "{{n}} min",
+  readArticle: "Read article →",
+  tryItCta: "Check it out →",
+  sourceLabel: "Source",
+  feedbackQuestion: "Was this issue useful?",
+  feedbackHint: "One click is enough — it shapes the next one.",
+  feedbackYes: "Yes, useful",
+  feedbackNo: "Not really",
+  forwardToColleague: "Forward to a colleague →",
+  footerBlurb: "Tech news, one channel at a time.",
   receivingBecause:
     "You're receiving this because you subscribed to TheNode.tech newsletter.",
   receivingBecauseWeeklyDigest:
     "You're receiving this because you enabled the weekly digest (Premium).",
+  weeklyDigestTitle: "Week in Review",
+  weeklyDigestOverview: "The Week That Was",
+  weeklyDigestTrends: "Trends Across the Board",
+  weeklyDigestTopStories: "Top Stories",
+  weeklyDigestByCategory: "By Category",
   unsubscribe: "Unsubscribe",
   managePreferences: "Manage preferences",
   upgradeToPremium: "Upgrade to Premium",
@@ -216,7 +252,19 @@ const es: EmailTemplateStrings = {
   tryThis: "Prueba esto",
   quoteOfTheDay: "Cita del día",
   quickLinks: "Enlaces rápidos",
-  readOnSite: "Leer en TheNode.tech",
+  readOnSite: "Leer en línea",
+  inBrief: "En breve",
+  minRead: "{{n}} min de lectura",
+  minShort: "{{n}} min",
+  readArticle: "Leer el artículo →",
+  tryItCta: "Descubrir →",
+  sourceLabel: "Fuente",
+  feedbackQuestion: "¿Te resultó útil esta edición?",
+  feedbackHint: "Un clic basta: nos ayuda a mejorar la próxima.",
+  feedbackYes: "Sí, útil",
+  feedbackNo: "No mucho",
+  forwardToColleague: "Reenviar a un colega →",
+  footerBlurb: "Noticias tech, un canal a la vez.",
   receivingBecause:
     "Recibes este correo porque te suscribiste al newsletter de TheNode.tech.",
   receivingBecauseWeeklyDigest:
@@ -292,7 +340,19 @@ const fr: EmailTemplateStrings = {
   tryThis: "À essayer",
   quoteOfTheDay: "Citation du jour",
   quickLinks: "Liens rapides",
-  readOnSite: "Lire sur TheNode.tech",
+  readOnSite: "Lire en ligne",
+  inBrief: "En bref",
+  minRead: "{{n}} min de lecture",
+  minShort: "{{n}} min",
+  readArticle: "Lire l'article →",
+  tryItCta: "Découvrir →",
+  sourceLabel: "Source",
+  feedbackQuestion: "Cette édition vous a été utile ?",
+  feedbackHint: "Un clic suffit, ça oriente la prochaine.",
+  feedbackYes: "Oui, utile",
+  feedbackNo: "Pas vraiment",
+  forwardToColleague: "Transférer à un collègue →",
+  footerBlurb: "La veille tech, un canal à la fois.",
   receivingBecause:
     "Vous recevez ceci car vous êtes inscrit à la newsletter TheNode.tech.",
   receivingBecauseWeeklyDigest:
@@ -370,7 +430,19 @@ const de: EmailTemplateStrings = {
   tryThis: "Probier's",
   quoteOfTheDay: "Zitat des Tages",
   quickLinks: "Schnelllinks",
-  readOnSite: "Auf TheNode.tech lesen",
+  readOnSite: "Online lesen",
+  inBrief: "Kurz gesagt",
+  minRead: "{{n}} Min. Lesezeit",
+  minShort: "{{n}} Min.",
+  readArticle: "Artikel lesen →",
+  tryItCta: "Ansehen →",
+  sourceLabel: "Quelle",
+  feedbackQuestion: "War diese Ausgabe hilfreich?",
+  feedbackHint: "Ein Klick genügt – er prägt die nächste Ausgabe.",
+  feedbackYes: "Ja, hilfreich",
+  feedbackNo: "Nicht wirklich",
+  forwardToColleague: "An Kollegen weiterleiten →",
+  footerBlurb: "Tech-News, ein Kanal nach dem anderen.",
   receivingBecause:
     "Du erhältst diese E-Mail, weil du den TheNode.tech-Newsletter abonniert hast.",
   receivingBecauseWeeklyDigest:
@@ -451,7 +523,19 @@ const ja: EmailTemplateStrings = {
   tryThis: "試してみる",
   quoteOfTheDay: "今日の一言",
   quickLinks: "クイックリンク",
-  readOnSite: "TheNode.techで読む",
+  readOnSite: "オンラインで読む",
+  inBrief: "要点",
+  minRead: "{{n}}分で読めます",
+  minShort: "{{n}}分",
+  readArticle: "記事を読む →",
+  tryItCta: "チェックする →",
+  sourceLabel: "出典",
+  feedbackQuestion: "この号は役に立ちましたか？",
+  feedbackHint: "ワンクリックで次号の改善に役立ちます。",
+  feedbackYes: "はい、役立った",
+  feedbackNo: "あまり",
+  forwardToColleague: "同僚に転送 →",
+  footerBlurb: "テックニュースを、チャンネルごとに。",
   receivingBecause:
     "TheNode.techニュースレターに登録いただいたため、このメールをお送りしています。",
   receivingBecauseWeeklyDigest:
@@ -525,7 +609,19 @@ const zh: EmailTemplateStrings = {
   tryThis: "试试这个",
   quoteOfTheDay: "今日金句",
   quickLinks: "快链",
-  readOnSite: "在 TheNode.tech 阅读",
+  readOnSite: "在线阅读",
+  inBrief: "速览",
+  minRead: "阅读约 {{n}} 分钟",
+  minShort: "{{n}} 分钟",
+  readArticle: "阅读文章 →",
+  tryItCta: "去看看 →",
+  sourceLabel: "来源",
+  feedbackQuestion: "本期内容对你有帮助吗？",
+  feedbackHint: "点一下就好，这将影响下一期。",
+  feedbackYes: "有帮助",
+  feedbackNo: "不太有",
+  forwardToColleague: "转发给同事 →",
+  footerBlurb: "科技资讯，一次一个频道。",
   receivingBecause: "您收到此邮件是因为订阅了 TheNode.tech 通讯。",
   receivingBecauseWeeklyDigest:
     "您收到此邮件是因为启用了每周摘要（高级版）。",
@@ -592,7 +688,19 @@ const pt: EmailTemplateStrings = {
   tryThis: "Experimente",
   quoteOfTheDay: "Citação do dia",
   quickLinks: "Links rápidos",
-  readOnSite: "Ler no TheNode.tech",
+  readOnSite: "Ler online",
+  inBrief: "Em resumo",
+  minRead: "{{n}} min de leitura",
+  minShort: "{{n}} min",
+  readArticle: "Ler o artigo →",
+  tryItCta: "Conferir →",
+  sourceLabel: "Fonte",
+  feedbackQuestion: "Esta edição foi útil?",
+  feedbackHint: "Um clique basta — isso orienta a próxima.",
+  feedbackYes: "Sim, útil",
+  feedbackNo: "Não muito",
+  forwardToColleague: "Encaminhar a um colega →",
+  footerBlurb: "Notícias de tecnologia, um canal de cada vez.",
   receivingBecause:
     "Você recebe este e-mail porque se inscreveu na newsletter TheNode.tech.",
   receivingBecauseWeeklyDigest:
@@ -670,7 +778,19 @@ const it: EmailTemplateStrings = {
   tryThis: "Prova questo",
   quoteOfTheDay: "Citazione del giorno",
   quickLinks: "Link rapidi",
-  readOnSite: "Leggi su TheNode.tech",
+  readOnSite: "Leggi online",
+  inBrief: "In breve",
+  minRead: "{{n}} min di lettura",
+  minShort: "{{n}} min",
+  readArticle: "Leggi l'articolo →",
+  tryItCta: "Scopri →",
+  sourceLabel: "Fonte",
+  feedbackQuestion: "Questa edizione ti è stata utile?",
+  feedbackHint: "Basta un clic: orienta la prossima.",
+  feedbackYes: "Sì, utile",
+  feedbackNo: "Non proprio",
+  forwardToColleague: "Inoltra a un collega →",
+  footerBlurb: "Notizie tech, un canale alla volta.",
   receivingBecause:
     "Ricevi questa email perché ti sei iscritto alla newsletter TheNode.tech.",
   receivingBecauseWeeklyDigest:
@@ -748,7 +868,19 @@ const ko: EmailTemplateStrings = {
   tryThis: "한번 써보기",
   quoteOfTheDay: "오늘의 한마디",
   quickLinks: "퀵 링크",
-  readOnSite: "TheNode.tech에서 읽기",
+  readOnSite: "온라인에서 읽기",
+  inBrief: "한눈에 보기",
+  minRead: "{{n}}분 소요",
+  minShort: "{{n}}분",
+  readArticle: "기사 읽기 →",
+  tryItCta: "확인하기 →",
+  sourceLabel: "출처",
+  feedbackQuestion: "이번 호가 도움이 되었나요?",
+  feedbackHint: "클릭 한 번이면 다음 호에 반영됩니다.",
+  feedbackYes: "네, 유용했어요",
+  feedbackNo: "별로요",
+  forwardToColleague: "동료에게 전달 →",
+  footerBlurb: "테크 뉴스, 한 번에 한 채널씩.",
   receivingBecause:
     "TheNode.tech 뉴스레터에 구독하신 관계로 이 메일을 보내드립니다.",
   receivingBecauseWeeklyDigest:

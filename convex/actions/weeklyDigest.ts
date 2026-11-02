@@ -382,18 +382,6 @@ export const sendWeeklyDigests = internalAction({
       return null;
     }
 
-    const allCategories = [
-      "ai",
-      "eng",
-      "sec",
-      "biz",
-      "tech",
-      "cloud-devops",
-      "web3-crypto",
-      "design-ux-frontend",
-      "emerging-tech-science",
-      "opensource-languages",
-    ] as const;
 
     for (const user of users) {
       try {
@@ -430,9 +418,8 @@ export const sendWeeklyDigests = internalAction({
         }
 
         const userCategories =
-          user.preferences?.categories && user.preferences.categories.length > 0
-            ? user.preferences.categories
-            : [...allCategories];
+          user.preferences?.categories ?? [];
+        if (userCategories.length === 0) continue;
         const language = user.language || "en";
 
         const existingDigests: any[] = await ctx.runQuery(

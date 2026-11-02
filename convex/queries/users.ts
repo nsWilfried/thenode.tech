@@ -11,16 +11,6 @@ export const currentUser = query({
   },
 });
 
-export const getByEmail = query({
-  args: { email: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("users")
-      .withIndex("email", (q: any) => q.eq("email", args.email))
-      .first();
-  },
-});
-
 export const getByEmailInternal = internalQuery({
   args: { email: v.string() },
   handler: async (ctx, args) => {
@@ -42,7 +32,10 @@ export const getAllVerified = internalQuery({
       .collect();
 
     return users.filter(
-      (u: any) => u.email !== undefined && u.emailVerificationTime !== undefined
+      (u: any) =>
+        u.email !== undefined &&
+        u.emailVerificationTime !== undefined &&
+        u.preferences?.unsubscribed !== true
     );
   },
 });
@@ -54,13 +47,15 @@ export const getById = internalQuery({
   },
 });
 
+/** Premium users who still want email (used by the weekly digest sender). */
 export const getPremiumUsers = internalQuery({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const users = await ctx.db
       .query("users")
       .withIndex("by_premium", (q: any) => q.eq("isPremium", true))
       .collect();
+    return users.filter((u: any) => u.preferences?.unsubscribed !== true);
   },
 });
 
