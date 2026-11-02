@@ -12,6 +12,7 @@ import {
 import { fmt } from "../../../../../lib/i18n/siteStrings";
 import { getSeoStrings } from "../../../../../lib/i18n/seoStrings";
 import { issueByDate, neighbors, CACHE_HEADER, MIN_INDEXABLE_WORDS } from "../../../../lib/data";
+import { getEmailTranslations } from "../../../../../convex/emailTranslations";
 
 export const prerender = false;
 
@@ -82,6 +83,10 @@ const jsonLd = [
   },
 ];
 const linkRel = "nofollow noopener";
+const et = getEmailTranslations(locale);
+const feedbackHref = (r: "yes" | "no") =>
+  `${path(locale, "feedback")}?c=${encodeURIComponent(ch.slug)}&d=${encodeURIComponent(date)}&l=${lang}&r=${r}`;
+const forwardHref = `mailto:?subject=${encodeURIComponent(`TheNode — ${title}`)}&body=${encodeURIComponent(url)}`;
 ---
 
 <Base
@@ -186,15 +191,30 @@ const linkRel = "nofollow noopener";
         <section class="list">
           <div class="label">{seo.quickLinks}</div>
           <ol class="links">
-            {nl.articles.map((a) => (
+            {nl.articles.map((a, i) => (
               <li>
-                <a href={a.url} rel={linkRel} target="_blank">{a.title}</a>
-                <span>{a.summary}{a.source && <em> — {a.source}</em>}</span>
+                <span class="n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                <span class="link-body">
+                  <a href={a.url} rel={linkRel} target="_blank">{a.title}</a>
+                  <span>{a.summary}{a.source && <em> — {a.source}</em>}</span>
+                </span>
               </li>
             ))}
           </ol>
         </section>
       )}
+
+      <section class="feedback" aria-label={et.feedbackQuestion}>
+        <div>
+          <h2>{et.feedbackQuestion}</h2>
+          <p>{et.feedbackHint}</p>
+        </div>
+        <div class="fb-actions">
+          <a class="btn sm" href={feedbackHref("yes")} rel="nofollow">{et.feedbackYes}</a>
+          <a class="btn ghost sm" href={feedbackHref("no")} rel="nofollow">{et.feedbackNo}</a>
+          <a class="forward" href={forwardHref}>{et.forwardToColleague}</a>
+        </div>
+      </section>
 
       <nav class="pager" aria-label={ch.name}>
         {nb.prev ? <a rel="prev" href={issuePath(locale, ch.slug, nb.prev)}>← {seo.prevIssue}<small>{longDate(nb.prev, locale)}</small></a> : <span></span>}
@@ -243,9 +263,15 @@ const linkRel = "nofollow noopener";
   .item h3 { margin: 0; font-size: 19px; line-height: 1.3; }
   .item h3 a, .links a { text-decoration: none; }
   .item p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
-  .links { margin: 0; padding: 0 0 0 26px; }
-  .links li { padding: 14px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
-  .links li::marker { color: var(--orange); font-weight: 700; }
+  .links { margin: 0; padding: 0; list-style: none; }
+  .links li { padding: 14px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 40px 1fr; gap: 4px 8px; }
+  .links .n { font-size: 14px; font-weight: 700; color: var(--orange); line-height: 1.6; }
+  .link-body { display: flex; flex-direction: column; gap: 4px; }
+  .feedback { margin-top: 48px; padding: 24px 28px; border: var(--rule); background: var(--paper-2); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; }
+  .feedback h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .feedback p { margin: 4px 0 0; font-size: 15px; color: var(--ink-2); }
+  .fb-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+  .forward { font-size: 14px; font-weight: 600; color: var(--orange); text-decoration: none; }
   .links a { font-weight: 600; font-size: 16px; }
   .links span { font-size: 15px; color: var(--ink-2); line-height: 1.5; }
   .links em { font-style: normal; font-size: 13px; color: var(--muted); }
