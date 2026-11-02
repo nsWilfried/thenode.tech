@@ -20,7 +20,7 @@ export const polar: Polar<DataModel, Record<string, string>> = new Polar(
     // queries don't receive the signed-in user's auth, so the portal URL never generates.
     getUserInfo: async (ctx): Promise<{ userId: string; email: string }> => {
       // Polar typings use RunQueryCtx; portal/checkout actions pass ActionCtx with auth.
-      const userId = await getAuthUserId(ctx as ActionCtx);
+      const userId = await getAuthUserId(ctx as unknown as ActionCtx);
       if (userId === null) return { userId: "", email: "" };
       const user = await ctx.runQuery(internal.queries.users.getById, {
         id: userId,
