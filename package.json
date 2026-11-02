@@ -17,6 +17,7 @@
     "@convex-dev/auth": "^0.0.96",
     "@convex-dev/polar": "^0.8.1",
     "@polar-sh/sdk": "^0.43.1",
+    "@resvg/resvg-js": "^2.6.2",
     "astro": "^7.4.5",
     "cheerio": "^1.2.0",
     "convex": "^1.49.0",
@@ -27,7 +28,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.37.0",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "satori": "^0.63.2"
   },
   "devDependencies": {
     "@types/node": "^20",

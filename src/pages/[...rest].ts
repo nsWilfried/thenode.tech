@@ -5,7 +5,7 @@ import { localeRedirect } from "../lib/redirect";
 export const prerender = false;
 
 /** Old/unprefixed links that should land on a localized page. */
-const KNOWN = new Set(["pricing", "signin", "onboarding", "settings", "privacy", "feedback", "category", "issue"]);
+const KNOWN = new Set(["pricing", "signin", "onboarding", "settings", "privacy", "feedback", "category", "issue", "about"]);
 const ALIASES: Record<string, string> = {
   preferences: "settings",
   unsubscribe: "settings#unsubscribe",

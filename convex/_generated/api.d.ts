@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as actions_indexNow from "../actions/indexNow.js";
 import type * as actions_ingestFeeds from "../actions/ingestFeeds.js";
 import type * as actions_resendSync from "../actions/resendSync.js";
 import type * as actions_sendNewsletters from "../actions/sendNewsletters.js";
@@ -42,6 +43,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "actions/indexNow": typeof actions_indexNow;
   "actions/ingestFeeds": typeof actions_ingestFeeds;
   "actions/resendSync": typeof actions_resendSync;
   "actions/sendNewsletters": typeof actions_sendNewsletters;

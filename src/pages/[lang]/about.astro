@@ -1,0 +1,69 @@
+---
+import Base from "../../layouts/Base.astro";
+import { INDEXED_LOCALES, isIndexedLocale, path, staticLocalePaths, type Locale } from "../../lib/site";
+
+// "How TheNode works" — transparency page (sources, AI, editorial rules). EN + FR; others show EN, noindex.
+export const getStaticPaths = staticLocalePaths;
+const locale = Astro.params.lang as Locale;
+const fr = locale === "fr";
+const CONTACT = "hello@thenode.tech";
+
+const c = fr
+  ? {
+      title: "Comment fonctionne TheNode",
+      description: "TheNode lit 275+ sources tech chaque jour et en tire une newsletter de 5 minutes par chaîne. Nos sources, notre usage de l'IA et nos règles éditoriales.",
+      sections: [
+        ["Ce que nous faisons", "Chaque matin, TheNode publie une newsletter courte pour chacune de ses 10 chaînes (IA, sécurité, cloud, open source…). L'objectif : savoir ce qui compte dans votre domaine en cinq minutes, sans parcourir des dizaines de sites."],
+        ["Nos sources", "Plus de 275 flux RSS publics : médias tech, blogs d'ingénierie, laboratoires de recherche, éditeurs et annonces officielles. Chaque histoire résumée renvoie vers sa source d'origine : nous ne republions jamais un article."],
+        ["Le rôle de l'IA", "Un modèle d'IA sélectionne les articles les plus importants de la journée, regroupe ceux qui parlent du même sujet et rédige un résumé original avec ce qu'il faut retenir. Les chiffres clés sont toujours accompagnés d'un lien vers leur source."],
+        ["Nos règles éditoriales", "Pas de contenu sponsorisé déguisé, pas de copie de texte source, des liens visibles vers chaque article cité, et une correction rapide si une erreur nous est signalée."],
+        ["Langues", "Les éditions sont publiées en anglais et en français. Les abonnés Premium reçoivent la newsletter dans l'une de 9 langues."],
+        ["Nous contacter", `Une erreur, une source à proposer, une question ? Écrivez-nous à ${CONTACT}.`],
+      ],
+    }
+  : {
+      title: "How TheNode works",
+      description: "TheNode reads 275+ tech sources every day and turns them into a 5-minute newsletter per channel. Our sources, how we use AI, and our editorial rules.",
+      sections: [
+        ["What we do", "Every morning TheNode publishes a short newsletter for each of its 10 channels (AI, security, cloud, open source…). The goal: know what matters in your field in five minutes, without reading dozens of sites."],
+        ["Our sources", "275+ public RSS feeds: tech publications, engineering blogs, research labs, vendors and official announcements. Every story we summarize links to its original source: we never republish an article."],
+        ["How we use AI", "An AI model picks the day's most important articles, groups the ones about the same topic, and writes an original summary with what to remember. Key numbers always come with a link to their source."],
+        ["Editorial rules", "No disguised sponsored content, no copying of source text, visible links to every article we cite, and fast corrections when an error is reported."],
+        ["Languages", "Issues are published in English and French. Premium subscribers get the newsletter in any of 9 languages."],
+        ["Contact", `Spotted an error, want to suggest a source, or have a question? Write to ${CONTACT}.`],
+      ],
+    };
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: c.title,
+  description: c.description,
+  inLanguage: fr ? "fr" : "en",
+  about: { "@id": "https://thenode.tech/#org" },
+};
+---
+
+<Base locale={locale} title={`${c.title} — TheNode`} description={c.description} route="about" noindex={!isIndexedLocale(locale)} alternates={INDEXED_LOCALES} jsonLd={jsonLd}>
+  <main class="wrap about" lang={fr ? "fr" : "en"}>
+    <h1>{c.title}<span class="dot">.</span></h1>
+    <p class="lead">{c.description}</p>
+    {c.sections.map(([h, p]) => (
+      <section>
+        <h2>{h}</h2>
+        <p>{p}</p>
+      </section>
+    ))}
+    <p class="cta"><a class="btn sm" href={`${path(locale)}#channels`}>{fr ? "Voir les 10 chaînes" : "See the 10 channels"}</a></p>
+  </main>
+</Base>
+
+<style>
+  .about { max-width: 760px; padding-top: 64px; padding-bottom: 96px; }
+  h1 { margin: 0 0 16px; font-weight: 700; font-size: clamp(40px, 5vw, 60px); letter-spacing: -0.035em; line-height: 1; }
+  .lead { margin: 0 0 24px; font-size: 19px; line-height: 1.6; color: var(--ink-2); padding-bottom: 28px; border-bottom: var(--rule); }
+  section { padding: 22px 0; border-bottom: 1px solid var(--line); }
+  h2 { margin: 0 0 8px; font-size: 21px; font-weight: 600; }
+  section p { margin: 0; font-size: 16px; line-height: 1.65; color: var(--ink-2); }
+  .cta { margin-top: 36px; }
+</style>

@@ -1,7 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
 import Subscribe from "../../islands/Subscribe";
-import { channels, icon, localeFromParam, path, shortDate, strings, newsletterTitle, SITE_URL, readingMinutes, splitStop } from "../../lib/site";
+import { channels, icon, issuePath, localeFromParam, path, shortDate, strings, newsletterTitle, SITE_URL, readingMinutes, splitStop } from "../../lib/site";
+import { getSeoStrings } from "../../../lib/i18n/seoStrings";
 import { fmt } from "../../../lib/i18n/siteStrings";
 import { latestPerChannel, CACHE_HEADER } from "../../lib/data";
 import { legacyRedirect } from "../[...rest]";
@@ -19,7 +20,9 @@ Astro.response.headers.set("Cache-Control", CACHE_HEADER);
 
 const byNewest = Object.values(latest).sort((a, b) => (b!.date > a!.date ? 1 : b!.date < a!.date ? -1 : b!.createdAt - a!.createdAt));
 const newest = byNewest[0];
-const newestHref = newest ? path(locale, `issue/${newest._id}`) : null;
+const newestHref = newest ? issuePath(locale, newest.category, newest.date) : null;
+const newestEmail = newestHref ? `${newestHref}/email` : null;
+const seo = getSeoStrings(locale);
 
 // Hero: two most recent issues on brand illustrations.
 const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg"];
@@ -32,7 +35,7 @@ const cards = [0, 1].map((i) => {
     title: nl ? newsletterTitle(nl) : ch?.name ?? "",
     summary: nl?.summary ?? ch?.blurb ?? "",
     minutes: nl ? readingMinutes(nl) : null,
-    href: nl ? path(locale, `issue/${nl._id}`) : ch?.href,
+    href: nl ? issuePath(locale, nl.category, nl.date) : ch?.href,
   };
 });
 
@@ -51,7 +54,7 @@ const jsonLd = {
 };
 ---
 
-<Base locale={locale} title={`TheNode — ${s.home.heroTitle} ${s.home.heroAccent}`} description={s.home.heroLead} jsonLd={jsonLd}>
+<Base locale={locale} title={seo.homeTitle} description={s.home.heroLead} jsonLd={jsonLd}>
   <main>
     <section class="wrap hero">
       <div class="hero-copy">
@@ -127,7 +130,7 @@ const jsonLd = {
           )}
         </div>
         <div class="issue-frame">
-          <iframe src={newestHref ?? "/brand/sample-issue.html"} title={s.home.readLatest} scrolling="no" loading="lazy" tabindex="-1"></iframe>
+          <iframe src={newestEmail ?? "/brand/sample-issue.html"} title={s.home.readLatest} scrolling="no" loading="lazy" tabindex="-1"></iframe>
         </div>
       </div>
     </section>

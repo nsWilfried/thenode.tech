@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation, mutation } from "../_generated/server";
+import { internal } from "../_generated/api";
 
 const categoryValidator = v.union(
   v.literal("ai"),
@@ -71,6 +72,13 @@ export const create = internalMutation({
     })),
   },
   handler: async (ctx, args) => {
+    // Languages whose pages are indexed (keep in sync with INDEXED_LOCALES in src/lib/site.ts).
+    if (["en", "fr"].includes(args.language)) {
+      const base = `https://thenode.tech/${args.language}/category/${args.category}`;
+      await ctx.scheduler.runAfter(0, internal.actions.indexNow.ping, {
+        urls: [`${base}/${args.date}`, base],
+      });
+    }
     return await ctx.db.insert("newsletters", {
       date: args.date,
       category: args.category,

@@ -1,23 +1,59 @@
 ---
 import Base from "../../../layouts/Base.astro";
 import Subscribe from "../../../islands/Subscribe";
-import { channels, localeFromParam, path, shortDate, strings, newsletterTitle, newsletterImage, readingMinutes } from "../../../lib/site";
+import {
+  channels, contentLanguage, INDEXED_LOCALES, isIndexedLocale, isIsoDate, issuePath, localeFromParam, path,
+  shortDate, strings, newsletterTitle, newsletterImage, readingMinutes, SITE_URL,
+} from "../../../lib/site";
 import { fmt } from "../../../../lib/i18n/siteStrings";
-import { channelIssues, CACHE_HEADER } from "../../../lib/data";
+import { getSeoStrings } from "../../../../lib/i18n/seoStrings";
+import { archivePage, CACHE_HEADER } from "../../../lib/data";
 
 export const prerender = false;
 
+const PAGE = 30;
 const locale = localeFromParam(Astro.params.lang);
 const ch = locale ? channels(locale).find((c) => c.slug === Astro.params.slug) : undefined;
 if (!locale || !ch) return Astro.rewrite("/404");
 
-const { t, s } = strings(locale);
-const issues = await channelIssues(ch.slug, locale);
+const beforeParam = Astro.url.searchParams.get("before") ?? undefined;
+const before = isIsoDate(beforeParam) ? beforeParam : undefined;
+const lang = contentLanguage(locale);
+const issues = await archivePage(ch.slug, lang, before, PAGE);
 Astro.response.headers.set("Cache-Control", CACHE_HEADER);
+
+const { t, s } = strings(locale);
+const seo = getSeoStrings(locale);
 const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg", "/brand/img-3.jpg"];
+const olderHref = issues.length === PAGE ? `${ch.href}?before=${issues[issues.length - 1].date}` : null;
+const route = `category/${ch.slug}${before ? `?before=${before}` : ""}`;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: ch.name,
+  description: ch.long,
+  url: `${SITE_URL}${ch.href}`,
+  inLanguage: lang,
+  hasPart: issues.slice(0, 10).map((nl) => ({
+    "@type": "NewsArticle",
+    headline: newsletterTitle(nl).slice(0, 110),
+    datePublished: new Date(nl.createdAt).toISOString(),
+    url: `${SITE_URL}${issuePath(locale, ch.slug, nl.date)}`,
+  })),
+};
 ---
 
-<Base locale={locale} title={`${ch.name} — TheNode`} description={ch.long} route={`category/${ch.slug}`}>
+<Base
+  locale={locale}
+  title={before ? `${ch.name} — ${seo.olderIssues} (${shortDate(before, locale)}) | TheNode` : fmt(seo.hubTitle, { name: ch.name, short: ch.short })}
+  description={before ? ch.long : fmt(seo.hubDescription, { name: ch.name, short: ch.short })}
+  route={route}
+  noindex={!isIndexedLocale(locale)}
+  alternates={before ? [] : INDEXED_LOCALES}
+  jsonLd={jsonLd}
+  image={`/og/${locale}/${ch.slug}.png`}
+  rss={{ href: path(locale, `category/${ch.slug}/rss.xml`), title: `${ch.name} — TheNode` }}
+>
   <main>
     <section class="wrap page">
       <a href={`${path(locale)}#channels`} class="back">← {s.category.allChannels}</a>
@@ -40,26 +76,31 @@ const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg", "/brand/img-3.jpg"];
             successNote={s.home.subscribedNote}
             errorText={t.common.somethingWentWrong}
           />
+          <a class="rss" href={path(locale, `category/${ch.slug}/rss.xml`)}>{seo.rss}</a>
         </div>
         <div>
-          <div class="list-head">{s.category.pastIssues}</div>
+          <h2 class="list-head">{before ? seo.olderIssues : s.category.pastIssues}</h2>
           {issues.length === 0 ? (
             <p class="empty">{s.category.noIssues}</p>
           ) : (
             issues.map((nl, i) => {
               const stories = (nl.editorialContent?.length || nl.deepDives?.length || 0) + (nl.articles?.length ?? 0);
               return (
-                <a class="issue" href={path(locale, `issue/${nl._id}`)}>
-                  <img src={newsletterImage(nl) ?? ART[i % 3]} alt="" width="72" height="54" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror={`this.onerror=null;this.src='${ART[i % 3]}'`} />
+                <a class="issue" href={issuePath(locale, ch.slug, nl.date)}>
+                  <img src={newsletterImage(nl) ?? ART[i % 3]} alt="" width="80" height="60" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror={`this.onerror=null;this.src='${ART[i % 3]}'`} />
                   <span class="issue-text">
                     <span class="issue-title">{newsletterTitle(nl)}</span>
                     <span class="issue-meta">{fmt(s.category.stories, { n: stories })} · {fmt(s.category.minRead, { n: readingMinutes(nl) })}</span>
                   </span>
-                  <span class="issue-date">{shortDate(nl.date, locale)}</span>
+                  <time class="issue-date" datetime={nl.date}>{shortDate(nl.date, locale)}</time>
                 </a>
               );
             })
           )}
+          <nav class="more">
+            {before && <a href={ch.href}>← {seo.newerIssues}</a>}
+            {olderHref && <a href={olderHref} rel="next">{seo.olderIssues} →</a>}
+          </nav>
         </div>
       </div>
     </section>
@@ -75,7 +116,8 @@ const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg", "/brand/img-3.jpg"];
   .big-num { font-weight: 700; font-size: 40px; letter-spacing: -0.04em; line-height: 1; opacity: .3; }
   h1 { margin: 0; font-weight: 700; font-size: clamp(40px, 5vw, 64px); letter-spacing: -0.035em; line-height: 1; }
   .long { margin: 0; font-size: 18px; line-height: 1.55; color: var(--ink-2); max-width: 560px; text-wrap: pretty; }
-  .list-head { font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 14px; border-bottom: var(--rule); }
+  .rss { align-self: flex-start; font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid var(--line); }
+  .list-head { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 14px; border-bottom: var(--rule); }
   .issue { display: grid; grid-template-columns: 80px 1fr auto; gap: 18px; align-items: center; padding: 18px 0; border-bottom: var(--rule); text-decoration: none; color: var(--ink); }
   .issue:hover { color: var(--orange); }
   .issue img { width: 80px; height: 60px; object-fit: cover; border: var(--rule); background: var(--sand); }
@@ -84,4 +126,7 @@ const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg", "/brand/img-3.jpg"];
   .issue-meta, .issue-date { font-size: 13px; color: var(--muted); }
   .issue-date { font-size: 14px; font-weight: 500; white-space: nowrap; }
   .empty { padding: 40px 0; margin: 0; font-size: 15px; color: var(--muted); line-height: 1.5; }
+  .more { display: flex; justify-content: space-between; gap: 16px; margin-top: 24px; }
+  .more a { font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--ink); }
+  .more a[rel="next"] { margin-left: auto; }
 </style>

@@ -149,3 +149,28 @@ export const LANGUAGE_NAMES: Record<Locale, string> = {
   it: "Italiano",
   ko: "한국어",
 };
+
+/**
+ * Languages whose channel/issue pages are indexed: they have native issues.
+ * Other languages keep working for visitors but those pages are noindex (English content).
+ * Keep in sync with the IndexNow hook in convex/mutations/newsletters.ts.
+ */
+export const INDEXED_LOCALES = ["en", "fr"] as const satisfies readonly Locale[];
+export function isIndexedLocale(l: Locale): boolean {
+  return (INDEXED_LOCALES as readonly string[]).includes(l);
+}
+/** Language whose issues a page in `locale` shows (native, else English). */
+export function contentLanguage(l: Locale): Locale {
+  return isIndexedLocale(l) ? l : "en";
+}
+
+export const issuePath = (locale: Locale, slug: string, date: string) => path(locale, `category/${slug}/${date}`);
+
+/** "2 November 2026" style date. */
+export function longDate(date: string, locale: Locale): string {
+  const d = new Date(`${date}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return date;
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(d);
+}
+
+export const isIsoDate = (s: string | undefined): s is string => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s);

@@ -1,0 +1,258 @@
+---
+/**
+ * Canonical, indexable issue page: /<lang>/category/<channel>/<YYYY-MM-DD>.
+ * Locales without native issues show the English issue with noindex.
+ */
+import Base from "../../../../layouts/Base.astro";
+import Subscribe from "../../../../islands/Subscribe";
+import {
+  channels, contentLanguage, INDEXED_LOCALES, isIndexedLocale, isIsoDate, issuePath, localeFromParam,
+  longDate, newsletterImage, newsletterTitle, path, readingMinutes, SITE_URL, strings, splitStop,
+} from "../../../../lib/site";
+import { fmt } from "../../../../../lib/i18n/siteStrings";
+import { getSeoStrings } from "../../../../../lib/i18n/seoStrings";
+import { issueByDate, neighbors, CACHE_HEADER, MIN_INDEXABLE_WORDS } from "../../../../lib/data";
+
+export const prerender = false;
+
+const locale = localeFromParam(Astro.params.lang);
+const ch = locale ? channels(locale).find((c) => c.slug === Astro.params.slug) : undefined;
+const date = Astro.params.date;
+if (!locale || !ch || !isIsoDate(date)) return Astro.rewrite("/404");
+
+const lang = contentLanguage(locale);
+const nl = await issueByDate(ch.slug, date, lang);
+if (!nl) return Astro.rewrite("/404");
+
+const [nb, altChecks] = await Promise.all([
+  neighbors(ch.slug, date, lang),
+  Promise.all(INDEXED_LOCALES.map(async (l) => (l === lang ? l : (await issueByDate(ch.slug, date, l)) ? l : null))),
+]);
+Astro.response.headers.set("Cache-Control", CACHE_HEADER);
+
+const { t, s } = strings(locale);
+const seo = getSeoStrings(locale);
+const title = newsletterTitle(nl) || ch.name;
+const dateLabel = longDate(date, locale);
+const minutes = readingMinutes(nl);
+const words = [
+  nl.summary ?? "",
+  ...(nl.editorialContent ?? []).map((x) => x.body),
+  ...(nl.deepDives ?? []).map((x) => x.summary),
+  ...(nl.articles ?? []).map((x) => x.summary),
+].join(" ").split(/\s+/).filter(Boolean).length;
+const thin = words < MIN_INDEXABLE_WORDS;
+const noindex = thin || !isIndexedLocale(locale);
+const alternates = altChecks.filter((l): l is (typeof INDEXED_LOCALES)[number] => !!l);
+
+// Stories: editorial sections, else deep dives (same rule as the email).
+const stories = (nl.editorialContent?.length
+  ? nl.editorialContent.map((e) => ({ heading: e.heading, body: e.body, image: e.imageUrl, caption: e.imageCaption, url: undefined as string | undefined, source: undefined as string | undefined }))
+  : (nl.deepDives ?? []).map((d) => ({ heading: d.title, body: d.summary, image: d.imageUrl, caption: undefined, url: d.url, source: d.source })));
+const topStories = nl.editorialContent?.length ? nl.deepDives ?? [] : [];
+const description = (nl.summary ?? stories[0]?.body ?? ch.long).replace(/\s+/g, " ").slice(0, 155).trim();
+const image = newsletterImage(nl);
+const url = `${SITE_URL}${issuePath(locale, ch.slug, date)}`;
+const [h1, h1Stop] = splitStop(title);
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: title.slice(0, 110),
+    description,
+    datePublished: new Date(nl.createdAt).toISOString(),
+    dateModified: new Date(nl.createdAt).toISOString(),
+    inLanguage: lang,
+    articleSection: ch.name,
+    mainEntityOfPage: url,
+    ...(image ? { image: [image] } : {}),
+    author: { "@type": "Organization", name: "TheNode.tech", url: SITE_URL },
+    publisher: { "@id": `${SITE_URL}/#org` },
+    isAccessibleForFree: true,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "TheNode", item: `${SITE_URL}${path(locale)}` },
+      { "@type": "ListItem", position: 2, name: ch.name, item: `${SITE_URL}${ch.href}` },
+      { "@type": "ListItem", position: 3, name: dateLabel, item: url },
+    ],
+  },
+];
+const linkRel = "nofollow noopener";
+---
+
+<Base
+  locale={locale}
+  title={fmt(seo.issueTitle, { title, short: ch.short, date: dateLabel })}
+  description={description}
+  route={`category/${ch.slug}/${date}`}
+  noindex={noindex}
+  alternates={alternates}
+  jsonLd={jsonLd}
+  ogType="article"
+  image={`/og/${locale}/${ch.slug}.png`}
+  rss={{ href: path(locale, `category/${ch.slug}/rss.xml`), title: `${ch.name} — TheNode` }}
+>
+  <main>
+    <article class="wrap issue" lang={lang}>
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href={path(locale)}>TheNode</a><span>/</span><a href={ch.href}>{ch.name}</a><span>/</span><span aria-current="page">{dateLabel}</span>
+      </nav>
+
+      <header class="head">
+        <div class="meta">
+          <span class="disc" style={`background:${ch.hue};width:40px;height:40px`}><img src={ch.icon} alt="" width="20" height="20" /></span>
+          <span class="kicker">{ch.short}</span>
+          <span class="muted">· <time datetime={date}>{dateLabel}</time> · {fmt(s.category.minRead, { n: minutes })}</span>
+        </div>
+        <h1>{h1}<span class="dot">{h1Stop || "."}</span></h1>
+        {nl.summary && <p class="lead">{nl.summary}</p>}
+      </header>
+
+      {stories.length > 0 && (
+        <section class="brief" aria-label={seo.inBrief}>
+          <div class="label">{seo.inBrief}</div>
+          <ol>
+            {stories.slice(0, 3).map((st, i) => <li><a href={`#s${i + 1}`}>{st.heading}</a></li>)}
+          </ol>
+        </section>
+      )}
+
+      {stories.map((st, i) => (
+        <section class="story" id={`s${i + 1}`}>
+          <div class="label orange">{String(i + 1).padStart(2, "0")} · {ch.short}</div>
+          <h2>{st.heading}</h2>
+          {st.image && (
+            <figure>
+              <img src={st.image} alt={st.caption ?? st.heading} loading={i === 0 ? "eager" : "lazy"} decoding="async" referrerpolicy="no-referrer" />
+              {st.caption && <figcaption>{st.caption}</figcaption>}
+            </figure>
+          )}
+          {st.body.split(/\n\n+/).map((para) => <p>{para}</p>)}
+          {st.url && <p><a class="src" href={st.url} rel={linkRel} target="_blank">{seo.readSource}{st.source ? ` · ${st.source}` : ""} →</a></p>}
+        </section>
+      ))}
+
+      <aside class="cta">
+        <div>
+          <div class="cta-title">{fmt(seo.subscribeCta, { short: ch.short })}<span class="dot">.</span></div>
+          <p>{seo.subscribeCtaBody}</p>
+        </div>
+        <Subscribe
+          client:visible
+          locale={locale}
+          channel={ch.slug}
+          size="sm"
+          label={fmt(s.home.subscribeTo, { name: ch.short })}
+          placeholder={s.home.emailPlaceholder}
+          sending={s.home.sending}
+          successNote={s.home.subscribedNote}
+          errorText={t.common.somethingWentWrong}
+        />
+      </aside>
+
+      {nl.stats && nl.stats.length > 0 && (
+        <section class="numbers">
+          <div class="label orange">{seo.keyNumbers}</div>
+          <div class="num-grid">
+            {nl.stats.map((st) => (
+              <div class="num">
+                <div class="num-value">{st.stat}</div>
+                <p>{st.context}</p>
+                {st.sourceUrl && <a href={st.sourceUrl} rel={linkRel} target="_blank">{seo.source}</a>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {topStories.length > 0 && (
+        <section class="list">
+          <div class="label">{seo.topStories}</div>
+          {topStories.map((d) => (
+            <div class="item">
+              {d.source && <div class="label orange">{d.source}</div>}
+              <h3><a href={d.url} rel={linkRel} target="_blank">{d.title}</a></h3>
+              <p>{d.summary}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {nl.articles.length > 0 && (
+        <section class="list">
+          <div class="label">{seo.quickLinks}</div>
+          <ol class="links">
+            {nl.articles.map((a) => (
+              <li>
+                <a href={a.url} rel={linkRel} target="_blank">{a.title}</a>
+                <span>{a.summary}{a.source && <em> — {a.source}</em>}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      <nav class="pager" aria-label={ch.name}>
+        {nb.prev ? <a rel="prev" href={issuePath(locale, ch.slug, nb.prev)}>← {seo.prevIssue}<small>{longDate(nb.prev, locale)}</small></a> : <span></span>}
+        <a class="all" href={ch.href}>{fmt(seo.allIssues, { short: ch.short })}</a>
+        {nb.next ? <a rel="next" class="next" href={issuePath(locale, ch.slug, nb.next)}>{seo.nextIssue} →<small>{longDate(nb.next, locale)}</small></a> : <span></span>}
+      </nav>
+    </article>
+  </main>
+</Base>
+
+<style>
+  .issue { max-width: 780px; padding-top: 40px; padding-bottom: 96px; }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; color: var(--muted); }
+  .crumbs a { color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--ink); }
+  .crumbs a:hover { color: var(--orange); border-color: var(--orange); }
+  .head { margin-top: 32px; display: flex; flex-direction: column; gap: 20px; padding-bottom: 32px; border-bottom: var(--rule); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; }
+  h1 { margin: 0; font-weight: 700; font-size: clamp(34px, 5vw, 56px); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
+  .lead { margin: 0; font-size: 19px; line-height: 1.6; color: var(--ink-2); }
+  .label { font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+  .label.orange { color: var(--orange); }
+  .brief { margin-top: 32px; padding: 20px 24px; border: var(--rule); background: var(--paper-2); box-shadow: 6px 6px 0 var(--orange); }
+  .brief ol { margin: 10px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; }
+  .brief li::marker { color: var(--orange); font-weight: 700; }
+  .brief a { text-decoration: none; border-bottom: 2px solid var(--orange); }
+  .story { margin-top: 48px; display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 90px; }
+  .story h2 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.025em; }
+  figure { margin: 6px 0 4px; }
+  figure img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border: var(--rule); background: var(--sand); }
+  figcaption { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .story p { margin: 0; font-size: 17px; line-height: 1.7; color: var(--ink-2); }
+  .src { font-size: 14px; font-weight: 600; color: var(--orange); text-decoration: none; }
+  .cta { margin: 56px 0 8px; padding: 28px; border: var(--rule); background: var(--ink); color: var(--white); box-shadow: 8px 8px 0 var(--orange); display: flex; flex-direction: column; gap: 18px; }
+  .cta-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+  .cta p { margin: 6px 0 0; color: var(--on-dark); font-size: 15px; }
+  .cta :global(.btn) { border-color: var(--white); box-shadow: 5px 5px 0 var(--white); }
+  .cta :global(.input) { border-color: var(--white); }
+  .numbers { margin-top: 48px; padding: 28px; background: var(--ink); color: var(--white); border: var(--rule); }
+  .num-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+  .num-value { font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .num p { margin: 8px 0; color: var(--on-dark); font-size: 15px; line-height: 1.5; }
+  .num a { color: var(--orange); font-size: 13px; }
+  .list { margin-top: 48px; }
+  .list > .label { padding-bottom: 12px; border-bottom: var(--rule); }
+  .item { padding: 20px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+  .item h3 { margin: 0; font-size: 19px; line-height: 1.3; }
+  .item h3 a, .links a { text-decoration: none; }
+  .item p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+  .links { margin: 0; padding: 0 0 0 26px; }
+  .links li { padding: 14px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+  .links li::marker { color: var(--orange); font-weight: 700; }
+  .links a { font-weight: 600; font-size: 16px; }
+  .links span { font-size: 15px; color: var(--ink-2); line-height: 1.5; }
+  .links em { font-style: normal; font-size: 13px; color: var(--muted); }
+  .pager { margin-top: 56px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; padding-top: 24px; border-top: var(--rule); }
+  .pager a { text-decoration: none; font-weight: 600; display: flex; flex-direction: column; gap: 2px; }
+  .pager small { font-weight: 400; font-size: 13px; color: var(--muted); }
+  .pager .next { text-align: right; align-items: flex-end; }
+  .pager .all { border-bottom: 2px solid var(--ink); }
+  @media (max-width: 600px) { .pager { grid-template-columns: 1fr 1fr; } .pager .all { grid-column: 1 / -1; order: 3; justify-self: center; } }
+</style>

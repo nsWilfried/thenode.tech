@@ -307,9 +307,10 @@ export function buildCategoryNewsletterHTML(args: {
     const brief = stories.slice(0, 3);
     const preheader = brief.map((s) => s.heading).join(" · ") || nl.summary || headline;
 
-    const onlineUrl = nl._id
-        ? `${SITE_ORIGIN}/${lang}/issue/${encodeURIComponent(nl._id)}`
-        : `${SITE_ORIGIN}/${lang}/category/${nl.category}`;
+    // Canonical, SEO-friendly issue URL: /<lang>/category/<channel>/<YYYY-MM-DD>
+    const onlineUrl = date
+        ? `${SITE_ORIGIN}/${lang}/category/${encodeURIComponent(nl.category)}/${encodeURIComponent(date)}`
+        : `${SITE_ORIGIN}/${lang}/category/${encodeURIComponent(nl.category)}`;
 
     // ── Intro (meta, h1, summary, In brief) ──
     const briefRows = brief
