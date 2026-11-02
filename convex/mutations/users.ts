@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, internalMutation } from "../_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "../_generated/api";
 
 const HOUR_MIN = 0;
 const HOUR_MAX = 23;
@@ -102,6 +103,7 @@ export const updatePreferences = mutation({
     }
 
     await ctx.db.patch(userId, updates);
+    await ctx.scheduler.runAfter(0, internal.actions.resendSync.syncUser, { userId: userId });
     return { success: true };
   },
 });
@@ -166,6 +168,7 @@ export const completeOnboarding = mutation({
         categories: [...new Set(args.categories)],
       },
     });
+    await ctx.scheduler.runAfter(0, internal.actions.resendSync.syncUser, { userId: userId });
 
     return { success: true };
   },
@@ -183,6 +186,7 @@ export const setUnsubscribed = mutation({
     await ctx.db.patch(userId, {
       preferences: { ...(user.preferences ?? {}), unsubscribed: args.unsubscribed },
     });
+    await ctx.scheduler.runAfter(0, internal.actions.resendSync.syncUser, { userId: userId });
     return { success: true };
   },
 });
@@ -222,6 +226,7 @@ export const updatePremiumStatus = internalMutation({
       isPremium: args.isPremium,
       subscriptionStatus: args.subscriptionStatus,
     });
+    await ctx.scheduler.runAfter(0, internal.actions.resendSync.syncUser, { userId: args.id });
   },
 });
 
@@ -243,6 +248,7 @@ export const syncPremiumStatusByEmail = internalMutation({
       isPremium: args.isPremium,
       subscriptionStatus: args.subscriptionStatus,
     });
+    await ctx.scheduler.runAfter(0, internal.actions.resendSync.syncUser, { userId: user._id });
     return null;
   },
 });

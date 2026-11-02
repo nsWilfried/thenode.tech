@@ -77,3 +77,11 @@ export const getPremiumLanguages = internalQuery({
     return [...languages];
   },
 });
+
+/** Page through all users (Resend backfill). */
+export const listPage = internalQuery({
+  args: { cursor: v.union(v.string(), v.null()), numItems: v.number() },
+  handler: async (ctx, args) => {
+    return await ctx.db.query("users").paginate({ cursor: args.cursor, numItems: args.numItems });
+  },
+});

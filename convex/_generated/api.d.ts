@@ -9,6 +9,7 @@
  */
 
 import type * as actions_ingestFeeds from "../actions/ingestFeeds.js";
+import type * as actions_resendSync from "../actions/resendSync.js";
 import type * as actions_sendNewsletters from "../actions/sendNewsletters.js";
 import type * as actions_summarizeArticles from "../actions/summarizeArticles.js";
 import type * as actions_weeklyDigest from "../actions/weeklyDigest.js";
@@ -40,6 +41,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "actions/ingestFeeds": typeof actions_ingestFeeds;
+  "actions/resendSync": typeof actions_resendSync;
   "actions/sendNewsletters": typeof actions_sendNewsletters;
   "actions/summarizeArticles": typeof actions_summarizeArticles;
   "actions/weeklyDigest": typeof actions_weeklyDigest;
