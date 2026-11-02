@@ -1,7 +1,7 @@
 ---
 import Base from "../../../layouts/Base.astro";
 import Subscribe from "../../../islands/Subscribe";
-import { channels, icon, localeFromParam, path, shortDate, strings, newsletterTitle, newsletterImage, readingMinutes } from "../../../lib/site";
+import { channels, localeFromParam, path, shortDate, strings, newsletterTitle, newsletterImage, readingMinutes } from "../../../lib/site";
 import { fmt } from "../../../../lib/i18n/siteStrings";
 import { channelIssues, CACHE_HEADER } from "../../../lib/data";
 
@@ -20,11 +20,14 @@ const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg", "/brand/img-3.jpg"];
 <Base locale={locale} title={`${ch.name} — TheNode`} description={ch.long} route={`category/${ch.slug}`}>
   <main>
     <section class="wrap page">
-      <a href={`${path(locale)}#channels`} class="back"><img src={icon("arrow-left")} alt="" width="16" height="16" />{s.category.allChannels}</a>
+      <a href={`${path(locale)}#channels`} class="back">← {s.category.allChannels}</a>
       <div class="grid">
         <div class="intro">
-          <span class="big-icon"><img src={ch.icon} alt="" width="30" height="30" class="icon-dark" /></span>
-          <h1>{ch.name}</h1>
+          <div class="badge-row">
+            <span class="disc" style={`background:${ch.hue};width:64px;height:64px`}><img src={ch.icon} alt="" width="30" height="30" /></span>
+            <span class="big-num">{ch.num}</span>
+          </div>
+          <h1>{ch.name}<span class="dot">.</span></h1>
           <p class="long">{ch.long}</p>
           <Subscribe
             client:load
@@ -64,21 +67,21 @@ const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg", "/brand/img-3.jpg"];
 </Base>
 
 <style>
-  .page { padding-top: 56px; padding-bottom: 80px; }
-  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); text-decoration: none; }
-  .back img { opacity: .6; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 48px; margin-top: 28px; align-items: start; }
-  .intro { display: flex; flex-direction: column; gap: 20px; }
-  .big-icon { width: 64px; height: 64px; border-radius: 16px; background: var(--ink); display: flex; align-items: center; justify-content: center; }
+  .page { padding-top: 56px; padding-bottom: 96px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--ink); text-decoration: none; border-bottom: var(--rule); padding-bottom: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 56px; margin-top: 36px; align-items: start; }
+  .intro { display: flex; flex-direction: column; gap: 22px; }
+  .badge-row { display: flex; align-items: center; gap: 16px; }
+  .big-num { font-weight: 700; font-size: 40px; letter-spacing: -0.04em; line-height: 1; opacity: .3; }
   h1 { margin: 0; font-weight: 700; font-size: clamp(40px, 5vw, 64px); letter-spacing: -0.035em; line-height: 1; }
   .long { margin: 0; font-size: 18px; line-height: 1.55; color: var(--ink-2); max-width: 560px; text-wrap: pretty; }
-  .list-head { font-size: 13px; font-weight: 500; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); padding-bottom: 14px; border-bottom: 1px solid var(--ink); }
-  .issue { display: grid; grid-template-columns: 72px 1fr auto; gap: 16px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); }
-  .issue:hover { color: var(--orange-deep); }
-  .issue img { width: 72px; height: 54px; object-fit: cover; border-radius: 8px; background: var(--sand); }
+  .list-head { font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding-bottom: 14px; border-bottom: var(--rule); }
+  .issue { display: grid; grid-template-columns: 80px 1fr auto; gap: 18px; align-items: center; padding: 18px 0; border-bottom: var(--rule); text-decoration: none; color: var(--ink); }
+  .issue:hover { color: var(--orange); }
+  .issue img { width: 80px; height: 60px; object-fit: cover; border: var(--rule); background: var(--sand); }
   .issue-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .issue-title { font-weight: 600; font-size: 17px; letter-spacing: -0.01em; line-height: 1.3; }
   .issue-meta, .issue-date { font-size: 13px; color: var(--muted); }
-  .issue-date { font-size: 14px; white-space: nowrap; }
+  .issue-date { font-size: 14px; font-weight: 500; white-space: nowrap; }
   .empty { padding: 40px 0; margin: 0; font-size: 15px; color: var(--muted); line-height: 1.5; }
 </style>

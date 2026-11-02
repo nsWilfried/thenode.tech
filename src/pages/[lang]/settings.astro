@@ -6,7 +6,7 @@ import { channels, LANGUAGE_NAMES, LOCALE_CODES, staticLocalePaths, strings, typ
 export const getStaticPaths = staticLocalePaths;
 const locale = Astro.params.lang as Locale;
 const { t, s } = strings(locale);
-const list = channels(locale).map(({ slug, name, icon }) => ({ slug, name, icon }));
+const list = channels(locale).map(({ slug, name, icon, hue }) => ({ slug, name, icon, hue }));
 const languages = LOCALE_CODES.map((code) => ({ code, name: LANGUAGE_NAMES[code] }));
 ---
 

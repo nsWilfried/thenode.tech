@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import ConvexShell, { track } from "./ConvexShell";
 
-type Channel = { slug: string; name: string; blurb: string; icon: string };
+type Channel = { slug: string; name: string; blurb: string; icon: string; hue: string };
 
 export interface OnboardingProps {
   locale: string;
@@ -83,7 +83,7 @@ function Inner(p: OnboardingProps) {
           return (
             <label key={c.slug} className={`check${on ? " on" : ""}`}>
               <input type="checkbox" checked={on} onChange={() => toggle(c.slug)} />
-              <span className="ico"><img src={c.icon} alt="" width={16} height={16} className="icon-dark" /></span>
+              <span className="disc" style={{ background: c.hue }}><img src={c.icon} alt="" width={16} height={16} /></span>
               <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <span style={{ fontWeight: 600 }}>{c.name}</span>
                 <span style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.4 }}>{c.blurb}</span>

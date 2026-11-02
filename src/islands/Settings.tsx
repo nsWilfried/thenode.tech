@@ -8,7 +8,7 @@ import type { SiteStrings } from "../../lib/i18n/siteStrings";
 import { getTimeZoneOptions, formatTimeZoneLabel } from "../../lib/timezones";
 import ConvexShell, { track } from "./ConvexShell";
 
-type Channel = { slug: string; name: string; icon: string };
+type Channel = { slug: string; name: string; icon: string; hue: string };
 
 export interface SettingsProps {
   locale: string;
@@ -171,7 +171,7 @@ function Inner({ locale, t, s, channels, languages }: SettingsProps) {
             return (
               <label key={c.slug} className={`check${on ? " on" : ""}`}>
                 <input type="checkbox" checked={on} onChange={() => toggle(c.slug)} />
-                <span className="ico"><img src={c.icon} alt="" width={16} height={16} className="icon-dark" /></span>
+                <span className="disc" style={{ background: c.hue }}><img src={c.icon} alt="" width={16} height={16} /></span>
                 <span style={{ fontWeight: 500 }}>{c.name}</span>
               </label>
             );

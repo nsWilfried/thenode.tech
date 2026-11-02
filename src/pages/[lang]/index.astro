@@ -1,7 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import Subscribe from "../../islands/Subscribe";
-import { channels, icon, localeFromParam, path, shortDate, strings, newsletterTitle, SITE_URL, readingMinutes } from "../../lib/site";
+import { channels, icon, localeFromParam, path, shortDate, strings, newsletterTitle, SITE_URL, readingMinutes, splitStop } from "../../lib/site";
 import { fmt } from "../../../lib/i18n/siteStrings";
 import { latestPerChannel, CACHE_HEADER } from "../../lib/data";
 import { legacyRedirect } from "../[...rest]";
@@ -17,18 +17,15 @@ const list = channels(locale);
 const latest = await latestPerChannel(locale);
 Astro.response.headers.set("Cache-Control", CACHE_HEADER);
 
-// Newest issue across all channels → "What an issue looks like" preview.
-const newest = Object.values(latest).sort((a, b) => (b!.date > a!.date ? 1 : b!.date < a!.date ? -1 : b!.createdAt - a!.createdAt))[0];
+const byNewest = Object.values(latest).sort((a, b) => (b!.date > a!.date ? 1 : b!.date < a!.date ? -1 : b!.createdAt - a!.createdAt));
+const newest = byNewest[0];
 const newestHref = newest ? path(locale, `issue/${newest._id}`) : null;
 
-// Hero stack: three most recent issues (illustrations are brand art).
-const recent = Object.values(latest)
-  .sort((a, b) => (b!.date > a!.date ? 1 : -1))
-  .slice(0, 3);
-const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg", "/brand/img-3.jpg"];
-const stack = [0, 1, 2].map((i) => {
-  const nl = recent[i];
-  const ch = nl ? list.find((c) => c.slug === nl.category) : list[[5, 2, 0][i]];
+// Hero: two most recent issues on brand illustrations.
+const ART = ["/brand/img-1.jpg", "/brand/img-2.jpg"];
+const cards = [0, 1].map((i) => {
+  const nl = byNewest[i];
+  const ch = nl ? list.find((c) => c.slug === nl.category) : list[[5, 2][i]];
   return {
     img: ART[i],
     channel: ch?.short ?? "",
@@ -38,6 +35,11 @@ const stack = [0, 1, 2].map((i) => {
     href: nl ? path(locale, `issue/${nl._id}`) : ch?.href,
   };
 });
+
+const [h1a, h1aStop] = splitStop(s.home.heroTitle);
+const [h1b, h1bStop] = splitStop(s.home.heroAccent);
+const [chTitle, chStop] = splitStop(s.home.channelsTitle);
+const [isTitle, isStop] = splitStop(s.home.issueTitle);
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -53,8 +55,8 @@ const jsonLd = {
   <main>
     <section class="wrap hero">
       <div class="hero-copy">
-        <div class="pill"><span class="dot"></span>{s.home.badge}</div>
-        <h1>{s.home.heroTitle}<br /><span class="accent">{s.home.heroAccent}</span></h1>
+        <div class="kicker">{s.home.badge}</div>
+        <h1>{h1a}<span class="dot">{h1aStop}</span><br />{h1b}<span class="dot">{h1bStop}</span></h1>
         <p class="lead">{s.home.heroLead}</p>
         <Subscribe
           client:load
@@ -70,7 +72,8 @@ const jsonLd = {
       </div>
 
       <div class="stack" aria-hidden="true">
-        {stack.map((c, i) => (
+        <div class="sun"></div>
+        {cards.map((c, i) => (
           <a class={`card card-${i}`} href={c.href} tabindex="-1">
             <img src={c.img} alt="" width="320" height="240" loading={i === 0 ? "eager" : "lazy"} decoding="async" />
             <div class="card-body">
@@ -86,22 +89,21 @@ const jsonLd = {
     <section id="channels" class="band-light">
       <div class="wrap section">
         <div class="section-head">
-          <h2>{s.home.channelsTitle}</h2>
+          <h2>{chTitle}<span class="dot">{chStop}</span></h2>
           <p class="muted">{s.home.channelsLead}</p>
         </div>
-        <div class="channel-grid">
+        <div class="ledger">
           {list.map((ch) => {
             const nl = latest[ch.slug];
             return (
-              <a href={ch.href} class="channel">
-                <span class="ch-icon"><img src={ch.icon} alt="" width="22" height="22" class="icon-dark" /></span>
-                <span class="ch-text">
-                  <span class="ch-top">
-                    <span class="ch-name">{ch.name}</span>
-                    <span class="ch-status">{nl ? fmt(s.home.latestOn, { date: shortDate(nl.date, locale) }) : s.home.comingSoon}</span>
-                  </span>
-                  <span class="ch-blurb">{ch.blurb}</span>
+              <a href={ch.href} class="row">
+                <span class="num">{ch.num}</span>
+                <span class="disc" style={`background:${ch.hue};width:52px;height:52px`}><img src={ch.icon} alt="" width="24" height="24" /></span>
+                <span class="row-text">
+                  <span class="row-name">{ch.name}</span>
+                  <span class="row-blurb">{ch.blurb}</span>
                 </span>
+                <span class="row-status">{nl ? fmt(s.home.latestOn, { date: shortDate(nl.date, locale) }) : s.home.comingSoon}</span>
               </a>
             );
           })}
@@ -112,16 +114,16 @@ const jsonLd = {
     <section class="band-dark">
       <div class="wrap section issue-grid">
         <div class="issue-copy">
-          <div class="kicker on-dark">{s.home.issueKicker}</div>
-          <h2>{s.home.issueTitle}</h2>
+          <div class="kicker">{s.home.issueKicker}</div>
+          <h2>{isTitle}<span class="dot">{isStop}</span></h2>
           <p>{s.home.issueLead}</p>
-          <div class="features">
-            <span><img src={icon("list-checks")} alt="" width="20" height="20" class="icon-dark" />{s.home.featureBrief}</span>
-            <span><img src={icon("hash")} alt="" width="20" height="20" class="icon-dark" />{s.home.featureNumbers}</span>
-            <span><img src={icon("link-2")} alt="" width="20" height="20" class="icon-dark" />{s.home.featureLinks}</span>
+          <div class="chips">
+            <span>{s.home.featureBrief}</span>
+            <span>{s.home.featureNumbers}</span>
+            <span>{s.home.featureLinks}</span>
           </div>
           {newestHref && (
-            <a href={newestHref} class="btn orange read-latest">{s.home.readLatest}<img src={icon("arrow-up-right")} alt="" width="18" height="18" /></a>
+            <a href={newestHref} class="btn on-dark read-latest">{s.home.readLatest}<img src={icon("arrow-up-right")} alt="" width="18" height="18" /></a>
           )}
         </div>
         <div class="issue-frame">
@@ -130,80 +132,95 @@ const jsonLd = {
       </div>
     </section>
 
-    <section class="wrap section how">
-      {[
-        ["rss", s.home.stat1Value, s.home.stat1Title, s.home.stat1Body],
-        ["sparkles", s.home.stat2Value, s.home.stat2Title, s.home.stat2Body],
-        ["alarm-clock", s.home.stat3Value, s.home.stat3Title, s.home.stat3Body],
-      ].map(([ic, v, title, body]) => (
-        <div class="how-item">
-          <span class="how-icon"><img src={icon(ic)} alt="" width="24" height="24" /></span>
-          <div class="how-value">{v}</div>
-          <div class="how-title">{title}</div>
-          <p>{body}</p>
+    <section class="band-light stats-band">
+      <div class="wrap">
+        <div class="stats">
+          {[
+            [s.home.stat1Value, s.home.stat1Title, s.home.stat1Body],
+            [s.home.stat2Value, s.home.stat2Title, s.home.stat2Body],
+            [s.home.stat3Value, s.home.stat3Title, s.home.stat3Body],
+          ].map(([v, title, body]) => (
+            <div class="stat">
+              <div class="stat-value">{v}</div>
+              <div class="stat-title">{title}</div>
+              <p>{body}</p>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </section>
   </main>
 </Base>
 
 <style>
-  .hero { padding-top: 88px; padding-bottom: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 56px; align-items: center; }
-  .hero-copy { display: flex; flex-direction: column; gap: 28px; }
-  .pill { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; font-size: 13px; font-weight: 500; letter-spacing: .6px; text-transform: uppercase; color: var(--orange-deep); background: var(--orange-tint); padding: 6px 12px; border-radius: 999px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); }
-  h1 { margin: 0; font-weight: 700; font-size: clamp(44px, 6.5vw, 84px); line-height: .98; letter-spacing: -0.035em; text-wrap: balance; }
-  .accent { color: var(--orange); }
-  .lead { margin: 0; font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 520px; text-wrap: pretty; }
+  .hero { padding-top: 96px; padding-bottom: 96px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 64px; align-items: center; }
+  .hero-copy { display: flex; flex-direction: column; gap: 30px; }
+  h1 { margin: 0; font-weight: 700; font-size: clamp(48px, 7vw, 92px); line-height: .95; letter-spacing: -0.04em; text-wrap: balance; }
+  .lead { margin: 0; font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 500px; text-wrap: pretty; }
+
   .stack { position: relative; height: 560px; width: 100%; max-width: 460px; justify-self: end; }
-  .card { position: absolute; display: block; background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; text-decoration: none; color: var(--ink); box-shadow: 0 20px 40px -20px rgba(28,25,23,.35); }
-  .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
-  .card-0 { top: 150px; left: 50%; transform: translateX(-50%); width: 320px; z-index: 3; box-shadow: 0 32px 56px -24px rgba(28,25,23,.45); }
-  .card-1 { top: 40px; left: 0; width: 300px; transform: rotate(-7deg); }
-  .card-2 { top: 20px; right: 0; width: 300px; transform: rotate(6deg); }
-  .card-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
-  .card-meta { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: .6px; text-transform: uppercase; color: var(--orange-deep); }
+  .sun { position: absolute; top: 120px; left: -40px; width: 380px; height: 380px; border-radius: 50%; background: var(--orange); }
+  .card { position: absolute; display: block; background: var(--paper-2); border: var(--rule); overflow: hidden; text-decoration: none; color: var(--ink); }
+  .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-bottom: var(--rule); }
+  .card-1 { top: 30px; left: 10px; width: 290px; transform: rotate(-5deg); box-shadow: 8px 8px 0 var(--ink); }
+  .card-0 { top: 190px; right: 0; width: 320px; transform: rotate(3deg); box-shadow: 10px 10px 0 var(--ink); z-index: 2; }
+  .card-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .card-1 .card-body { padding: 14px 16px 16px; gap: 6px; }
+  .card-meta { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--orange); }
   .card-title { font-weight: 600; font-size: 16px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .card-0 .card-title { font-size: 18px; }
   .card-sum { font-size: 14px; line-height: 1.5; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   @media (max-width: 760px) {
-    .stack { height: 470px; justify-self: center; }
-    .card-0 { top: 120px; width: 290px; }
-    .card-1, .card-2 { width: 240px; }
+    .hero { padding-top: 56px; padding-bottom: 64px; gap: 40px; }
+    .stack { height: 500px; justify-self: center; max-width: 360px; }
+    .sun { width: 300px; height: 300px; left: -20px; top: 110px; }
+    .card-0 { width: 280px; top: 170px; }
+    .card-1 { width: 240px; left: 0; }
   }
 
-  .band-light { border-top: 1px solid var(--line); background: var(--paper-2); }
-  .section { padding-top: 72px; padding-bottom: 80px; }
-  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 36px; }
-  .section-head h2, .issue-copy h2 { margin: 0; font-weight: 700; font-size: 40px; letter-spacing: -0.03em; line-height: 1.02; }
+  .band-light { border-top: var(--rule); background: var(--paper-2); }
+  .section { padding-top: 72px; padding-bottom: 96px; }
+  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 40px; }
+  .section-head h2, .issue-copy h2 { margin: 0; font-weight: 700; font-size: 44px; letter-spacing: -0.035em; line-height: 1; }
   .section-head p { margin: 0; font-size: 16px; }
-  .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px; }
-  .channel { display: grid; grid-template-columns: 48px 1fr; gap: 16px; align-items: start; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-decoration: none; color: var(--ink); transition: border-color .15s, background .15s; }
-  .channel:hover { border-color: var(--ink); background: var(--paper-2); color: var(--ink); }
-  .ch-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--ink); display: flex; align-items: center; justify-content: center; }
-  .ch-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-  .ch-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
-  .ch-name { font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
-  .ch-status { font-size: 12px; font-weight: 500; color: var(--orange-deep); white-space: nowrap; }
-  .ch-blurb { font-size: 14px; line-height: 1.5; color: var(--muted); }
 
-  .band-dark { background: var(--ink); color: var(--paper); }
-  .issue-grid { padding-top: 80px; padding-bottom: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 56px; align-items: center; }
+  .ledger { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(500px, 100%), 1fr)); border-top: var(--rule); border-left: var(--rule); }
+  .row { display: grid; grid-template-columns: 56px 52px 1fr auto; gap: 18px; align-items: center; padding: 22px 24px; border-right: var(--rule); border-bottom: var(--rule); text-decoration: none; color: var(--ink); background: var(--paper-2); transition: background .12s, color .12s; }
+  .row:hover { background: var(--orange); color: var(--white); }
+  .num { font-weight: 700; font-size: 34px; letter-spacing: -0.04em; line-height: 1; opacity: .35; }
+  .row-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .row-name { font-weight: 600; font-size: 20px; letter-spacing: -0.01em; }
+  .row-blurb { font-size: 14px; line-height: 1.45; opacity: .75; }
+  .row-status { font-size: 12px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; white-space: nowrap; opacity: .7; }
+  @media (max-width: 600px) {
+    .row { grid-template-columns: 44px 1fr; grid-template-areas: "disc text" "disc status"; gap: 6px 14px; padding: 18px 16px; }
+    .num { display: none; }
+    .row .disc { grid-area: disc; width: 44px !important; height: 44px !important; align-self: start; }
+    .row-text { grid-area: text; }
+    .row-status { grid-area: status; }
+    .row-name { font-size: 18px; }
+  }
+
+  .band-dark { background: var(--ink); color: var(--white); border-top: var(--rule); }
+  .issue-grid { padding-top: 88px; padding-bottom: 88px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 56px; align-items: center; }
   .issue-copy { display: flex; flex-direction: column; gap: 22px; }
-  .kicker.on-dark { color: var(--orange); }
-  .issue-copy h2 { line-height: 1.05; text-wrap: balance; }
+  .issue-copy h2 { line-height: 1.02; text-wrap: balance; }
   .issue-copy p { margin: 0; font-size: 17px; line-height: 1.55; color: var(--on-dark); max-width: 480px; }
-  .features { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 8px; }
-  .features span { display: flex; align-items: center; gap: 10px; font-size: 15px; }
-  .read-latest { align-self: flex-start; margin-top: 8px; height: 50px; font-size: 15px; }
-  .issue-frame { justify-self: end; width: 100%; max-width: 460px; height: 560px; overflow: hidden; border-radius: 14px; border: 1px solid #3a3531; background: #ebe6db; box-shadow: 0 40px 80px -32px rgba(0,0,0,.6); }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  .chips span { font-size: 13px; font-weight: 600; padding: 8px 12px; border: 2px solid var(--white); }
+  .read-latest { align-self: flex-start; margin-top: 12px; height: 52px; font-size: 15px; }
+  .issue-frame { justify-self: end; width: 100%; max-width: 460px; height: 560px; overflow: hidden; border: 2px solid var(--white); background: var(--white); box-shadow: 12px 12px 0 var(--orange); }
   .issue-frame iframe { width: 600px; height: 1100px; border: 0; transform: scale(.766); transform-origin: 0 0; pointer-events: none; display: block; }
-  @media (max-width: 700px) { .issue-frame { justify-self: center; max-width: 360px; height: 440px; } .issue-frame iframe { transform: scale(.6); } }
+  @media (max-width: 700px) { .issue-frame { justify-self: center; max-width: 340px; height: 440px; } .issue-frame iframe { transform: scale(.566); } }
 
-  .how { padding-top: 80px; padding-bottom: 96px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; }
-  .how-item { display: flex; flex-direction: column; gap: 16px; }
-  .how-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--orange-tint); display: flex; align-items: center; justify-content: center; }
-  .how-value { font-weight: 700; font-size: 48px; line-height: 1; letter-spacing: -0.03em; color: var(--orange); }
-  .how-title { font-weight: 600; font-size: 20px; }
-  .how-item p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  .stats-band .wrap { padding-top: 88px; padding-bottom: 104px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); border-left: var(--rule); }
+  .stat { display: flex; flex-direction: column; gap: 14px; padding: 8px 32px 8px 28px; border-right: var(--rule); }
+  .stat-value { font-weight: 700; font-size: 64px; line-height: 1; letter-spacing: -0.04em; color: var(--orange); }
+  .stat-title { font-weight: 600; font-size: 20px; }
+  .stat p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  @media (max-width: 860px) {
+    .stats { border-left: 0; border-top: var(--rule); }
+    .stat { border-right: 0; border-bottom: var(--rule); padding: 24px 0; }
+  }
 </style>

@@ -67,13 +67,13 @@ function Inner(p: SignInProps) {
 
   if (state === "sent") {
     return (
-      <div role="status" style={{ padding: 20, borderRadius: 10, background: "var(--paper-2)", border: "1px solid var(--line-strong)", fontSize: 15, lineHeight: 1.5 }}>
+      <div role="status" style={{ padding: 20, background: "var(--paper-2)", border: "2px solid var(--ink)", boxShadow: "6px 6px 0 var(--orange)", fontSize: 15, lineHeight: 1.5 }}>
         {p.linkSent}
       </div>
     );
   }
   return (
-    <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <label className="sr-only" htmlFor="signin-email">Email</label>
       <input id="signin-email" className="input" type="email" required autoComplete="email" placeholder={p.placeholder} value={email} onChange={(e) => setEmail(e.target.value)} />
       <button className="btn" type="submit" disabled={state === "sending"}>

@@ -29,7 +29,27 @@ export const CHANNEL_ICONS: Record<CategorySlug, string> = {
   "opensource-languages": "git-branch",
 };
 
+/** v3 channel colours (icon discs). */
+export const CHANNEL_HUES: Record<CategorySlug, string> = {
+  ai: "#7c3aed",
+  eng: "#0f766e",
+  sec: "#dc2626",
+  biz: "#b45309",
+  tech: "#334155",
+  "cloud-devops": "#2563eb",
+  "web3-crypto": "#4f46e5",
+  "design-ux-frontend": "#db2777",
+  "emerging-tech-science": "#0891b2",
+  "opensource-languages": "#16a34a",
+};
+
 export const icon = (name: string) => `/icons/${name}.svg`;
+
+/** Split a sentence's final full stop off so it can be painted orange ("Pick yours" + "."). */
+export function splitStop(text: string): [string, string] {
+  const m = /([.。！!])$/.exec(text.trim());
+  return m ? [text.trim().slice(0, -1), m[1]] : [text, ""];
+}
 
 export function localeFromParam(value: string | undefined): Locale | null {
   return value && isValidLocale(value) ? value : null;
@@ -47,8 +67,10 @@ export function strings(locale: Locale) {
 
 export function channels(locale: Locale) {
   const { t, s } = strings(locale);
-  return CATEGORY_SLUGS.map((slug) => ({
+  return CATEGORY_SLUGS.map((slug, i) => ({
     slug,
+    num: String(i + 1).padStart(2, "0"),
+    hue: CHANNEL_HUES[slug],
     name: getCategoryName(t.categories, slug),
     short: getCategoryShortName(t.categories, slug),
     long: getCategoryDescription(t.categories, slug),

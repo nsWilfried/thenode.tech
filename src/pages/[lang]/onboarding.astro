@@ -6,7 +6,7 @@ import { channels, staticLocalePaths, strings, type Locale } from "../../lib/sit
 export const getStaticPaths = staticLocalePaths;
 const locale = Astro.params.lang as Locale;
 const { t } = strings(locale);
-const list = channels(locale).map(({ slug, name, blurb, icon }) => ({ slug, name, blurb, icon }));
+const list = channels(locale).map(({ slug, name, blurb, icon, hue }) => ({ slug, name, blurb, icon, hue }));
 ---
 
 <Base locale={locale} title={`${t.onboarding.title} — TheNode`} description={t.onboarding.subtitle} route="onboarding" noindex>

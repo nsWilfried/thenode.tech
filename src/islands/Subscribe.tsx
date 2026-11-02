@@ -53,7 +53,7 @@ function Form(p: SubscribeProps) {
   const sm = p.size === "sm";
   if (state === "sent") {
     return (
-      <p role="status" style={{ margin: 0, fontSize: 15, lineHeight: 1.5, color: "var(--orange-deep)" }}>
+      <p role="status" className="success" style={{ margin: 0, fontSize: 15, lineHeight: 1.5 }}>
         {p.successNote}
       </p>
     );

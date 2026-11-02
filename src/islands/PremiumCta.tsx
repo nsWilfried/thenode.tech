@@ -22,20 +22,20 @@ function Inner(p: PremiumCtaProps) {
   if (!isLoading && !isAuthenticated) {
     const next = encodeURIComponent(`/${p.locale}/pricing`);
     return (
-      <a className="btn sm orange" style={style} href={`/${p.locale}/signin?next=${next}`} onClick={() => track("pricing_cta_click", { plan: "signin_first" })}>
+      <a className="btn sm" style={style} href={`/${p.locale}/signin?next=${next}`} onClick={() => track("pricing_cta_click", { plan: "signin_first" })}>
         {p.signInToSubscribe}
       </a>
     );
   }
   if (user?.isPremium) {
-    return <a className="btn sm orange" style={style} href={`/${p.locale}/settings#account`}>{p.alreadyPremium}</a>;
+    return <a className="btn sm" style={style} href={`/${p.locale}/settings#account`}>{p.alreadyPremium}</a>;
   }
   if (!user || !productId) {
-    return <span className="btn sm orange" style={{ ...style, opacity: 0.6 }} aria-busy="true">…</span>;
+    return <span className="btn sm" style={{ ...style, opacity: 0.6 }} aria-busy="true">…</span>;
   }
   return (
     <span style={{ ...style, display: "block" }} onClick={() => track("pricing_cta_click", { plan: "premium" })}>
-      <CheckoutLink polarApi={api.polar} productIds={[productId]} embed={false} className="btn sm orange" >
+      <CheckoutLink polarApi={api.polar} productIds={[productId]} embed={false} className="btn sm" >
         {p.subscribe}
       </CheckoutLink>
     </span>
