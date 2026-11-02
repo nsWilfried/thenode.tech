@@ -1,0 +1,40 @@
+---
+import Base from "../../layouts/Base.astro";
+import SignIn from "../../islands/SignIn";
+import { path, staticLocalePaths, strings, type Locale } from "../../lib/site";
+
+export const getStaticPaths = staticLocalePaths;
+const locale = Astro.params.lang as Locale;
+const { t, s } = strings(locale);
+---
+
+<Base locale={locale} title={`${t.auth.signInTitle} — TheNode`} description={t.auth.signInDescription} route="signin" noindex>
+  <main class="center">
+    <section class="box">
+      <div class="wordmark lg" aria-hidden="true">TheN<span class="o"></span>de</div>
+      <div class="intro">
+        <h1>{t.auth.signInTitle}</h1>
+        <p>{t.auth.signInDescription}</p>
+      </div>
+      <SignIn
+        client:load
+        locale={locale}
+        placeholder={s.home.emailPlaceholder}
+        sendLink={t.auth.sendMagicLink}
+        sending={t.auth.sending}
+        linkSent={s.signin.linkSent}
+        loading={t.common.loading}
+        errorText={t.common.somethingWentWrong}
+      />
+      <p class="note">{s.home.freeNote} <a href={path(locale, "pricing")}>{s.home.learnMore}</a></p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .center { display: flex; align-items: center; }
+  .box { width: 100%; max-width: 440px; margin: 0 auto; padding: 80px 24px 120px; display: flex; flex-direction: column; gap: 24px; }
+  .intro { display: flex; flex-direction: column; gap: 8px; }
+  h1 { margin: 0; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; }
+  .intro p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink-2); }
+</style>

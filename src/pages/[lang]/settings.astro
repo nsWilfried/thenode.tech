@@ -1,0 +1,28 @@
+---
+import Base from "../../layouts/Base.astro";
+import Settings from "../../islands/Settings";
+import { channels, LANGUAGE_NAMES, LOCALE_CODES, staticLocalePaths, strings, type Locale } from "../../lib/site";
+
+export const getStaticPaths = staticLocalePaths;
+const locale = Astro.params.lang as Locale;
+const { t, s } = strings(locale);
+const list = channels(locale).map(({ slug, name, icon }) => ({ slug, name, icon }));
+const languages = LOCALE_CODES.map((code) => ({ code, name: LANGUAGE_NAMES[code] }));
+---
+
+<Base locale={locale} title={`${t.settings.title} — TheNode`} description={t.settings.subtitle} route="settings" noindex>
+  <main>
+    <section class="wrap" style="padding-top:56px;padding-bottom:96px;max-width:820px">
+      <h1 style="margin:0 0 8px;font-weight:700;font-size:clamp(36px,5vw,52px);letter-spacing:-0.035em;line-height:1">{t.settings.title}</h1>
+      <p style="margin:0 0 32px;font-size:18px;color:var(--ink-2)">{t.settings.subtitle}</p>
+      <Settings
+        client:load
+        locale={locale}
+        t={{ settings: t.settings, nav: t.nav, common: t.common, onboarding: t.onboarding }}
+        s={s.settings}
+        channels={list}
+        languages={languages}
+      />
+    </section>
+  </main>
+</Base>

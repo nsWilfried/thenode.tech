@@ -1,0 +1,31 @@
+---
+import Base from "../../layouts/Base.astro";
+import { path, staticLocalePaths, strings, type Locale } from "../../lib/site";
+
+// Target of the "Was this issue useful?" buttons in the email.
+export const getStaticPaths = staticLocalePaths;
+const locale = Astro.params.lang as Locale;
+const { s } = strings(locale);
+---
+
+<Base locale={locale} title={`${s.feedback.title} — TheNode`} description={s.feedback.title} route="feedback" noindex>
+  <main class="wrap" style="padding-top:96px;padding-bottom:120px;max-width:620px">
+    <div class="wordmark lg" aria-hidden="true" style="margin-bottom:28px">TheN<span class="o"></span>de</div>
+    <h1 style="margin:0 0 12px;font-weight:700;font-size:40px;letter-spacing:-0.03em">{s.feedback.title}</h1>
+    <p id="fb-yes" style="margin:0;font-size:18px;line-height:1.55;color:var(--ink-2)">{s.feedback.yes}</p>
+    <p id="fb-no" hidden style="margin:0;font-size:18px;line-height:1.55;color:var(--ink-2)">{s.feedback.no}</p>
+    <p style="margin-top:32px"><a class="btn sm" href={path(locale)}>{s.feedback.back}</a></p>
+  </main>
+</Base>
+
+<script is:inline>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var r = q.get("r") === "no" || q.get("r") === "bof" ? "no" : "yes";
+    if (r === "no") { document.getElementById("fb-yes").hidden = true; document.getElementById("fb-no").hidden = false; }
+    var props = { rating: r, channel: q.get("c") || "", date: q.get("d") || "", lang: q.get("l") || "" };
+    var tries = 0;
+    function send() { if (window.plausible) window.plausible("newsletter_feedback", { props: props }); else if (++tries < 15) setTimeout(send, 400); }
+    send();
+  })();
+</script>

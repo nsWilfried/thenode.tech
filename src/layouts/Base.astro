@@ -1,0 +1,125 @@
+---
+import { Font } from "astro:assets";
+import "../styles/global.css";
+import { LOCALE_CODES, LANGUAGE_NAMES, SITE_URL, path, strings, icon, type Locale } from "../lib/site";
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  /** Path after the locale, e.g. "pricing" or "category/ai". Used for hreflang + language switcher. */
+  route?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { locale, title, description, route = "", noindex = false, jsonLd } = Astro.props;
+const { s } = strings(locale);
+const canonical = `${SITE_URL}${path(locale, route)}`;
+const ld = jsonLd ? JSON.stringify(jsonLd).replace(/</g, "\\u003c") : null;
+const OG_LOCALE: Record<Locale, string> = { en: "en_US", es: "es_ES", fr: "fr_FR", de: "de_DE", ja: "ja_JP", zh: "zh_CN", pt: "pt_BR", it: "it_IT", ko: "ko_KR" };
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {!noindex && LOCALE_CODES.map((l) => <link rel="alternate" hreflang={l} href={`${SITE_URL}${path(l, route)}`} />)}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${path("en", route)}`} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f1e7" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TheNode.tech" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${SITE_URL}/og.png`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@thenodetech" />
+    {ld && <script type="application/ld+json" set:html={ld} />}
+    <Font cssVariable="--font-sans" preload={[{ subset: "latin", weight: 700 }, { subset: "latin", weight: 400 }]} />
+    <script defer data-domain="thenode.tech" src="https://plausible.io/js/script.tagged-events.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap bar">
+        <a href={path(locale)} class="wordmark sm" aria-label="TheNode — home">TheN<span class="o" aria-hidden="true"></span>de</a>
+        <nav aria-label="Main">
+          <a href={`${path(locale)}#channels`} class="nav-link hide-sm">{s.nav.channels}</a>
+          <a href={path(locale, "pricing")} class="nav-link">{s.nav.pricing}</a>
+          <details class="lang">
+            <summary aria-label={s.nav.language}>
+              <img src={icon("globe")} alt="" width="16" height="16" />
+              <span>{locale.toUpperCase()}</span>
+            </summary>
+            <ul>
+              {LOCALE_CODES.map((l) => (
+                <li>
+                  <a href={path(l, route)} hreflang={l} lang={l} aria-current={l === locale ? "true" : undefined} data-lang-link={l}>
+                    <span>{LANGUAGE_NAMES[l]}</span><span class="code">{l}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
+          <a href={path(locale, "signin")} class="nav-cta" data-auth-link data-account-href={path(locale, "settings")} data-account-label={s.nav.account}>{s.nav.signIn}</a>
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-footer">
+      <div class="wrap row">
+        <a href={path(locale)} class="wordmark xs" aria-label="TheNode">TheN<span class="o" aria-hidden="true"></span>de</a>
+        <nav aria-label="Footer">
+          <a href={`${path(locale)}#channels`}>{s.nav.channels}</a>
+          <a href={path(locale, "pricing")}>{s.nav.pricing}</a>
+          <a href={path(locale, "signin")}>{s.nav.signIn}</a>
+          <a href={path(locale, "privacy")}>{s.nav.privacy}</a>
+        </nav>
+        <div class="legal">© {year} TheNode.tech</div>
+      </div>
+      <div class="wrap" style="padding-bottom:32px">
+        <nav class="footer-langs" aria-label={s.nav.language}>
+          {LOCALE_CODES.map((l) => (
+            <a href={path(l, route)} hreflang={l} lang={l} aria-current={l === locale ? "true" : undefined}>{LANGUAGE_NAMES[l]}</a>
+          ))}
+        </nav>
+      </div>
+    </footer>
+
+    <script is:inline>
+      // Signed-in visitors (Convex Auth keeps its JWT in localStorage) see "Account" instead of "Sign in".
+      try {
+        var signedIn = Object.keys(localStorage).some(function (k) { return k.indexOf("__convexAuthJWT") === 0 && localStorage.getItem(k); });
+        if (signedIn) {
+          document.querySelectorAll("[data-auth-link]").forEach(function (a) {
+            a.textContent = a.getAttribute("data-account-label");
+            a.setAttribute("href", a.getAttribute("data-account-href"));
+          });
+        }
+      } catch (e) {}
+      // Remember the chosen language so "/" sends returning visitors to it.
+      document.querySelectorAll("[hreflang]").forEach(function (a) {
+        a.addEventListener("click", function () {
+          document.cookie = "lang=" + a.getAttribute("hreflang") + ";path=/;max-age=31536000;samesite=lax";
+        });
+      });
+      // Close the language menu on outside click.
+      document.addEventListener("click", function (e) {
+        document.querySelectorAll("details.lang[open]").forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute("open"); });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+---
+import Base from "../../layouts/Base.astro";
+import { staticLocalePaths, type Locale } from "../../lib/site";
+
+// English only for now: needs legal review before translation.
+export const getStaticPaths = staticLocalePaths;
+const locale = Astro.params.lang as Locale;
+const CONTACT = "hello@thenode.tech";
+const updated = "November 2, 2026";
+---
+
+<Base locale={locale} title="Privacy — TheNode" description="How TheNode.tech collects, uses and protects your data." route="privacy">
+  <main class="wrap legal" lang="en">
+    <h1>Privacy policy</h1>
+    <p class="muted">Last updated: {updated}</p>
+
+    <h2>Who we are</h2>
+    <p>TheNode.tech ("TheNode", "we") publishes a daily, AI-summarized tech newsletter. We are based in Montréal, Québec, Canada. Contact: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
+
+    <h2>What we collect</h2>
+    <ul>
+      <li><strong>Account data:</strong> your email address, the channels you choose, your language, timezone and delivery preferences.</li>
+      <li><strong>Subscription data:</strong> if you buy Premium, our payment provider Polar processes your payment. We only receive your subscription status, never your card details.</li>
+      <li><strong>Usage data:</strong> privacy-friendly, cookie-free page analytics (Plausible), and answers you give to the "Was this issue useful?" buttons.</li>
+    </ul>
+
+    <h2>How we use it</h2>
+    <p>To send you the newsletters you asked for, at the time and in the language you chose; to manage your Premium subscription; and to improve the newsletter. We do not sell or rent your data, and we do not use it for advertising.</p>
+
+    <h2>Service providers</h2>
+    <p>We rely on Convex (database and backend), Resend (email delivery), Polar (payments), Vercel (website hosting), Plausible (analytics) and OpenAI (writing summaries of public articles; no personal data is sent). These providers may process data outside Canada, under their own security and privacy commitments.</p>
+
+    <h2>Your choices</h2>
+    <ul>
+      <li>Change your channels, language or delivery time at any time in <a href={`/${locale}/settings`}>Settings</a>.</li>
+      <li>Unsubscribe from every email with one click in <a href={`/${locale}/settings#unsubscribe`}>Settings</a>, or from the link at the bottom of any issue.</li>
+      <li>Ask us to access, correct or delete your data by writing to <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</li>
+    </ul>
+
+    <h2>Retention</h2>
+    <p>We keep your account data while your account is active and delete it on request. Source articles used to build issues are deleted after processing.</p>
+
+    <h2>Changes</h2>
+    <p>If we change this policy in a meaningful way, we will tell subscribers by email before it takes effect.</p>
+  </main>
+</Base>
+
+<style>
+  .legal { max-width: 760px; padding-top: 64px; padding-bottom: 96px; font-size: 16px; line-height: 1.65; color: var(--ink-2); }
+  h1 { margin: 0 0 8px; font-weight: 700; font-size: clamp(36px, 5vw, 52px); letter-spacing: -0.035em; color: var(--ink); line-height: 1.05; }
+  h2 { margin: 36px 0 8px; font-size: 20px; font-weight: 600; color: var(--ink); }
+  ul { padding-left: 20px; }
+  a { color: var(--orange-deep); }
+</style>

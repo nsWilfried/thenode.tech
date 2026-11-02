@@ -1,0 +1,30 @@
+---
+import Base from "../../layouts/Base.astro";
+import Onboarding from "../../islands/Onboarding";
+import { channels, staticLocalePaths, strings, type Locale } from "../../lib/site";
+
+export const getStaticPaths = staticLocalePaths;
+const locale = Astro.params.lang as Locale;
+const { t } = strings(locale);
+const list = channels(locale).map(({ slug, name, blurb, icon }) => ({ slug, name, blurb, icon }));
+---
+
+<Base locale={locale} title={`${t.onboarding.title} — TheNode`} description={t.onboarding.subtitle} route="onboarding" noindex>
+  <main>
+    <section class="wrap" style="padding-top:64px;padding-bottom:96px;max-width:960px">
+      <Onboarding
+        client:load
+        locale={locale}
+        channels={list}
+        title={t.onboarding.title}
+        subtitle={t.onboarding.subtitle}
+        selectAll={t.onboarding.selectAll}
+        deselectAll={t.onboarding.deselectAll}
+        continueLabel={t.onboarding.continue}
+        selectAtLeastOne={t.onboarding.selectAtLeastOne}
+        errorText={t.common.somethingWentWrong}
+        loading={t.common.loading}
+      />
+    </section>
+  </main>
+</Base>

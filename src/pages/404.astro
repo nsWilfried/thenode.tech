@@ -1,0 +1,15 @@
+---
+import Base from "../layouts/Base.astro";
+
+export const prerender = false;
+Astro.response.status = 404;
+---
+
+<Base locale="en" title="Page not found — TheNode" description="This page does not exist." noindex>
+  <main class="wrap" style="padding-top:120px;padding-bottom:140px;max-width:620px">
+    <div class="wordmark lg" aria-hidden="true" style="margin-bottom:28px">TheN<span class="o"></span>de</div>
+    <h1 style="margin:0 0 12px;font-weight:700;font-size:44px;letter-spacing:-0.035em">404</h1>
+    <p style="margin:0 0 28px;font-size:18px;color:var(--ink-2)">This page does not exist, or it moved.</p>
+    <a class="btn sm" href="/">Back to TheNode</a>
+  </main>
+</Base>
