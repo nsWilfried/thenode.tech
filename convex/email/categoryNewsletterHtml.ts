@@ -281,7 +281,6 @@ export function buildCategoryNewsletterHTML(args: {
     newsletter: NewsletterData;
     date: string;
     t: EmailTemplateStrings;
-    isPremium: boolean;
     language: string;
 }): string {
     const { newsletter: nl, t } = args;
@@ -482,9 +481,6 @@ ${c.kicker ? `<tr><td style="${LABEL} color:${C.orangeDeep}; padding-bottom:6px;
         links: [
             { label: t.readOnSite, href: onlineUrl },
             { label: t.managePreferences, href: `${SITE_ORIGIN}/${lang}/settings` },
-            args.isPremium
-                ? { label: t.manageSubscription, href: `${SITE_ORIGIN}/${lang}/settings#account` }
-                : { label: t.upgradeToPremium, href: `${SITE_ORIGIN}/${lang}/pricing` },
             { label: t.unsubscribe, href: `${SITE_ORIGIN}/${lang}/settings#unsubscribe` },
         ],
     });

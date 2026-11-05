@@ -55,12 +55,11 @@ export const updatePreferences = mutation({
       return { success: false, message: "User not found" };
     }
 
-    const isPremium = user.isPremium ?? false;
     const updates: Record<string, unknown> = {};
-    if (args.language && isPremium) {
+    if (args.language) {
       updates.language = normalizeLanguage(args.language);
     }
-    if (args.timezone && isPremium) {
+    if (args.timezone) {
       if (!isValidTimezone(args.timezone)) {
         return { success: false, message: "Invalid timezone" };
       }
@@ -79,7 +78,7 @@ export const updatePreferences = mutation({
       newPrefs.categories = categories;
       prefsChanged = true;
     }
-    if (args.preferredDeliveryHour !== undefined && isPremium) {
+    if (args.preferredDeliveryHour !== undefined) {
       if (args.preferredDeliveryHour < HOUR_MIN || args.preferredDeliveryHour > HOUR_MAX) {
         return { success: false, message: "Hour must be between 0 and 23" };
       }
@@ -124,7 +123,7 @@ function reportTimezoneError(message: string) {
 
 /**
  * Report browser-detected timezone (login/app load).
- * Free: always update. Premium: only when timezone not yet set.
+ * Only fills in a missing timezone, so it never overwrites one chosen in settings.
  */
 export const reportTimezone = mutation({
   args: { timezone: v.string() },
@@ -140,8 +139,7 @@ export const reportTimezone = mutation({
     const user = await ctx.db.get(userId);
     if (!user) return reportTimezoneError("User not found");
 
-    const isPremium = user.isPremium ?? false;
-    if (isPremium && user.timezone) return reportTimezoneSuccess;
+    if (user.timezone) return reportTimezoneSuccess;
 
     await ctx.db.patch(userId, { timezone: args.timezone });
     return reportTimezoneSuccess;

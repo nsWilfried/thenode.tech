@@ -2,7 +2,7 @@ import type { Locale } from "./locales";
 import type { SiteStrings } from "./siteStrings";
 
 const es: SiteStrings = {
-  nav: { channels: "Canales", pricing: "Precios", signIn: "Iniciar sesión", account: "Cuenta", language: "Idioma", privacy: "Privacidad" },
+  nav: { channels: "Canales", signIn: "Iniciar sesión", account: "Cuenta", language: "Idioma", privacy: "Privacidad" },
   home: {
     badge: "Diario · 10 canales · 9 idiomas",
     heroTitle: "Noticias tech, resumidas por IA.",
@@ -13,7 +13,7 @@ const es: SiteStrings = {
     emailPlaceholder: "tu@ejemplo.com",
     sending: "Enviando…",
     subscribedNote: "Revisa tu bandeja de entrada: pulsa el enlace que te enviamos para confirmar y elegir tus canales.",
-    freeNote: "Newsletter diaria gratuita. Los usuarios Premium la reciben en su idioma.",
+    freeNote: "Newsletter diaria gratuita, en tu idioma.",
     learnMore: "Saber más",
     channelsTitle: "Diez canales. Elige los tuyos.",
     channelsLead: "Cada canal es su propio email diario. Suscríbete a uno o a los diez.",
@@ -34,7 +34,7 @@ const es: SiteStrings = {
     stat2Body: "La IA elige las historias que importan, escribe el resumen y te dice qué recordar. Cinco minutos y listo.",
     stat3Value: "8:00",
     stat3Title: "En tu zona horaria",
-    stat3Body: "Cada día, gratis en inglés. Premium la recibe en tu idioma, a la hora que elijas.",
+    stat3Body: "Cada día, gratis, en tu idioma y a la hora que elijas.",
   },
   channelBlurbs: {
     ai: "Grandes modelos de lenguaje, artículos de investigación y anuncios de los laboratorios de IA.",
@@ -63,16 +63,12 @@ const es: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "Resumen semanal",
-    weeklyDigestDescPremium: "Un email semanal seleccionado que resume las tendencias y las mejores historias de tus canales.",
-    weeklyDigestDescFree: "Pásate a Premium para recibir un resumen semanal con análisis de tendencias entre canales.",
+    weeklyDigestDesc: "Un email semanal seleccionado que resume las tendencias y las mejores historias de tus canales.",
     enableWeeklyDigest: "Activar resumen semanal",
     deliveryDay: "Día de envío",
     days: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
     deliveredAtPreferredHour: "Se envía a tu hora de entrega preferida.",
     defaultSuffix: "(predeterminado)",
-    freeDeliveryNote: "Newsletter diaria: 8:00 en tu zona horaria.",
-    upgradeLink: "Pásate a Premium",
-    detectedTimezone: "Tu zona horaria: {tz} (detectada).",
     channelsHint: "Solo recibirás los canales que marques aquí.",
     unsubscribeTitle: "Darse de baja",
     unsubscribeDesc: "Deja de recibir todos los emails de TheNode. Puedes volver cuando quieras.",
@@ -92,7 +88,7 @@ const es: SiteStrings = {
 };
 
 const fr: SiteStrings = {
-  nav: { channels: "Chaînes", pricing: "Tarifs", signIn: "Se connecter", account: "Compte", language: "Langue", privacy: "Confidentialité" },
+  nav: { channels: "Chaînes", signIn: "Se connecter", account: "Compte", language: "Langue", privacy: "Confidentialité" },
   home: {
     badge: "Quotidien · 10 chaînes · 9 langues",
     heroTitle: "L'actu tech, résumée par l'IA.",
@@ -103,7 +99,7 @@ const fr: SiteStrings = {
     emailPlaceholder: "vous@exemple.com",
     sending: "Envoi…",
     subscribedNote: "Consultez votre boîte mail : cliquez sur le lien que nous venons d'envoyer pour confirmer et choisir vos chaînes.",
-    freeNote: "Newsletter quotidienne gratuite. Les utilisateurs Premium la reçoivent dans leur langue.",
+    freeNote: "Newsletter quotidienne gratuite, dans votre langue.",
     learnMore: "En savoir plus",
     channelsTitle: "Dix chaînes. Choisissez les vôtres.",
     channelsLead: "Chaque chaîne est un email quotidien distinct. Abonnez-vous à une ou aux dix.",
@@ -124,7 +120,7 @@ const fr: SiteStrings = {
     stat2Body: "L'IA choisit les articles qui comptent, rédige le résumé et vous dit quoi retenir. Cinq minutes, c'est fait.",
     stat3Value: "8 h",
     stat3Title: "Dans votre fuseau horaire",
-    stat3Body: "Chaque jour, gratuitement en anglais. Premium la reçoit dans votre langue, à l'heure de votre choix.",
+    stat3Body: "Chaque jour, gratuitement, dans votre langue et à l'heure de votre choix.",
   },
   channelBlurbs: {
     ai: "Grands modèles de langage, articles de recherche et annonces des laboratoires d'IA.",
@@ -153,16 +149,12 @@ const fr: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "Récap hebdomadaire",
-    weeklyDigestDescPremium: "Un email hebdomadaire qui résume les tendances et les meilleurs articles de vos chaînes.",
-    weeklyDigestDescFree: "Passez à Premium pour recevoir un récap hebdomadaire avec analyses transversales et tendances.",
+    weeklyDigestDesc: "Un email hebdomadaire qui résume les tendances et les meilleurs articles de vos chaînes.",
     enableWeeklyDigest: "Activer le récap hebdomadaire",
     deliveryDay: "Jour d'envoi",
     days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
     deliveredAtPreferredHour: "Envoyé à votre heure de réception préférée.",
     defaultSuffix: "(par défaut)",
-    freeDeliveryNote: "Newsletter quotidienne : 8 h dans votre fuseau horaire.",
-    upgradeLink: "Passer à Premium",
-    detectedTimezone: "Votre fuseau horaire : {tz} (détecté).",
     channelsHint: "Vous ne recevrez que les chaînes cochées ici.",
     unsubscribeTitle: "Se désabonner",
     unsubscribeDesc: "Arrêter tous les emails de TheNode. Vous pouvez revenir à tout moment.",
@@ -182,7 +174,7 @@ const fr: SiteStrings = {
 };
 
 const de: SiteStrings = {
-  nav: { channels: "Kanäle", pricing: "Preise", signIn: "Anmelden", account: "Konto", language: "Sprache", privacy: "Datenschutz" },
+  nav: { channels: "Kanäle", signIn: "Anmelden", account: "Konto", language: "Sprache", privacy: "Datenschutz" },
   home: {
     badge: "Täglich · 10 Kanäle · 9 Sprachen",
     heroTitle: "Tech-News, von KI zusammengefasst.",
@@ -193,7 +185,7 @@ const de: SiteStrings = {
     emailPlaceholder: "du@beispiel.de",
     sending: "Wird gesendet…",
     subscribedNote: "Schau in dein Postfach – tippe auf den Link, den wir gerade gesendet haben, um zu bestätigen und deine Kanäle zu wählen.",
-    freeNote: "Kostenloser täglicher Newsletter. Premium-Nutzer erhalten ihn in ihrer Sprache.",
+    freeNote: "Kostenloser täglicher Newsletter in deiner Sprache.",
     learnMore: "Mehr erfahren",
     channelsTitle: "Zehn Kanäle. Wähle deine.",
     channelsLead: "Jeder Kanal ist eine eigene tägliche E-Mail. Abonniere einen oder alle zehn.",
@@ -214,7 +206,7 @@ const de: SiteStrings = {
     stat2Body: "KI wählt die relevanten Storys, schreibt die Zusammenfassung und sagt dir, was du dir merken solltest. Fünf Minuten, fertig.",
     stat3Value: "8 Uhr",
     stat3Title: "In deiner Zeitzone",
-    stat3Body: "Jeden Tag, kostenlos auf Englisch. Premium erhält ihn in deiner Sprache, zur Uhrzeit deiner Wahl.",
+    stat3Body: "Jeden Tag kostenlos, in deiner Sprache, zur Uhrzeit deiner Wahl.",
   },
   channelBlurbs: {
     ai: "Große Sprachmodelle, Forschungspapiere und Ankündigungen der KI-Labore.",
@@ -243,16 +235,12 @@ const de: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "Wochenrückblick",
-    weeklyDigestDescPremium: "Eine kuratierte Wochenrückblick-E-Mail mit Trends und Top-Storys aus deinen Kanälen.",
-    weeklyDigestDescFree: "Upgrade auf Premium für einen Wochenrückblick mit kanalübergreifenden Einblicken und Trendanalysen.",
+    weeklyDigestDesc: "Eine kuratierte Wochenrückblick-E-Mail mit Trends und Top-Storys aus deinen Kanälen.",
     enableWeeklyDigest: "Wochenrückblick aktivieren",
     deliveryDay: "Versandtag",
     days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
     deliveredAtPreferredHour: "Versand zu deiner bevorzugten Uhrzeit.",
     defaultSuffix: "(Standard)",
-    freeDeliveryNote: "Täglicher Newsletter: 8 Uhr in deiner Zeitzone.",
-    upgradeLink: "Upgrade auf Premium",
-    detectedTimezone: "Deine Zeitzone: {tz} (erkannt).",
     channelsHint: "Du erhältst nur die Kanäle, die du hier ankreuzt.",
     unsubscribeTitle: "Abmelden",
     unsubscribeDesc: "Alle E-Mails von TheNode stoppen. Du kannst jederzeit zurückkommen.",
@@ -272,7 +260,7 @@ const de: SiteStrings = {
 };
 
 const ja: SiteStrings = {
-  nav: { channels: "チャンネル", pricing: "料金", signIn: "ログイン", account: "アカウント", language: "言語", privacy: "プライバシー" },
+  nav: { channels: "チャンネル", signIn: "ログイン", account: "アカウント", language: "言語", privacy: "プライバシー" },
   home: {
     badge: "毎日 · 10チャンネル · 9言語",
     heroTitle: "AIが要約するテックニュース。",
@@ -283,7 +271,7 @@ const ja: SiteStrings = {
     emailPlaceholder: "you@example.com",
     sending: "送信中…",
     subscribedNote: "受信トレイを確認してください。送信したリンクをタップして登録を確定し、チャンネルを選びましょう。",
-    freeNote: "無料の日刊ニュースレター。Premiumユーザーは自分の言語で受け取れます。",
+    freeNote: "無料の日刊ニュースレターを、お好きな言語で。",
     learnMore: "詳しく見る",
     channelsTitle: "10のチャンネル。好きなものを。",
     channelsLead: "各チャンネルはそれぞれ独立した日刊メールです。1つでも10すべてでも購読できます。",
@@ -304,7 +292,7 @@ const ja: SiteStrings = {
     stat2Body: "AIが重要なストーリーを選び、要約を書き、覚えておくべきことを伝えます。5分で完了。",
     stat3Value: "午前8時",
     stat3Title: "あなたのタイムゾーンで",
-    stat3Body: "毎日、英語版は無料。Premiumならあなたの言語で、好きな時間に届きます。",
+    stat3Body: "毎日無料で、お好きな言語で、好きな時間に届きます。",
   },
   channelBlurbs: {
     ai: "大規模言語モデル、研究論文、AI研究所の発表。",
@@ -333,16 +321,12 @@ const ja: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "週刊ダイジェスト",
-    weeklyDigestDescPremium: "あなたのチャンネル全体のトレンドとトップストーリーをまとめた、厳選の週間振り返りメール。",
-    weeklyDigestDescFree: "Premiumにアップグレードすると、チャンネル横断のインサイトとトレンド分析を含む週刊ダイジェストが届きます。",
+    weeklyDigestDesc: "あなたのチャンネル全体のトレンドとトップストーリーをまとめた、厳選の週間振り返りメール。",
     enableWeeklyDigest: "週刊ダイジェストを有効にする",
     deliveryDay: "配信曜日",
     days: ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"],
     deliveredAtPreferredHour: "希望の配信時刻にお届けします。",
     defaultSuffix: "（デフォルト）",
-    freeDeliveryNote: "日刊ニュースレター：あなたのタイムゾーンで午前8時。",
-    upgradeLink: "Premiumにアップグレード",
-    detectedTimezone: "あなたのタイムゾーン：{tz}（自動検出）。",
     channelsHint: "ここでチェックしたチャンネルのみ受け取ります。",
     unsubscribeTitle: "配信停止",
     unsubscribeDesc: "TheNodeからのすべてのメールを停止します。いつでも再開できます。",
@@ -362,7 +346,7 @@ const ja: SiteStrings = {
 };
 
 const zh: SiteStrings = {
-  nav: { channels: "频道", pricing: "价格", signIn: "登录", account: "账户", language: "语言", privacy: "隐私" },
+  nav: { channels: "频道", signIn: "登录", account: "账户", language: "语言", privacy: "隐私" },
   home: {
     badge: "每日 · 10 个频道 · 9 种语言",
     heroTitle: "AI 总结的科技新闻。",
@@ -373,7 +357,7 @@ const zh: SiteStrings = {
     emailPlaceholder: "you@example.com",
     sending: "发送中…",
     subscribedNote: "请查看收件箱——点击我们刚发送的链接以确认并选择你的频道。",
-    freeNote: "免费每日简报。Premium 用户可用自己的语言阅读。",
+    freeNote: "免费每日简报，用你的语言阅读。",
     learnMore: "了解更多",
     channelsTitle: "十个频道，任你挑选。",
     channelsLead: "每个频道都是独立的每日邮件。订阅一个或全部十个。",
@@ -394,7 +378,7 @@ const zh: SiteStrings = {
     stat2Body: "AI 挑选重要报道、撰写摘要，并告诉你需要记住什么。五分钟搞定。",
     stat3Value: "早上 8 点",
     stat3Title: "按你的时区",
-    stat3Body: "每天免费提供英文版。Premium 用户可在自选时间以自己的语言接收。",
+    stat3Body: "每天免费，用你的语言，在你选择的时间送达。",
   },
   channelBlurbs: {
     ai: "大语言模型、研究论文以及 AI 实验室的发布动态。",
@@ -423,16 +407,12 @@ const zh: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "每周摘要",
-    weeklyDigestDescPremium: "精选每周回顾邮件，总结你所订阅频道的趋势和热门报道。",
-    weeklyDigestDescFree: "升级到 Premium，即可接收包含跨频道洞察和趋势分析的每周摘要。",
+    weeklyDigestDesc: "精选每周回顾邮件，总结你所订阅频道的趋势和热门报道。",
     enableWeeklyDigest: "启用每周摘要",
     deliveryDay: "发送日",
     days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
     deliveredAtPreferredHour: "在你偏好的发送时间送达。",
     defaultSuffix: "（默认）",
-    freeDeliveryNote: "每日简报：你所在时区早上 8:00。",
-    upgradeLink: "升级到 Premium",
-    detectedTimezone: "你的时区：{tz}（自动检测）。",
     channelsHint: "你只会收到在此勾选的频道。",
     unsubscribeTitle: "退订",
     unsubscribeDesc: "停止接收 TheNode 的所有邮件。你可以随时回来。",
@@ -452,7 +432,7 @@ const zh: SiteStrings = {
 };
 
 const pt: SiteStrings = {
-  nav: { channels: "Canais", pricing: "Preços", signIn: "Entrar", account: "Conta", language: "Idioma", privacy: "Privacidade" },
+  nav: { channels: "Canais", signIn: "Entrar", account: "Conta", language: "Idioma", privacy: "Privacidade" },
   home: {
     badge: "Diário · 10 canais · 9 idiomas",
     heroTitle: "Notícias de tecnologia, resumidas por IA.",
@@ -463,7 +443,7 @@ const pt: SiteStrings = {
     emailPlaceholder: "voce@exemplo.com",
     sending: "Enviando…",
     subscribedNote: "Confira sua caixa de entrada: toque no link que acabamos de enviar para confirmar e escolher seus canais.",
-    freeNote: "Newsletter diária gratuita. Usuários Premium recebem no seu idioma.",
+    freeNote: "Newsletter diária gratuita, no seu idioma.",
     learnMore: "Saiba mais",
     channelsTitle: "Dez canais. Escolha os seus.",
     channelsLead: "Cada canal é um e-mail diário próprio. Assine um ou todos os dez.",
@@ -484,7 +464,7 @@ const pt: SiteStrings = {
     stat2Body: "A IA escolhe as histórias que importam, escreve o resumo e diz o que lembrar. Cinco minutos e pronto.",
     stat3Value: "8h",
     stat3Title: "No seu fuso horário",
-    stat3Body: "Todos os dias, grátis em inglês. Premium recebe no seu idioma, no horário que você escolher.",
+    stat3Body: "Todos os dias, grátis, no seu idioma e no horário que você escolher.",
   },
   channelBlurbs: {
     ai: "Grandes modelos de linguagem, artigos de pesquisa e anúncios dos laboratórios de IA.",
@@ -513,16 +493,12 @@ const pt: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "Resumo semanal",
-    weeklyDigestDescPremium: "Um e-mail semanal selecionado que resume as tendências e as principais histórias dos seus canais.",
-    weeklyDigestDescFree: "Faça upgrade para Premium para receber um resumo semanal com insights entre canais e análise de tendências.",
+    weeklyDigestDesc: "Um e-mail semanal selecionado que resume as tendências e as principais histórias dos seus canais.",
     enableWeeklyDigest: "Ativar resumo semanal",
     deliveryDay: "Dia de envio",
     days: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"],
     deliveredAtPreferredHour: "Enviado no seu horário de entrega preferido.",
     defaultSuffix: "(padrão)",
-    freeDeliveryNote: "Newsletter diária: 8h no seu fuso horário.",
-    upgradeLink: "Fazer upgrade para Premium",
-    detectedTimezone: "Seu fuso horário: {tz} (detectado).",
     channelsHint: "Você só receberá os canais marcados aqui.",
     unsubscribeTitle: "Cancelar inscrição",
     unsubscribeDesc: "Pare todos os e-mails do TheNode. Você pode voltar a qualquer momento.",
@@ -542,7 +518,7 @@ const pt: SiteStrings = {
 };
 
 const it: SiteStrings = {
-  nav: { channels: "Canali", pricing: "Prezzi", signIn: "Accedi", account: "Account", language: "Lingua", privacy: "Privacy" },
+  nav: { channels: "Canali", signIn: "Accedi", account: "Account", language: "Lingua", privacy: "Privacy" },
   home: {
     badge: "Ogni giorno · 10 canali · 9 lingue",
     heroTitle: "Notizie tech, riassunte dall'IA.",
@@ -553,7 +529,7 @@ const it: SiteStrings = {
     emailPlaceholder: "tu@esempio.com",
     sending: "Invio in corso…",
     subscribedNote: "Controlla la tua casella: tocca il link che ti abbiamo appena inviato per confermare e scegliere i tuoi canali.",
-    freeNote: "Newsletter quotidiana gratuita. Gli utenti Premium la ricevono nella loro lingua.",
+    freeNote: "Newsletter quotidiana gratuita, nella tua lingua.",
     learnMore: "Scopri di più",
     channelsTitle: "Dieci canali. Scegli i tuoi.",
     channelsLead: "Ogni canale è un'email quotidiana a sé. Iscriviti a uno o a tutti e dieci.",
@@ -574,7 +550,7 @@ const it: SiteStrings = {
     stat2Body: "L'IA sceglie le storie che contano, scrive il riassunto e ti dice cosa ricordare. Cinque minuti e hai finito.",
     stat3Value: "8:00",
     stat3Title: "Nel tuo fuso orario",
-    stat3Body: "Ogni giorno, gratis in inglese. Con Premium la ricevi nella tua lingua, all'ora che preferisci.",
+    stat3Body: "Ogni giorno, gratis, nella tua lingua, all'ora che preferisci.",
   },
   channelBlurbs: {
     ai: "Grandi modelli linguistici, paper di ricerca e annunci dei laboratori di IA.",
@@ -603,16 +579,12 @@ const it: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "Riepilogo settimanale",
-    weeklyDigestDescPremium: "Un'email settimanale selezionata che riassume le tendenze e le storie principali dei tuoi canali.",
-    weeklyDigestDescFree: "Passa a Premium per ricevere un riepilogo settimanale con approfondimenti tra canali e analisi delle tendenze.",
+    weeklyDigestDesc: "Un'email settimanale selezionata che riassume le tendenze e le storie principali dei tuoi canali.",
     enableWeeklyDigest: "Attiva riepilogo settimanale",
     deliveryDay: "Giorno di invio",
     days: ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"],
     deliveredAtPreferredHour: "Inviato all'orario di consegna che preferisci.",
     defaultSuffix: "(predefinito)",
-    freeDeliveryNote: "Newsletter quotidiana: alle 8:00 nel tuo fuso orario.",
-    upgradeLink: "Passa a Premium",
-    detectedTimezone: "Il tuo fuso orario: {tz} (rilevato).",
     channelsHint: "Riceverai solo i canali che selezioni qui.",
     unsubscribeTitle: "Annulla iscrizione",
     unsubscribeDesc: "Interrompi tutte le email di TheNode. Puoi tornare in qualsiasi momento.",
@@ -632,7 +604,7 @@ const it: SiteStrings = {
 };
 
 const ko: SiteStrings = {
-  nav: { channels: "채널", pricing: "요금제", signIn: "로그인", account: "계정", language: "언어", privacy: "개인정보처리방침" },
+  nav: { channels: "채널", signIn: "로그인", account: "계정", language: "언어", privacy: "개인정보처리방침" },
   home: {
     badge: "매일 · 10개 채널 · 9개 언어",
     heroTitle: "AI가 요약한 테크 뉴스.",
@@ -643,7 +615,7 @@ const ko: SiteStrings = {
     emailPlaceholder: "you@example.com",
     sending: "전송 중…",
     subscribedNote: "받은편지함을 확인하세요. 방금 보낸 링크를 눌러 구독을 확인하고 채널을 선택하세요.",
-    freeNote: "무료 일간 뉴스레터. Premium 사용자는 자신의 언어로 받아봅니다.",
+    freeNote: "원하는 언어로 받아보는 무료 일간 뉴스레터.",
     learnMore: "자세히 보기",
     channelsTitle: "10개의 채널. 원하는 것을 고르세요.",
     channelsLead: "각 채널은 별도의 일간 이메일입니다. 하나만 또는 10개 모두 구독하세요.",
@@ -664,7 +636,7 @@ const ko: SiteStrings = {
     stat2Body: "AI가 중요한 스토리를 고르고, 요약을 쓰고, 기억할 점을 알려줍니다. 5분이면 끝.",
     stat3Value: "오전 8시",
     stat3Title: "당신의 시간대 기준",
-    stat3Body: "매일 영어로 무료 제공. Premium은 원하는 시간에 당신의 언어로 받아봅니다.",
+    stat3Body: "매일 무료로, 원하는 언어로, 원하는 시간에 받아보세요.",
   },
   channelBlurbs: {
     ai: "대규모 언어 모델, 연구 논문, AI 연구소의 발표.",
@@ -693,16 +665,12 @@ const ko: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "주간 다이제스트",
-    weeklyDigestDescPremium: "구독 채널 전반의 트렌드와 주요 스토리를 정리한 엄선된 주간 리뷰 이메일.",
-    weeklyDigestDescFree: "Premium으로 업그레이드하면 채널 간 인사이트와 트렌드 분석이 담긴 주간 다이제스트를 받을 수 있습니다.",
+    weeklyDigestDesc: "구독 채널 전반의 트렌드와 주요 스토리를 정리한 엄선된 주간 리뷰 이메일.",
     enableWeeklyDigest: "주간 다이제스트 사용",
     deliveryDay: "발송 요일",
     days: ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
     deliveredAtPreferredHour: "선호하는 발송 시간에 전해드립니다.",
     defaultSuffix: "(기본값)",
-    freeDeliveryNote: "일간 뉴스레터: 당신의 시간대 기준 오전 8시.",
-    upgradeLink: "Premium으로 업그레이드",
-    detectedTimezone: "당신의 시간대: {tz} (자동 감지).",
     channelsHint: "여기서 선택한 채널만 받게 됩니다.",
     unsubscribeTitle: "구독 해지",
     unsubscribeDesc: "TheNode의 모든 이메일을 중지합니다. 언제든 다시 돌아올 수 있습니다.",

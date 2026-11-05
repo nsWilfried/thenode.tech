@@ -86,9 +86,7 @@ function Inner({ locale, t, s, channels, languages }: SettingsProps) {
 
   if (!user || !ready) return <p className="muted" role="status">{t.common.loading}</p>;
 
-  const isPremium = user.isPremium ?? false;
   const unsubscribed = user.preferences?.unsubscribed === true;
-  const pricing = `/${locale}/pricing`;
   const tzOptions = (() => {
     const list = getTimeZoneOptions();
     return list.includes(timezone) ? list : [timezone, ...list].sort();
@@ -105,13 +103,11 @@ function Inner({ locale, t, s, channels, languages }: SettingsProps) {
     try {
       const res = await updatePreferences({
         categories: categories as never,
-        ...(isPremium && {
-          language,
-          timezone,
-          preferredDeliveryHour: hour,
-          weeklyDigestEnabled: digest,
-          preferredDigestDay: digestDay,
-        }),
+        language,
+        timezone,
+        preferredDeliveryHour: hour,
+        weeklyDigestEnabled: digest,
+        preferredDigestDay: digestDay,
       });
       if (res && res.success === false) throw new Error(res.message);
       setStatus("saved");
@@ -132,20 +128,15 @@ function Inner({ locale, t, s, channels, languages }: SettingsProps) {
     }
   };
 
-  const upgrade = (
-    <a href={pricing} style={{ color: "var(--orange-deep)", fontWeight: 600 }}>{s.upgradeLink}</a>
-  );
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <Panel id="account" title={t.settings.account}>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: 16, fontWeight: 500 }}>{user.email}</span>
-          <span className={`badge${isPremium ? " premium" : ""}`}>{isPremium ? t.settings.premiumBadge : t.settings.freeBadge}</span>
-          {!isPremium && upgrade}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-          {isPremium && (
+          {/* Premium is retired; subscribers who are still billed need a way to cancel. */}
+          {user.isPremium && (
             <CustomerPortalLink polarApi={api.polar} className="btn ghost sm">
               {t.settings.manageSubscription}
             </CustomerPortalLink>
@@ -179,47 +170,36 @@ function Inner({ locale, t, s, channels, languages }: SettingsProps) {
         </div>
       </Panel>
 
-      <Panel title={t.settings.language} desc={isPremium ? t.settings.languageDescPremium : t.settings.languageDescFree}>
-        <select className="select" value={language} disabled={!isPremium} onChange={(e) => setLanguage(e.target.value)}>
+      <Panel title={t.settings.language} desc={t.settings.languageDesc}>
+        <select className="select" value={language} onChange={(e) => setLanguage(e.target.value)}>
           {languages.map((l) => (
             <option key={l.code} value={l.code}>{l.name}</option>
           ))}
         </select>
-        {!isPremium && <div>{upgrade}</div>}
       </Panel>
 
-      <Panel title={t.settings.deliveryTime} desc={isPremium ? t.settings.deliveryTimeDescPremium : t.settings.deliveryTimeDescFree}>
-        {isPremium ? (
-          <select className="select" value={hour} onChange={(e) => setHour(Number(e.target.value))}>
-            {Array.from({ length: 24 }, (_, h) => (
-              <option key={h} value={h}>{hourLabel(h, locale)}{h === DEFAULT_HOUR ? ` ${s.defaultSuffix}` : ""}</option>
-            ))}
-          </select>
-        ) : (
-          <p className="muted" style={{ fontSize: 15 }}>{s.freeDeliveryNote} {upgrade}</p>
-        )}
+      <Panel title={t.settings.deliveryTime} desc={t.settings.deliveryTimeDesc}>
+        <select className="select" value={hour} onChange={(e) => setHour(Number(e.target.value))}>
+          {Array.from({ length: 24 }, (_, h) => (
+            <option key={h} value={h}>{hourLabel(h, locale)}{h === DEFAULT_HOUR ? ` ${s.defaultSuffix}` : ""}</option>
+          ))}
+        </select>
       </Panel>
 
       <Panel title={t.settings.timezone} desc={t.settings.timezoneDesc}>
-        {isPremium ? (
-          <select className="select" value={timezone} onChange={(e) => setTimezone(e.target.value)}>
-            {tzOptions.map((tz) => (
-              <option key={tz} value={tz}>{formatTimeZoneLabel(tz)}</option>
-            ))}
-          </select>
-        ) : (
-          <p className="muted" style={{ fontSize: 15 }}>
-            {s.detectedTimezone.replace("{tz}", user.timezone ? formatTimeZoneLabel(user.timezone) : timezone)} {upgrade}
-          </p>
-        )}
+        <select className="select" value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+          {tzOptions.map((tz) => (
+            <option key={tz} value={tz}>{formatTimeZoneLabel(tz)}</option>
+          ))}
+        </select>
       </Panel>
 
-      <Panel title={s.weeklyDigestTitle} desc={isPremium ? s.weeklyDigestDescPremium : s.weeklyDigestDescFree}>
+      <Panel title={s.weeklyDigestTitle} desc={s.weeklyDigestDesc}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: 14, border: "1px solid var(--line)", borderRadius: 12 }}>
           <span style={{ fontWeight: 500 }}>{s.enableWeeklyDigest}</span>
-          <button type="button" role="switch" aria-checked={digest} aria-label={s.enableWeeklyDigest} className="switch" disabled={!isPremium} onClick={() => setDigest((d) => !d)} />
+          <button type="button" role="switch" aria-checked={digest} aria-label={s.enableWeeklyDigest} className="switch" onClick={() => setDigest((d) => !d)} />
         </div>
-        {digest && isPremium && (
+        {digest && (
           <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <span style={{ fontWeight: 500, fontSize: 15 }}>{s.deliveryDay}</span>
             <select className="select" value={digestDay} onChange={(e) => setDigestDay(Number(e.target.value))}>
@@ -230,7 +210,6 @@ function Inner({ locale, t, s, channels, languages }: SettingsProps) {
             <span className="note">{s.deliveredAtPreferredHour}</span>
           </label>
         )}
-        {!isPremium && <div>{upgrade}</div>}
       </Panel>
 
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, position: "sticky", bottom: 0, padding: "14px 0", background: "var(--paper)" }}>

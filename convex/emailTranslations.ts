@@ -1,5 +1,5 @@
 /**
- * Email template translations for Convex actions (newsletter, welcome, premium, cancellation).
+ * Email template translations for Convex actions (newsletter, welcome).
  * Used by sendNewsletters.ts. Locales match lib/i18n SUPPORTED_LOCALES.
  */
 
@@ -51,7 +51,7 @@ export interface EmailTemplateStrings {
   forwardToColleague: string;
   footerBlurb: string;
   receivingBecause: string;
-  /** Weekly digest footer (Premium-only product) */
+  /** Weekly digest footer */
   receivingBecauseWeeklyDigest: string;
   /** Weekly digest email section titles */
   weeklyDigestTitle: string;
@@ -71,13 +71,9 @@ export interface EmailTemplateStrings {
   authBlurb: string;
   weeklyThreeTrends: string;
   weeklyFeedbackQuestion: string;
-  weeklyPremiumLabel: string;
   weeklyKeyNumbers: string;
   unsubscribe: string;
   managePreferences: string;
-  upgradeToPremium: string;
-  /** Premium billing / Polar portal entry — linked from newsletter footers */
-  manageSubscription: string;
   // Subject line templates ({{headline}}, {{topics}}, {{date}})
   subjectFallback: string;
   subjectWithTopics: string;
@@ -97,28 +93,6 @@ export interface EmailTemplateStrings {
   customizePreferences: string;
   receivingBecauseSignup: string;
   welcomeSubject: string;
-  // Premium welcome
-  premiumWelcomeTitle: string;
-  premiumWelcomeSubtitle: string;
-  premiumThanks: string;
-  premiumUnlocked: string;
-  customDeliveryTime: string;
-  multiLanguageSupport: string;
-  priorityContent: string;
-  configurePremium: string;
-  receivingBecauseUpgrade: string;
-  premiumWelcomeSubject: string;
-  // Cancellation
-  cancellationTitle: string;
-  cancellationSubtitle: string;
-  cancellationWhatChanges: string;
-  keepReceiving: string;
-  deliveryReverts: string;
-  languageReverts: string;
-  freeContinues: string;
-  resubscribe: string;
-  receivingBecauseCancelled: string;
-  cancellationSubject: string;
 }
 
 const CATEGORY_SLUGS: CategorySlug[] = [
@@ -185,7 +159,7 @@ const en: EmailTemplateStrings = {
   receivingBecause:
     "You're receiving this because you subscribed to TheNode.tech newsletter.",
   receivingBecauseWeeklyDigest:
-    "You're receiving this because you enabled the weekly digest (Premium).",
+    "You're receiving this because you enabled the weekly digest.",
   weeklyDigestTitle: "Week in Review",
   weeklyDigestOverview: "The Week That Was",
   weeklyDigestTrends: "Trends Across the Board",
@@ -202,12 +176,9 @@ const en: EmailTemplateStrings = {
   authBlurb: "You're receiving this because someone asked to sign in to TheNode.tech with this address.",
   weeklyThreeTrends: "Three trends this week",
   weeklyFeedbackQuestion: "Was this week's review useful?",
-  weeklyPremiumLabel: "Premium",
   weeklyKeyNumbers: "Key numbers",
   unsubscribe: "Unsubscribe",
   managePreferences: "Manage preferences",
-  upgradeToPremium: "Upgrade to Premium",
-  manageSubscription: "Manage or cancel subscription",
   subjectFallback: "Your daily tech digest — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -239,34 +210,6 @@ const en: EmailTemplateStrings = {
   receivingBecauseSignup:
     "You're receiving this because you signed up for TheNode.tech.",
   welcomeSubject: "Welcome to TheNode.tech — Your daily tech digest starts now",
-  premiumWelcomeTitle: "Welcome to Premium!",
-  premiumWelcomeSubtitle: "Thank you for upgrading your TheNode.tech experience.",
-  premiumThanks: "You now have access to the full premium experience. Here's what's unlocked:",
-  premiumUnlocked: "",
-  customDeliveryTime:
-    "Custom Delivery Time — Choose the exact hour you want your newsletter delivered",
-  multiLanguageSupport:
-    "Multi-Language Support — Receive your digest in your preferred language",
-  priorityContent:
-    "Priority Content — Get deeper analysis and more detailed coverage",
-  configurePremium: "Configure Premium Settings",
-  receivingBecauseUpgrade:
-    "You're receiving this because you upgraded to TheNode.tech Premium.",
-  premiumWelcomeSubject: "Welcome to Premium — Your upgraded experience starts now",
-  cancellationTitle: "Subscription Cancelled",
-  cancellationSubtitle: "We're sorry to see you go.",
-  cancellationWhatChanges:
-    "Your premium subscription has been cancelled. Here's what changes:",
-  keepReceiving:
-    "You'll keep receiving your daily newsletter with all your selected categories",
-  deliveryReverts: "Delivery window reverts to the default 8 AM in your timezone",
-  languageReverts: "Language will revert to English",
-  freeContinues:
-    "Your free newsletter will continue without interruption. If you change your mind, you can re-subscribe at any time.",
-  resubscribe: "Re-subscribe to Premium",
-  receivingBecauseCancelled:
-    "You're receiving this because your TheNode.tech Premium subscription was cancelled.",
-  cancellationSubject: "Your Premium subscription has been cancelled",
 };
 
 const es: EmailTemplateStrings = {
@@ -287,7 +230,6 @@ const es: EmailTemplateStrings = {
   weeklyDigestByCategory: "Por categoría",
   weeklyThreeTrends: "Tres tendencias de la semana",
   weeklyFeedbackQuestion: "¿Te resultó útil el resumen de esta semana?",
-  weeklyPremiumLabel: "Premium",
   weeklyKeyNumbers: "Cifras clave",
   today: "Hoy",
   dailyDoseOfTech: "Tu dosis diaria de tech",
@@ -313,11 +255,9 @@ const es: EmailTemplateStrings = {
   receivingBecause:
     "Recibes este correo porque te suscribiste al newsletter de TheNode.tech.",
   receivingBecauseWeeklyDigest:
-    "Recibes este correo porque activaste el resumen semanal (Premium).",
+    "Recibes este correo porque activaste el resumen semanal.",
   unsubscribe: "Darse de baja",
   managePreferences: "Gestionar preferencias",
-  upgradeToPremium: "Pasar a Premium",
-  manageSubscription: "Gestionar o cancelar suscripción",
   subjectFallback: "Tu resumen tech diario — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -347,32 +287,6 @@ const es: EmailTemplateStrings = {
     "Entra en ajustes para elegir categorías, zona horaria y hora de envío. Tu primera newsletter llegará mañana.",
   customizePreferences: "Personalizar preferencias",
   receivingBecauseSignup: "Recibes este correo porque te registraste en TheNode.tech.",
-  premiumWelcomeTitle: "¡Bienvenido a Premium!",
-  premiumWelcomeSubtitle: "Gracias por mejorar tu experiencia TheNode.tech.",
-  premiumThanks:
-    "Ahora tienes acceso a la experiencia premium. Esto es lo que se desbloquea:",
-  customDeliveryTime:
-    "Hora de envío — Elige la hora exacta para recibir tu newsletter",
-  multiLanguageSupport:
-    "Idioma — Recibe el resumen en tu idioma preferido",
-  priorityContent:
-    "Contenido prioritario — Análisis más profundo y cobertura detallada",
-  configurePremium: "Configurar Premium",
-  receivingBecauseUpgrade:
-    "Recibes este correo porque pasaste a TheNode.tech Premium.",
-  cancellationTitle: "Suscripción cancelada",
-  cancellationSubtitle: "Lamentamos que te vayas.",
-  cancellationWhatChanges:
-    "Tu suscripción premium ha sido cancelada. Cambios:",
-  keepReceiving:
-    "Seguirás recibiendo tu newsletter diaria con tus categorías seleccionadas",
-  deliveryReverts: "La entrega vuelve a las 8:00 en tu zona horaria",
-  languageReverts: "El idioma volverá a ser inglés",
-  freeContinues:
-    "Tu newsletter gratuita continuará sin interrupciones. Puedes volver a suscribirte cuando quieras.",
-  resubscribe: "Volver a Premium",
-  receivingBecauseCancelled:
-    "Recibes este correo porque tu suscripción Premium fue cancelada.",
 };
 
 const fr: EmailTemplateStrings = {
@@ -393,7 +307,6 @@ const fr: EmailTemplateStrings = {
   weeklyDigestByCategory: "Par catégorie",
   weeklyThreeTrends: "Trois tendances cette semaine",
   weeklyFeedbackQuestion: "La revue de cette semaine vous a été utile ?",
-  weeklyPremiumLabel: "Premium",
   weeklyKeyNumbers: "Chiffres clés",
   today: "Aujourd'hui",
   dailyDoseOfTech: "Votre dose quotidienne de tech",
@@ -419,11 +332,9 @@ const fr: EmailTemplateStrings = {
   receivingBecause:
     "Vous recevez ceci car vous êtes inscrit à la newsletter TheNode.tech.",
   receivingBecauseWeeklyDigest:
-    "Vous recevez ceci car vous avez activé la synthèse hebdomadaire (Premium).",
+    "Vous recevez ceci car vous avez activé la synthèse hebdomadaire.",
   unsubscribe: "Se désabonner",
   managePreferences: "Gérer les préférences",
-  upgradeToPremium: "Passer à Premium",
-  manageSubscription: "Gérer ou annuler l'abonnement",
   subjectFallback: "Votre digest tech quotidien — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -455,32 +366,6 @@ const fr: EmailTemplateStrings = {
   customizePreferences: "Personnaliser les préférences",
   receivingBecauseSignup:
     "Vous recevez ceci car vous vous êtes inscrit à TheNode.tech.",
-  premiumWelcomeTitle: "Bienvenue en Premium !",
-  premiumWelcomeSubtitle: "Merci d'avoir amélioré votre expérience TheNode.tech.",
-  premiumThanks:
-    "Vous avez maintenant accès à l'expérience premium. Voici ce qui est débloqué :",
-  customDeliveryTime:
-    "Heure d'envoi — Choisissez l'heure exacte de réception",
-  multiLanguageSupport:
-    "Langue — Recevez le digest dans votre langue préférée",
-  priorityContent:
-    "Contenu prioritaire — Analyses plus approfondies et couverture détaillée",
-  configurePremium: "Configurer Premium",
-  receivingBecauseUpgrade:
-    "Vous recevez ceci car vous êtes passé à TheNode.tech Premium.",
-  cancellationTitle: "Abonnement annulé",
-  cancellationSubtitle: "Nous sommes désolés de vous voir partir.",
-  cancellationWhatChanges:
-    "Votre abonnement premium a été annulé. Voici les changements :",
-  keepReceiving:
-    "Vous continuerez à recevoir la newsletter quotidienne avec vos catégories",
-  deliveryReverts: "L'envoi revient à 8h dans votre fuseau",
-  languageReverts: "La langue repasse à l'anglais",
-  freeContinues:
-    "Votre newsletter gratuite continue sans interruption. Vous pouvez vous réabonner à tout moment.",
-  resubscribe: "Réabonnement Premium",
-  receivingBecauseCancelled:
-    "Vous recevez ceci car votre abonnement Premium a été annulé.",
 };
 
 const de: EmailTemplateStrings = {
@@ -501,7 +386,6 @@ const de: EmailTemplateStrings = {
   weeklyDigestByCategory: "Nach Kategorie",
   weeklyThreeTrends: "Drei Trends dieser Woche",
   weeklyFeedbackQuestion: "War der Wochenrückblick hilfreich?",
-  weeklyPremiumLabel: "Premium",
   weeklyKeyNumbers: "Wichtige Zahlen",
   today: "Heute",
   dailyDoseOfTech: "Deine tägliche Tech-Dosis",
@@ -527,11 +411,9 @@ const de: EmailTemplateStrings = {
   receivingBecause:
     "Du erhältst diese E-Mail, weil du den TheNode.tech-Newsletter abonniert hast.",
   receivingBecauseWeeklyDigest:
-    "Du erhältst diese E-Mail, weil du den wöchentlichen Digest (Premium) aktiviert hast.",
+    "Du erhältst diese E-Mail, weil du den wöchentlichen Digest aktiviert hast.",
   unsubscribe: "Abmelden",
   managePreferences: "Einstellungen",
-  upgradeToPremium: "Auf Premium upgraden",
-  manageSubscription: "Abo verwalten oder kündigen",
   subjectFallback: "Dein täglicher Tech-Überblick — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -563,35 +445,7 @@ const de: EmailTemplateStrings = {
   customizePreferences: "Einstellungen anpassen",
   receivingBecauseSignup:
     "Du erhältst diese E-Mail, weil du dich bei TheNode.tech angemeldet hast.",
-  premiumWelcomeTitle: "Willkommen bei Premium!",
-  premiumWelcomeSubtitle: "Danke, dass du dein TheNode.tech-Erlebnis verbessert hast.",
-  premiumThanks:
-    "Du hast jetzt Zugang zur vollen Premium-Erfahrung. Das ist freigeschaltet:",
-  customDeliveryTime:
-    "Lieferzeit — Wähle die genaue Stunde für deinen Newsletter",
-  multiLanguageSupport:
-    "Sprache — Erhalte den Digest in deiner bevorzugten Sprache",
-  priorityContent:
-    "Prioritäts-Inhalte — Tiefere Analysen und detaillierte Berichterstattung",
-  configurePremium: "Premium einrichten",
-  receivingBecauseUpgrade:
-    "Du erhältst diese E-Mail, weil du auf TheNode.tech Premium upgegradet hast.",
-  cancellationTitle: "Abonnement gekündigt",
-  cancellationSubtitle: "Schade, dass du gehst.",
-  cancellationWhatChanges:
-    "Dein Premium-Abonnement wurde gekündigt. Das ändert sich:",
-  keepReceiving:
-    "Du erhältst weiterhin deinen täglichen Newsletter mit allen gewählten Kategorien",
-  deliveryReverts: "Die Lieferung kehrt zu 8 Uhr in deiner Zeitzone zurück",
-  languageReverts: "Die Sprache wechselt zurück auf Englisch",
-  freeContinues:
-    "Dein kostenloser Newsletter läuft unverändert weiter. Du kannst jederzeit wieder upgraden.",
-  resubscribe: "Wieder zu Premium",
-  receivingBecauseCancelled:
-    "Du erhältst diese E-Mail, weil dein TheNode.tech Premium-Abonnement gekündigt wurde.",
   welcomeSubject: "Willkommen bei TheNode.tech — Dein täglicher Tech-Überblick startet",
-  premiumWelcomeSubject: "Willkommen bei Premium — Dein Upgrade startet",
-  cancellationSubject: "Dein Premium-Abonnement wurde gekündigt",
 };
 
 const ja: EmailTemplateStrings = {
@@ -612,7 +466,6 @@ const ja: EmailTemplateStrings = {
   weeklyDigestByCategory: "カテゴリー別",
   weeklyThreeTrends: "今週の3つのトレンド",
   weeklyFeedbackQuestion: "今週のレビューは役に立ちましたか？",
-  weeklyPremiumLabel: "プレミアム",
   weeklyKeyNumbers: "注目の数字",
   today: "今日",
   dailyDoseOfTech: "毎日のテックニュース",
@@ -638,11 +491,9 @@ const ja: EmailTemplateStrings = {
   receivingBecause:
     "TheNode.techニュースレターに登録いただいたため、このメールをお送りしています。",
   receivingBecauseWeeklyDigest:
-    "週次ダイジェスト（プレミアム）を有効にしたため、このメールをお送りしています。",
+    "週次ダイジェストを有効にしたため、このメールをお送りしています。",
   unsubscribe: "配信停止",
   managePreferences: "設定を管理",
-  upgradeToPremium: "プレミアムへ",
-  manageSubscription: "購読の管理・解約",
   subjectFallback: "本日のテックダイジェスト — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -674,28 +525,6 @@ const ja: EmailTemplateStrings = {
   receivingBecauseSignup:
     "TheNode.techに登録いただいたため、このメールをお送りしています。",
   welcomeSubject: "TheNode.techへようこそ — 毎日のテックダイジェストが始まります",
-  premiumWelcomeTitle: "プレミアムへようこそ！",
-  premiumWelcomeSubtitle: "TheNode.techプレミアムへのアップグレードありがとうございます。",
-  premiumThanks: "プレミアムの全機能が利用可能です：",
-  customDeliveryTime: "配信時刻 — 希望の時間に配信",
-  multiLanguageSupport: "多言語 — 希望の言語でダイジェストを受信",
-  priorityContent: "優先コンテンツ — より深い分析と詳細な報道",
-  configurePremium: "プレミアム設定",
-  receivingBecauseUpgrade:
-    "TheNode.techプレミアムにアップグレードいただいたため、このメールをお送りしています。",
-  cancellationTitle: "サブスクリプション解約",
-  cancellationSubtitle: "解約いただき残念です。",
-  cancellationWhatChanges: "プレミアムを解約しました。変更点：",
-  keepReceiving: "選択したカテゴリの日刊ニュースレターは引き続き届きます",
-  deliveryReverts: "配信はデフォルトの午前8時（お住まいのタイムゾーン）に戻ります",
-  languageReverts: "言語は英語に戻ります",
-  freeContinues:
-    "無料ニュースレターは引き続き届きます。いつでも再登録できます。",
-  resubscribe: "プレミアムに再登録",
-  receivingBecauseCancelled:
-    "TheNode.techプレミアムを解約いただいたため、このメールをお送りしています。",
-  premiumWelcomeSubject: "プレミアムへようこそ — アップグレード体験が始まります",
-  cancellationSubject: "プレミアムサブスクリプションが解約されました",
 };
 
 const zh: EmailTemplateStrings = {
@@ -716,7 +545,6 @@ const zh: EmailTemplateStrings = {
   weeklyDigestByCategory: "按类别",
   weeklyThreeTrends: "本周三大趋势",
   weeklyFeedbackQuestion: "本周回顾对你有帮助吗？",
-  weeklyPremiumLabel: "高级版",
   weeklyKeyNumbers: "关键数字",
   today: "今天",
   dailyDoseOfTech: "你的每日科技简报",
@@ -741,11 +569,9 @@ const zh: EmailTemplateStrings = {
   footerBlurb: "科技资讯，一次一个频道。",
   receivingBecause: "您收到此邮件是因为订阅了 TheNode.tech 通讯。",
   receivingBecauseWeeklyDigest:
-    "您收到此邮件是因为启用了每周摘要（高级版）。",
+    "您收到此邮件是因为启用了每周摘要。",
   unsubscribe: "退订",
   managePreferences: "管理偏好",
-  upgradeToPremium: "升级到高级版",
-  manageSubscription: "管理或取消订阅",
   subjectFallback: "你的每日科技摘要 — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -775,24 +601,6 @@ const zh: EmailTemplateStrings = {
     "请前往设置选择类别、时区和送达时间。你的第一份通讯将于明日早晨送达。",
   customizePreferences: "自定义偏好",
   receivingBecauseSignup: "您收到此邮件是因为注册了 TheNode.tech。",
-  premiumWelcomeTitle: "欢迎使用高级版！",
-  premiumWelcomeSubtitle: "感谢升级你的 TheNode.tech 体验。",
-  premiumThanks: "你已解锁完整高级体验，包括：",
-  customDeliveryTime: "自定义送达时间 — 选择每日收信时间",
-  multiLanguageSupport: "多语言 — 以你选择的语言接收摘要",
-  priorityContent: "优先内容 — 更深入的分析与更详尽的报道",
-  configurePremium: "配置高级版",
-  receivingBecauseUpgrade: "您收到此邮件是因为升级到了 TheNode.tech 高级版。",
-  cancellationTitle: "订阅已取消",
-  cancellationSubtitle: "很遗憾看到你离开。",
-  cancellationWhatChanges: "你的高级订阅已取消。变更如下：",
-  keepReceiving: "你仍将收到每日通讯及已选类别",
-  deliveryReverts: "送达时间恢复为当地时间早上 8 点",
-  languageReverts: "语言将恢复为英语",
-  freeContinues: "免费通讯将照常送达。如需可随时重新订阅高级版。",
-  resubscribe: "重新订阅高级版",
-  receivingBecauseCancelled:
-    "您收到此邮件是因为你的 TheNode.tech 高级订阅已取消。",
 };
 
 const pt: EmailTemplateStrings = {
@@ -813,7 +621,6 @@ const pt: EmailTemplateStrings = {
   weeklyDigestByCategory: "Por categoria",
   weeklyThreeTrends: "Três tendências da semana",
   weeklyFeedbackQuestion: "O resumo desta semana foi útil?",
-  weeklyPremiumLabel: "Premium",
   weeklyKeyNumbers: "Números-chave",
   today: "Hoje",
   dailyDoseOfTech: "Sua dose diária de tech",
@@ -839,11 +646,9 @@ const pt: EmailTemplateStrings = {
   receivingBecause:
     "Você recebe este e-mail porque se inscreveu na newsletter TheNode.tech.",
   receivingBecauseWeeklyDigest:
-    "Você recebe este e-mail porque ativou o resumo semanal (Premium).",
+    "Você recebe este e-mail porque ativou o resumo semanal.",
   unsubscribe: "Cancelar inscrição",
   managePreferences: "Gerenciar preferências",
-  upgradeToPremium: "Fazer upgrade para Premium",
-  manageSubscription: "Gerenciar ou cancelar assinatura",
   subjectFallback: "Seu resumo tech diário — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -875,32 +680,6 @@ const pt: EmailTemplateStrings = {
   customizePreferences: "Personalizar preferências",
   receivingBecauseSignup:
     "Você recebe este e-mail porque se inscreveu no TheNode.tech.",
-  premiumWelcomeTitle: "Bem-vindo ao Premium!",
-  premiumWelcomeSubtitle: "Obrigado por fazer upgrade no TheNode.tech.",
-  premiumThanks:
-    "Você agora tem acesso à experiência premium. O que está desbloqueado:",
-  customDeliveryTime:
-    "Horário de entrega — Escolha a hora exata para receber a newsletter",
-  multiLanguageSupport:
-    "Idioma — Receba o resumo no seu idioma preferido",
-  priorityContent:
-    "Conteúdo prioritário — Análises mais profundas e cobertura detalhada",
-  configurePremium: "Configurar Premium",
-  receivingBecauseUpgrade:
-    "Você recebe este e-mail porque fez upgrade para TheNode.tech Premium.",
-  cancellationTitle: "Assinatura cancelada",
-  cancellationSubtitle: "Sentiremos sua falta.",
-  cancellationWhatChanges:
-    "Sua assinatura premium foi cancelada. O que muda:",
-  keepReceiving:
-    "Você continua recebendo a newsletter diária com suas categorias",
-  deliveryReverts: "A entrega volta às 8h no seu fuso",
-  languageReverts: "O idioma volta para inglês",
-  freeContinues:
-    "Sua newsletter gratuita continua sem interrupção. Você pode se reinscrever quando quiser.",
-  resubscribe: "Reinscrever-se no Premium",
-  receivingBecauseCancelled:
-    "Você recebe este e-mail porque sua assinatura Premium foi cancelada.",
 };
 
 const it: EmailTemplateStrings = {
@@ -921,7 +700,6 @@ const it: EmailTemplateStrings = {
   weeklyDigestByCategory: "Per categoria",
   weeklyThreeTrends: "Tre tendenze della settimana",
   weeklyFeedbackQuestion: "La rassegna di questa settimana ti è stata utile?",
-  weeklyPremiumLabel: "Premium",
   weeklyKeyNumbers: "Numeri chiave",
   today: "Oggi",
   dailyDoseOfTech: "La tua dose quotidiana di tech",
@@ -947,11 +725,9 @@ const it: EmailTemplateStrings = {
   receivingBecause:
     "Ricevi questa email perché ti sei iscritto alla newsletter TheNode.tech.",
   receivingBecauseWeeklyDigest:
-    "Ricevi questa email perché hai attivato il digest settimanale (Premium).",
+    "Ricevi questa email perché hai attivato il digest settimanale.",
   unsubscribe: "Annulla iscrizione",
   managePreferences: "Gestisci preferenze",
-  upgradeToPremium: "Passa a Premium",
-  manageSubscription: "Gestisci o annulla l'abbonamento",
   subjectFallback: "Il tuo digest tech quotidiano — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -983,32 +759,6 @@ const it: EmailTemplateStrings = {
   customizePreferences: "Personalizza preferenze",
   receivingBecauseSignup:
     "Ricevi questa email perché ti sei iscritto a TheNode.tech.",
-  premiumWelcomeTitle: "Benvenuto in Premium!",
-  premiumWelcomeSubtitle: "Grazie per aver migliorato la tua esperienza TheNode.tech.",
-  premiumThanks:
-    "Ora hai accesso all'esperienza premium. Ecco cosa si sblocca:",
-  customDeliveryTime:
-    "Orario di consegna — Scegli l'ora esatta per ricevere la newsletter",
-  multiLanguageSupport:
-    "Lingua — Ricevi il digest nella tua lingua preferita",
-  priorityContent:
-    "Contenuti prioritari — Analisi più approfondite e copertura dettagliata",
-  configurePremium: "Configura Premium",
-  receivingBecauseUpgrade:
-    "Ricevi questa email perché sei passato a TheNode.tech Premium.",
-  cancellationTitle: "Abbonamento annullato",
-  cancellationSubtitle: "Ci dispiace vederti andar via.",
-  cancellationWhatChanges:
-    "Il tuo abbonamento premium è stato annullato. Ecco cosa cambia:",
-  keepReceiving:
-    "Continuerai a ricevere la newsletter quotidiana con le tue categorie",
-  deliveryReverts: "La consegna torna alle 8:00 nel tuo fuso",
-  languageReverts: "La lingua tornerà all'inglese",
-  freeContinues:
-    "La tua newsletter gratuita continua senza interruzioni. Puoi riabbonarti quando vuoi.",
-  resubscribe: "Riabbonati a Premium",
-  receivingBecauseCancelled:
-    "Ricevi questa email perché il tuo abbonamento Premium è stato annullato.",
 };
 
 const ko: EmailTemplateStrings = {
@@ -1029,7 +779,6 @@ const ko: EmailTemplateStrings = {
   weeklyDigestByCategory: "카테고리별",
   weeklyThreeTrends: "이번 주 3대 트렌드",
   weeklyFeedbackQuestion: "이번 주 리뷰가 도움이 되었나요?",
-  weeklyPremiumLabel: "프리미엄",
   weeklyKeyNumbers: "주요 수치",
   today: "오늘",
   dailyDoseOfTech: "매일 전달되는 테크 브리핑",
@@ -1055,11 +804,9 @@ const ko: EmailTemplateStrings = {
   receivingBecause:
     "TheNode.tech 뉴스레터에 구독하신 관계로 이 메일을 보내드립니다.",
   receivingBecauseWeeklyDigest:
-    "주간 다이제스트(프리미엄)를 켜 두셨기에 이 메일을 보내드립니다.",
+    "주간 다이제스트를 켜 두셨기에 이 메일을 보내드립니다.",
   unsubscribe: "구독 취소",
   managePreferences: "설정 관리",
-  upgradeToPremium: "프리미엄 업그레이드",
-  manageSubscription: "구독 관리 또는 취소",
   subjectFallback: "오늘의 테크 다이제스트 — {{date}}",
   subjectWithTopics: "{{topics}} — {{date}}",
   subjectWithHeadline: "{{headline}} — {{date}}",
@@ -1090,26 +837,6 @@ const ko: EmailTemplateStrings = {
   customizePreferences: "설정 맞춤",
   receivingBecauseSignup:
     "TheNode.tech에 가입하신 관계로 이 메일을 보내드립니다.",
-  premiumWelcomeTitle: "프리미엄에 오신 것을 환영합니다!",
-  premiumWelcomeSubtitle: "TheNode.tech 프리미엄 업그레이드 감사합니다.",
-  premiumThanks: "이제 프리미엄 전체 기능을 이용하실 수 있습니다:",
-  customDeliveryTime: "수신 시간 — 원하는 시간에 뉴스레터 수신",
-  multiLanguageSupport: "다국어 — 선호 언어로 다이제스트 수신",
-  priorityContent: "우선 콘텐츠 — 더 깊은 분석과 상세 보도",
-  configurePremium: "프리미엄 설정",
-  receivingBecauseUpgrade:
-    "TheNode.tech 프리미엄으로 업그레이드하신 관계로 이 메일을 보내드립니다.",
-  cancellationTitle: "구독 취소됨",
-  cancellationSubtitle: "이별이 아쉽습니다.",
-  cancellationWhatChanges: "프리미엄 구독이 취소되었습니다. 변경 사항:",
-  keepReceiving: "선택한 카테고리의 일간 뉴스레터는 계속 수신됩니다",
-  deliveryReverts: "수신 시간은 기본 현지 오전 8시로 돌아갑니다",
-  languageReverts: "언어는 영어로 돌아갑니다",
-  freeContinues:
-    "무료 뉴스레터는 그대로 계속됩니다. 언제든 다시 구독할 수 있습니다.",
-  resubscribe: "프리미엄 재구독",
-  receivingBecauseCancelled:
-    "TheNode.tech 프리미엄 구독이 취소된 관계로 이 메일을 보내드립니다.",
 };
 
 const emailTranslations: Record<EmailLocale, EmailTemplateStrings> = {

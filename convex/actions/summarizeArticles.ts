@@ -303,7 +303,7 @@ ${articleList}`,
   },
 });
 
-// Translate a newsletter for premium users
+// Translate a newsletter into a subscriber language
 export const translateNewsletter = internalAction({
   args: {
     newsletterId: v.id("newsletters"),
@@ -477,7 +477,7 @@ Respond with valid JSON in this format:
   },
 });
 
-// Summarize all categories, then translate for premium user languages
+// Summarize all categories, then translate into subscriber languages
 export const summarizeAllCategories = internalAction({
   args: {},
   handler: async (ctx) => {
@@ -507,16 +507,16 @@ export const summarizeAllCategories = internalAction({
 
     console.log("All categories summarized in English");
 
-    const premiumLanguages: string[] = await ctx.runQuery(
-      internal.queries.users.getPremiumLanguages
+    const subscriberLanguages: string[] = await ctx.runQuery(
+      internal.queries.users.getSubscriberLanguages
     );
 
-    if (premiumLanguages.length === 0) {
-      console.log("No non-English premium languages to translate for");
+    if (subscriberLanguages.length === 0) {
+      console.log("No non-English subscriber languages to translate for");
       return;
     }
 
-    console.log(`Translating for premium languages: ${premiumLanguages.join(", ")}`);
+    console.log(`Translating for subscriber languages: ${subscriberLanguages.join(", ")}`);
 
     const today = moment.utc().format("YYYY-MM-DD");
 
@@ -531,7 +531,7 @@ export const summarizeAllCategories = internalAction({
         continue;
       }
 
-      for (const lang of premiumLanguages) {
+      for (const lang of subscriberLanguages) {
         try {
           await ctx.runAction(
             internal.actions.summarizeArticles.translateNewsletter,

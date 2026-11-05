@@ -47,28 +47,40 @@ export const getById = internalQuery({
   },
 });
 
-/** Premium users who still want email (used by the weekly digest sender). */
-export const getPremiumUsers = internalQuery({
+/** Active subscribers who opted in to the weekly digest. */
+export const getDigestRecipients = internalQuery({
   args: {},
   handler: async (ctx) => {
     const users = await ctx.db
       .query("users")
-      .withIndex("by_premium", (q: any) => q.eq("isPremium", true))
+      .withIndex("by_onboarding_complete", (q: any) =>
+        q.eq("onboardingComplete", true)
+      )
       .collect();
-    return users.filter((u: any) => u.preferences?.unsubscribed !== true);
+    return users.filter(
+      (u: any) =>
+        u.email !== undefined &&
+        u.emailVerificationTime !== undefined &&
+        u.preferences?.unsubscribed !== true &&
+        u.preferences?.weeklyDigestEnabled === true
+    );
   },
 });
 
-export const getPremiumLanguages = internalQuery({
+/** Non-English languages that active subscribers read, so issues get translated. */
+export const getSubscriberLanguages = internalQuery({
   args: {},
   handler: async (ctx) => {
-    const premiumUsers = await ctx.db
+    const users = await ctx.db
       .query("users")
-      .withIndex("by_premium", (q: any) => q.eq("isPremium", true))
+      .withIndex("by_onboarding_complete", (q: any) =>
+        q.eq("onboardingComplete", true)
+      )
       .collect();
 
     const languages = new Set<string>();
-    for (const user of premiumUsers) {
+    for (const user of users) {
+      if (user.emailVerificationTime === undefined || user.preferences?.unsubscribed === true) continue;
       const lang = user.language;
       if (lang && lang !== "en") {
         languages.add(lang);

@@ -9,7 +9,6 @@ import type { Locale } from "./locales";
 export interface SiteStrings {
   nav: {
     channels: string;
-    pricing: string;
     signIn: string;
     account: string;
     language: string;
@@ -76,16 +75,12 @@ export interface SiteStrings {
   };
   settings: {
     weeklyDigestTitle: string;
-    weeklyDigestDescPremium: string;
-    weeklyDigestDescFree: string;
+    weeklyDigestDesc: string;
     enableWeeklyDigest: string;
     deliveryDay: string;
     days: [string, string, string, string, string, string, string];
     deliveredAtPreferredHour: string;
     defaultSuffix: string;
-    freeDeliveryNote: string;
-    upgradeLink: string;
-    detectedTimezone: string;
     channelsHint: string;
     unsubscribeTitle: string;
     unsubscribeDesc: string;
@@ -112,7 +107,6 @@ export interface SiteStrings {
 const en: SiteStrings = {
   nav: {
     channels: "Channels",
-    pricing: "Pricing",
     signIn: "Sign in",
     account: "Account",
     language: "Language",
@@ -130,7 +124,7 @@ const en: SiteStrings = {
     sending: "Sending…",
     subscribedNote:
       "Check your inbox — tap the link we just sent to confirm and pick your channels.",
-    freeNote: "Free daily newsletter. Premium users get it in their language.",
+    freeNote: "A free daily newsletter, in your language.",
     learnMore: "Learn more",
     channelsTitle: "Ten channels. Pick yours.",
     channelsLead: "Every channel is its own daily email. Subscribe to one or all ten.",
@@ -155,7 +149,7 @@ const en: SiteStrings = {
     stat3Value: "8 AM",
     stat3Title: "In your timezone",
     stat3Body:
-      "Every day, in English for free. Premium gets it in your language, at the hour you choose.",
+      "Every day, free, in your language, at the hour you choose.",
   },
   channelBlurbs: {
     ai: "Large language models, research papers, and corporate AI lab announcements.",
@@ -186,18 +180,13 @@ const en: SiteStrings = {
   },
   settings: {
     weeklyDigestTitle: "Weekly digest",
-    weeklyDigestDescPremium:
+    weeklyDigestDesc:
       "A curated week-in-review email summarizing trends and top stories across your channels.",
-    weeklyDigestDescFree:
-      "Upgrade to Premium to receive a weekly digest with cross-channel insights and trend analysis.",
     enableWeeklyDigest: "Enable weekly digest",
     deliveryDay: "Delivery day",
     days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
     deliveredAtPreferredHour: "Delivered at your preferred delivery hour.",
     defaultSuffix: "(default)",
-    freeDeliveryNote: "Daily newsletter: 8:00 AM in your timezone.",
-    upgradeLink: "Upgrade to Premium",
-    detectedTimezone: "Your timezone: {tz} (detected).",
     channelsHint: "You will only receive the channels you tick here.",
     unsubscribeTitle: "Unsubscribe",
     unsubscribeDesc: "Stop all TheNode emails. You can come back at any time.",

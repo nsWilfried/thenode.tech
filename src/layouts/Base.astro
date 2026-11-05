@@ -8,7 +8,7 @@ interface Props {
   locale: Locale;
   title: string;
   description: string;
-  /** Path after the locale, e.g. "pricing" or "category/ai". Used for hreflang + language switcher. */
+  /** Path after the locale, e.g. "about" or "category/ai". Used for hreflang + language switcher. */
   route?: string;
   noindex?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
@@ -79,7 +79,6 @@ const year = new Date().getFullYear();
         <a href={path(locale)} class="wordmark sm" aria-label="TheNode — home">TheN<span class="o" aria-hidden="true"></span>de</a>
         <nav aria-label="Main">
           <a href={`${path(locale)}#channels`} class="nav-link hide-sm">{s.nav.channels}</a>
-          <a href={path(locale, "pricing")} class="nav-link">{s.nav.pricing}</a>
           <details class="lang">
             <summary aria-label={s.nav.language}>
               <img src={icon("globe")} alt="" width="16" height="16" />
@@ -107,7 +106,6 @@ const year = new Date().getFullYear();
         <a href={path(locale)} class="wordmark xs" aria-label="TheNode">TheN<span class="o" aria-hidden="true"></span>de</a>
         <nav aria-label="Footer">
           <a href={`${path(locale)}#channels`}>{s.nav.channels}</a>
-          <a href={path(locale, "pricing")}>{s.nav.pricing}</a>
           <a href={path(locale, "signin")}>{s.nav.signIn}</a>
           <a href={path(locale, "about")}>{seo.about}</a>
           <a href={path(locale, "privacy")}>{s.nav.privacy}</a>

@@ -19,7 +19,7 @@ crons.cron(
   {}
 );
 
-// Newsletter delivery: Every hour (8 AM local or premium preferred hour)
+// Newsletter delivery: Every hour (8 AM local or the user's preferred hour)
 crons.interval(
   "send-newsletters",
   { hours: 1 },
@@ -27,7 +27,7 @@ crons.interval(
   {}
 );
 
-// Weekly digest delivery: Every hour (checks premium user timezone/day/hour)
+// Weekly digest delivery: Every hour (checks each user's timezone/day/hour)
 crons.interval(
   "send-weekly-digests",
   { hours: 1 },

@@ -225,10 +225,10 @@ export const sendWeeklyDigests = internalAction({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
-    const users: any[] = await ctx.runQuery(internal.queries.users.getPremiumUsers);
+    const users: any[] = await ctx.runQuery(internal.queries.users.getDigestRecipients);
 
     if (!users || users.length === 0) {
-      console.log("No premium users for weekly digest");
+      console.log("No recipients for weekly digest");
       return null;
     }
 

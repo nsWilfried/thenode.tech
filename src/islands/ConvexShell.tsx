@@ -12,7 +12,7 @@ function getClient() {
   return client;
 }
 
-/** Reports the browser timezone once per session (free users always; premium only if unset). */
+/** Reports the browser timezone once, only when the user has none yet. */
 function TimezoneReporter() {
   const { isAuthenticated } = useConvexAuth();
   const user = useQuery(api.queries.users.currentUser, isAuthenticated ? {} : "skip");
@@ -20,7 +20,7 @@ function TimezoneReporter() {
   const done = useRef(false);
   useEffect(() => {
     if (!user || done.current) return;
-    if (user.isPremium && user.timezone) return;
+    if (user.timezone) return;
     let tz: string | undefined;
     try {
       tz = Intl.DateTimeFormat().resolvedOptions().timeZone;

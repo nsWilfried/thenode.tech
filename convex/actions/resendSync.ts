@@ -32,7 +32,7 @@ const DIGEST_TOPIC = "Weekly digest";
 const PRODUCT_TOPIC = "Product news";
 
 const TOPIC_DESCRIPTIONS: Record<string, string> = {
-  [DIGEST_TOPIC]: "Premium week-in-review across your channels.",
+  [DIGEST_TOPIC]: "Week-in-review across your channels.",
   [PRODUCT_TOPIC]: "Occasional news about TheNode itself.",
 };
 
@@ -94,7 +94,7 @@ function subscriptionsFor(user: Doc<"users">, topics: Record<string, string>) {
     id: topics[short],
     subscription: chosen.has(slug as never) ? "opt_in" : "opt_out",
   }));
-  const digest = (user.isPremium ?? false) && user.preferences?.weeklyDigestEnabled === true;
+  const digest = user.preferences?.weeklyDigestEnabled === true;
   subs.push({ id: topics[DIGEST_TOPIC], subscription: digest ? "opt_in" : "opt_out" });
   subs.push({ id: topics[PRODUCT_TOPIC], subscription: "opt_in" });
   return subs;

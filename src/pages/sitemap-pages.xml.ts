@@ -16,7 +16,7 @@ function urls(routes: string[], locales: readonly string[], changefreq: string, 
 export const GET: APIRoute = () => {
   const all = [
     ...urls([""], LOCALE_CODES, "daily", "1.0"),
-    ...urls(["pricing", "about", "privacy"], LOCALE_CODES, "monthly", "0.5"),
+    ...urls(["about", "privacy"], LOCALE_CODES, "monthly", "0.5"),
     ...urls(CATEGORY_SLUGS.map((s) => `category/${s}`), INDEXED_LOCALES, "daily", "0.9"),
   ];
   return new Response(

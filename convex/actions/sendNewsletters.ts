@@ -112,11 +112,9 @@ function categoryNewsletterSenderDisplayName(
 }
 
 function getTargetDeliveryHour(user: {
-    isPremium?: boolean;
     preferences?: { preferredDeliveryHour?: number };
 }): number {
-    const isPremium = user.isPremium ?? false;
-    const preferred = isPremium ? user.preferences?.preferredDeliveryHour : undefined;
+    const preferred = user.preferences?.preferredDeliveryHour;
     if (
         typeof preferred === "number" &&
         preferred >= HOUR_MIN &&
@@ -191,8 +189,7 @@ export const sendDailyNewsletters = internalAction({
                     }
                 }
 
-                const isPremium = user.isPremium ?? false;
-                const language = isPremium ? (user.language || "en") : "en";
+                const language = user.language || "en";
                 const categories = getCategoriesForUser(user);
                 if (categories.length === 0) {
                     stats.skippedNoCategories++;
@@ -203,10 +200,19 @@ export const sendDailyNewsletters = internalAction({
                 let sentEmailsForUser = 0;
 
                 for (const category of categories) {
-                    const nl = await ctx.runQuery(
-                        internal.queries.newsletters.getLatestByCategoryInternal,
-                        { category, language, date: today }
-                    );
+                    // Translations run once a day, so a language picked after that run
+                    // has no issue yet: send English rather than nothing.
+                    const nl =
+                        (await ctx.runQuery(
+                            internal.queries.newsletters.getLatestByCategoryInternal,
+                            { category, language, date: today }
+                        )) ??
+                        (language === "en"
+                            ? null
+                            : await ctx.runQuery(
+                                  internal.queries.newsletters.getLatestByCategoryInternal,
+                                  { category, language: "en", date: today }
+                              ));
 
                     if (!nl) {
                         continue;
@@ -219,7 +225,6 @@ export const sendDailyNewsletters = internalAction({
                         newsletter,
                         date: today,
                         t: emailT,
-                        isPremium,
                         language,
                     });
                     const senderName = categoryNewsletterSenderDisplayName(emailT, category);
@@ -264,7 +269,7 @@ export const sendDailyNewsletters = internalAction({
     },
 });
 
-/** Shared simple-email body for welcome / premium / cancellation (2026 rebrand). */
+/** Shared simple-email body for the welcome email (2026 rebrand). */
 function simpleEmailHTML(args: {
     lang: string;
     headerLabel: string;
@@ -363,74 +368,6 @@ export const sendWelcomeEmail = internalAction({
     },
 });
 
-// --- Premium Upgrade Email ---
-
-function buildPremiumUpgradeEmailHTML(t: EmailTemplateStrings, language = "en"): string {
-    const lang = normalizeEmailLang(language);
-    return simpleEmailHTML({
-        lang,
-        headerLabel: "Premium",
-        title: t.premiumWelcomeTitle,
-        subtitle: t.premiumWelcomeSubtitle,
-        paragraphs: [t.premiumThanks],
-        list: [t.customDeliveryTime, t.multiLanguageSupport, t.priorityContent],
-        cta: { label: t.configurePremium, href: `${SITE_ORIGIN}/${lang}/settings` },
-        footerNote: t.receivingBecauseUpgrade,
-        links: [{ label: t.managePreferences, href: `${SITE_ORIGIN}/${lang}/settings` }],
-    });
-}
-
-export const sendPremiumUpgradeEmail = internalAction({
-    args: {
-        userId: v.id("users"),
-    },
-    handler: async (ctx, args) => {
-        const user = await ctx.runQuery(internal.queries.users.getById, {
-            id: args.userId,
-        });
-
-        if (!user || !user.email) {
-            console.log("Skipping premium upgrade email: no user or email found");
-            return;
-        }
-
-        try {
-            const lang = user.language || "en";
-            const t = getEmailTranslations(lang);
-            const html = buildPremiumUpgradeEmailHTML(t, lang);
-
-            await resend.emails.send({
-                from: "TheNode.tech <newsletter@thenode.tech>",
-                to: user.email,
-                subject: t.premiumWelcomeSubject,
-                html,
-            });
-
-            console.log(`Premium upgrade email sent to ${user.email}`);
-        } catch (error) {
-            console.error(`Failed to send premium upgrade email to ${user.email}:`, error);
-        }
-    },
-});
-
-// --- Premium Cancellation Email ---
-
-function buildPremiumCancellationEmailHTML(t: EmailTemplateStrings, language = "en"): string {
-    const lang = normalizeEmailLang(language);
-    return simpleEmailHTML({
-        lang,
-        headerLabel: "TheNode",
-        title: t.cancellationTitle,
-        subtitle: t.cancellationSubtitle,
-        paragraphs: [],
-        listIntro: t.cancellationWhatChanges,
-        list: [t.keepReceiving, t.deliveryReverts, t.languageReverts, t.freeContinues],
-        cta: { label: t.resubscribe, href: `${SITE_ORIGIN}/${lang}/pricing` },
-        footerNote: t.receivingBecauseCancelled,
-        links: [{ label: t.managePreferences, href: `${SITE_ORIGIN}/${lang}/settings` }],
-    });
-}
-
 export const testSendDailyNewsletter = internalAction({
     args: {
         userId: v.id("users"),
@@ -445,8 +382,7 @@ export const testSendDailyNewsletter = internalAction({
         }
 
         const today = moment().format("YYYY-MM-DD");
-        const isPremium = user.isPremium ?? false;
-        const language = isPremium ? (user.language || "en") : "en";
+        const language = user.language || "en";
         const categories = getCategoriesForUser(user);
         const emailT = getEmailTranslations(language);
 
@@ -478,7 +414,6 @@ export const testSendDailyNewsletter = internalAction({
                 newsletter,
                 date: nlDate,
                 t: emailT,
-                isPremium,
                 language,
             });
             const senderName = categoryNewsletterSenderDisplayName(emailT, category);
@@ -495,38 +430,5 @@ export const testSendDailyNewsletter = internalAction({
         }
 
         console.log(`[TEST] Done — ${sentCount} daily newsletter(s) sent to ${user.email}`);
-    },
-});
-
-export const sendPremiumCancellationEmail = internalAction({
-    args: {
-        userId: v.id("users"),
-    },
-    handler: async (ctx, args) => {
-        const user = await ctx.runQuery(internal.queries.users.getById, {
-            id: args.userId,
-        });
-
-        if (!user || !user.email) {
-            console.log("Skipping premium cancellation email: no user or email found");
-            return;
-        }
-
-        try {
-            const lang = user.language || "en";
-            const t = getEmailTranslations(lang);
-            const html = buildPremiumCancellationEmailHTML(t, lang);
-
-            await resend.emails.send({
-                from: "TheNode.tech <newsletter@thenode.tech>",
-                to: user.email,
-                subject: t.cancellationSubject,
-                html,
-            });
-
-            console.log(`Premium cancellation email sent to ${user.email}`);
-        } catch (error) {
-            console.error(`Failed to send premium cancellation email to ${user.email}:`, error);
-        }
     },
 });

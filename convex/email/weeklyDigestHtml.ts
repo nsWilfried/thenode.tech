@@ -1,5 +1,5 @@
 /**
- * Premium "Week in Review" email, in the TheNode email design.
+ * "Week in Review" email, in the TheNode email design.
  * Reference design: Claude Design "TheNode Weekly - Week in Review.html".
  * Sections are omitted when the digest has no data for them (never invented).
  */
@@ -104,7 +104,7 @@ export function buildWeeklyDigestHTML(digest: WeeklyDigestData, language: string
     // Masthead
     rows.push(`<tr><td style="background-color:${C.ink};">${T(`<tr>
 <td class="pad" style="padding:20px 36px 18px;" valign="middle"><a href="${SITE_ORIGIN}/" style="text-decoration:none;"><img src="${EMAIL_LOGO_ANIMATED}" width="150" height="55" alt="TheNode" style="display:block; width:150px; height:55px; border:0;"></a></td>
-<td class="pad" align="right" valign="middle" style="padding:22px 36px 20px; ${LABEL} color:${C.orange};">${escapeHtml(t.weeklyDigestTitle)}<br><span style="color:${C.darkText}; letter-spacing:0.6px;">${escapeHtml(t.weeklyPremiumLabel)}</span></td>
+<td class="pad" align="right" valign="middle" style="padding:22px 36px 20px; ${LABEL} color:${C.orange};">${escapeHtml(t.weeklyDigestTitle)}</td>
 </tr>`)}</td></tr>
 <tr><td style="background-color:${C.orange}; height:4px; line-height:4px; font-size:4px;">&nbsp;</td></tr>`);
 
@@ -234,7 +234,7 @@ ${s.sourceUrl ? `<tr><td style="font-family:${FONT_LABEL}; font-size:12px; line-
     )}</td></tr>`);
 
     // Footer (on the cream background, outside the white column)
-    rows.push(`<tr><td class="pad" align="center" style="padding:28px 36px 0; font-family:${FONT_LABEL}; font-size:12px; line-height:20px; color:${C.muted};">${escapeHtml(t.receivingBecauseWeeklyDigest)}<br><a href="${safeUrl(`${base}/settings`)}" style="color:${C.muted};">${escapeHtml(t.managePreferences)}</a> &nbsp;·&nbsp; <a href="${safeUrl(`${base}/settings#account`)}" style="color:${C.muted};">${escapeHtml(t.manageSubscription)}</a> &nbsp;·&nbsp; <a href="${safeUrl(`${base}/settings#unsubscribe`)}" style="color:${C.muted};">${escapeHtml(t.unsubscribe)}</a><br><span style="color:${C.darkMuted};">TheNode.tech · Montréal, QC, Canada</span></td></tr>`);
+    rows.push(`<tr><td class="pad" align="center" style="padding:28px 36px 0; font-family:${FONT_LABEL}; font-size:12px; line-height:20px; color:${C.muted};">${escapeHtml(t.receivingBecauseWeeklyDigest)}<br><a href="${safeUrl(`${base}/settings`)}" style="color:${C.muted};">${escapeHtml(t.managePreferences)}</a> &nbsp;·&nbsp; <a href="${safeUrl(`${base}/settings#unsubscribe`)}" style="color:${C.muted};">${escapeHtml(t.unsubscribe)}</a><br><span style="color:${C.darkMuted};">TheNode.tech · Montréal, QC, Canada</span></td></tr>`);
 
     const preheader = trends.slice(0, 3).map((x) => x.trend).join(" · ") || t.weeklyDigestTitle;
     const pad = "&nbsp;&zwnj;".repeat(40);

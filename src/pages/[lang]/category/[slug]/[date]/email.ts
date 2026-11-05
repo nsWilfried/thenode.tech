@@ -20,7 +20,6 @@ export const GET: APIRoute = async ({ params, rewrite }) => {
     newsletter: nl as never,
     date: nl.date,
     t: getEmailTranslations(language),
-    isPremium: false,
     language,
   }).replace(
     "<head>",
